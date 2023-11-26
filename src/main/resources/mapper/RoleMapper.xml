@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="duegin.ginDriver.mapper.RoleMapper">
+
+    <resultMap id="BaseResultMap" type="duegin.ginDriver.domain.model.Role">
+        <id property="roleId" column="role_id" jdbcType="BIGINT"/>
+        <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="status" column="status" jdbcType="CHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        role_id,role_name,description,
+        create_time,update_time,status
+    </sql>
+    <select id="getUserRole" resultType="java.lang.String">
+        select role_name
+        from role
+        where role_id in (SELECT role_id FROM user_role WHERE user_id = #{userId})
+    </select>
+</mapper>
