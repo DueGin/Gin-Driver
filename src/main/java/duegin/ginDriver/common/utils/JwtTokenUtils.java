@@ -71,6 +71,9 @@ public class JwtTokenUtils {
         return token;
     }
 
+    public static String getToken(String tokenHeader) {
+        return tokenHeader.replace(JwtTokenUtils.TOKEN_PREFIX, "").trim();
+    }
 
     /**
      * 从token中获取用户名
@@ -103,7 +106,7 @@ public class JwtTokenUtils {
     }
 
 
-    private static Claims getTokenBody(String token) {
+    private static Claims getTokenBody(String token) throws ExpiredJwtException {
         return Jwts.parser()
                 .setSigningKey(SECRET)
                 .parseClaimsJws(token)

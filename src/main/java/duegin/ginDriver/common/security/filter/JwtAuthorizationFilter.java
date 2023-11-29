@@ -5,6 +5,9 @@ import duegin.ginDriver.common.utils.JwtTokenUtils;
 import duegin.ginDriver.domain.model.User;
 import duegin.ginDriver.domain.vo.UserVO;
 import duegin.ginDriver.mapper.UserMapper;
+import io.jsonwebtoken.ExpiredJwtException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,7 +30,10 @@ import java.util.List;
  */
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    private UserMapper userMapper;
+    private final Logger log = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
+
+    private final UserMapper userMapper;
+
 
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserMapper userMapper) {
         super(authenticationManager);
@@ -51,23 +57,34 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             return;
         }
 
+        String token = JwtTokenUtils.getToken(tokenHeader);
+
+        UsernamePasswordAuthenticationToken authentication = null;
+        try {
+            authentication = getAuthentication(token);
+        } catch (ExpiredJwtException e) {
+            log.info("token过期==>{}, msg==>{}", token, e.getMessage());
+            chain.doFilter(request, response);
+            return;
+        }
+
+
         // 如果请求头中有token，则进行解析，并且设置认证信息
-        SecurityContextHolder.getContext().setAuthentication(getAuthentication(tokenHeader));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         super.doFilterInternal(request, response, chain);
     }
 
     /**
      * 这里从token中获取用户信息并新建一个token
      */
-    private UsernamePasswordAuthenticationToken getAuthentication(String tokenHeader) {
-
-        String token = tokenHeader.replace(JwtTokenUtils.TOKEN_PREFIX, "");
-
+    private UsernamePasswordAuthenticationToken getAuthentication(String token) {
         // 从jwt token中拿出username、角色，然后解析出权限
-        String username = JwtTokenUtils.getUsername(token.trim());
+        String username = JwtTokenUtils.getUsername(token);
         List<String> roles = JwtTokenUtils.getAuthentication(token);
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        if (username != null && !JwtTokenUtils.isExpiration(token)) {
+
+        if (username != null) {
+            // token有用户信息，token未过期
             for (String role : roles) {
                 authorities.add(new SimpleGrantedAuthority(role));
             }

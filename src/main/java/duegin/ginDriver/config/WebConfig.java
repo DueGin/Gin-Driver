@@ -28,7 +28,7 @@ public class WebConfig extends WebMvcConfigurationSupport {
         log.info("开始进行静态资源映射...");
         // 文档
         registry.addResourceHandler("doc.html").addResourceLocations("classpath:/META-INF/resources/");
-
+        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
     /**
@@ -36,7 +36,7 @@ public class WebConfig extends WebMvcConfigurationSupport {
      * 由于js的精度只能保证前16位数，而雪花算法生成的id是19位，所以将id其转换成字符串来传输，而不会丢失精度
      * 用自己写好的消息转换对象加到converters集合的最前面，这个消息转换器集合默认是有springboot提供的默认消息转换对象
      *
-     * @param converters
+     * @param converters 转换器
      */
     @Override
     protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {

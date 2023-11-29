@@ -49,7 +49,7 @@ public class User implements UserDetails {
     /**
      * table not exists
      */
-    private Boolean isRememberMe = false;
+    private Boolean rememberMe;
 
     /**
      * table not exists

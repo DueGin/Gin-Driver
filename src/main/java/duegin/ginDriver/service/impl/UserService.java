@@ -69,7 +69,7 @@ public class UserService implements IUserService {
         log.info("开始制作token");
         String token;
         if (authenticate.isAuthenticated()) {
-            token = successfulAuthentication(authenticate);
+            token = successfulAuthentication(authenticate, user.getRememberMe());
         } else {
             token = "";
         }
@@ -100,18 +100,17 @@ public class UserService implements IUserService {
         return true;
     }
 
-    private void saveUser(User user){
-        userMapper.insert(user);
 
-    }
 
     /**
      * 校验成功后，发放token
      *
      * @param authentication 校验结果
+     * @param rememberMe     是否记住我
      * @return token
      */
-    private String successfulAuthentication(Authentication authentication) {
+    private String successfulAuthentication(Authentication authentication, Boolean rememberMe) {
+        // userDetailService返回的userDetail，并不是登录表单的user数据
         User user = (User) authentication.getPrincipal();
 
         List<String> roles = new ArrayList<>();
@@ -122,7 +121,7 @@ public class UserService implements IUserService {
         }
 
         // 根据用户名，角色创建token并返回token
-        String token = JwtTokenUtils.createToken(user.getUsername(), roles, user.getIsRememberMe());
+        String token = JwtTokenUtils.createToken(user.getUsername(), roles, rememberMe);
 
         log.info("token=>> " + token);
 

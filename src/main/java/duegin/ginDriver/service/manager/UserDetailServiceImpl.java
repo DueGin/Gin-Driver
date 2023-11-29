@@ -1,4 +1,4 @@
-package duegin.ginDriver.common.security.service;
+package duegin.ginDriver.service.manager;
 
 
 import duegin.ginDriver.domain.model.User;
@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -65,6 +66,20 @@ public class UserDetailServiceImpl implements UserDetailsService {
             list.add(grantedAuthority.getAuthority());
         }
         return list;
+    }
+
+    /**
+     * 新增系统用户
+     * 创建用户，并分配该用户系统角色为普通用户
+     *
+     * @param user 新增用户信息
+     */
+    @Transactional
+    public void saveSysUser(User user) {
+        // 插入用户表
+        userMapper.insert(user);
+        // 插入用户角色表，并给他一个默认角色（普通用户）
+        userMapper.insertUserRole(user.getUserId(), 2L);
     }
 
 }
