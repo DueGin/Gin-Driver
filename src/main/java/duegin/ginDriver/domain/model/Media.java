@@ -70,9 +70,14 @@ public class Media implements Serializable {
     private LocalDateTime createTime;
 
     /**
-     *
+     * 更新时间
      */
     private LocalDateTime updateTime;
+
+    /**
+     * 软删除
+     */
+    private Integer deleted;
 
     private static final long serialVersionUID = 1L;
 }

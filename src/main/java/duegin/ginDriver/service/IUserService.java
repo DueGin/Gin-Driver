@@ -12,4 +12,6 @@ public interface IUserService {
      * @return token
      */
     String login(User user);
+
+    Boolean register(User user);
 }

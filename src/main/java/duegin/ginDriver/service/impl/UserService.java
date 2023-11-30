@@ -4,8 +4,8 @@ import duegin.ginDriver.common.code.service.IVerifyCodeService;
 import duegin.ginDriver.common.utils.JwtTokenUtils;
 import duegin.ginDriver.domain.model.User;
 import duegin.ginDriver.domain.vo.UserVO;
-import duegin.ginDriver.mapper.UserMapper;
 import duegin.ginDriver.service.IUserService;
+import duegin.ginDriver.service.manager.UserManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -38,7 +38,7 @@ public class UserService implements IUserService {
     private AuthenticationManager authenticationManager;
 
     @Resource
-    private UserMapper userMapper;
+    private UserManager userManager;
 
     /**
      * 处理用户名密码登录
@@ -78,14 +78,14 @@ public class UserService implements IUserService {
         return token;
     }
 
-    public void register(User user) {
+    @Override
+    public Boolean register(User user) {
         // 校验注册表单
         if (!checkUserForm(user)) {
-            return;
+            return false;
         }
         // 入库user表，分配USER角色给他
-
-
+        return userManager.saveUser(user);
     }
 
     private Boolean checkUserForm(User user) {
@@ -93,13 +93,18 @@ public class UserService implements IUserService {
             return false;
         }
 
+        // 校验表单
         if (StringUtils.isBlank(user.getUsername()) || StringUtils.isBlank(user.getPassword())) {
+            return false;
+        }
+
+        // 校验验证码
+        if (StringUtils.isBlank(user.getUuid()) || StringUtils.isBlank(user.getVerifyCode())) {
             return false;
         }
 
         return true;
     }
-
 
 
     /**

@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -28,12 +29,30 @@ public class User implements UserDetails {
 
     private String email;
 
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
+
+    /**
+     * 软删除
+     */
+    private Integer deleted;
+
     // 1:启用 ， 0：禁用
     private Integer enabled = 1;
 
     // 1：锁住， 0：未锁
     private Integer locked = 0;
 
+    /**
+     * table not exists
+     */
     private List<String> perms;
 
     /**

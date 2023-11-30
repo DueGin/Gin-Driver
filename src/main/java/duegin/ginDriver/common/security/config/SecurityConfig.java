@@ -6,8 +6,8 @@ import duegin.ginDriver.common.security.handle.MyAccessDeniedHandler;
 import duegin.ginDriver.common.security.handle.MyLogoutSuccessHandler;
 import duegin.ginDriver.common.security.handle.UnAuthenticationEntryPoint;
 import duegin.ginDriver.common.security.properties.SecurityProperties;
+import duegin.ginDriver.common.security.service.UserDetailsServiceImpl;
 import duegin.ginDriver.mapper.UserMapper;
-import duegin.ginDriver.service.manager.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     /***根据用户名找到用户*/
     @Resource
-    private UserDetailServiceImpl userDetailServiceImpl;
+    private UserDetailsServiceImpl userDetailsServiceImpl;
 
     @Resource
     private UnAuthenticationEntryPoint unAuthenticationEntryPoint;
@@ -137,7 +137,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailServiceImpl).passwordEncoder(passwordEncoder());
+        auth.userDetailsService(userDetailsServiceImpl).passwordEncoder(passwordEncoder());
     }
 
     /**

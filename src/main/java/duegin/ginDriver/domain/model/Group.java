@@ -7,31 +7,27 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 
+ * 组
  * @author DueGin
- * @TableName permission
+ * @TableName group
  */
+
 @Data
-public class Permission implements Serializable {
+public class Group implements Serializable {
     /**
-     * 权限ID
+     * 组ID
      */
-    private Long permissionId;
+    private Long groupId;
 
     /**
-     * 权限标识符
+     * 组名
      */
-    private String code;
+    private String groupName;
 
     /**
-     * 描述信息
+     * 创建者用户ID
      */
-    private String description;
-
-    /**
-     * 请求地址
-     */
-    private String url;
+    private Long userId;
 
     /**
      * 创建时间
@@ -42,6 +38,11 @@ public class Permission implements Serializable {
      * 更新时间
      */
     private LocalDateTime updateTime;
+
+    /**
+     * 软删除
+     */
+    private Integer deleted;
 
     private static final long serialVersionUID = 1L;
 }

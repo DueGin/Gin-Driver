@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 /**
  * @author DueGin
@@ -43,12 +44,12 @@ public class UserController {
     }
 
     @PostMapping("register")
-    public Result<Void> register(@RequestBody User user){
+    public Result<Void> register(@RequestBody @Valid User user) {
         log.info(user.toString());
         // 处理注册
+        userService.register(user);
 
-
-        return null;
+        return Result.ok();
     }
 
 
