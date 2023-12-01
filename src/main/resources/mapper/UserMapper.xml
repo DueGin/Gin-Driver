@@ -18,12 +18,14 @@
     <insert id="insert">
         insert into user
         <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="userId != null">user_id,</if>
             <if test="username != null">username,</if>
             <if test="password != null">`password`,</if>
             <if test="phone != null">phone,</if>
             <if test="email != null">email,</if>
         </trim>
         <trim prefix="value(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
             <if test="username != null">#{username},</if>
             <if test="password != null">#{password},</if>
             <if test="phone != null">#{phone},</if>

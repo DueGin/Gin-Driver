@@ -1,8 +1,14 @@
 package duegin.ginDriver.domain.model;
 
 
+import duegin.ginDriver.domain.param.group.AddGroupParam;
+import duegin.ginDriver.domain.param.group.UpdateGroupParam;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Update;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -11,22 +17,25 @@ import java.time.LocalDateTime;
  * @author DueGin
  * @TableName group
  */
-
 @Data
+@NoArgsConstructor
 public class Group implements Serializable {
     /**
      * 组ID
      */
+    @NotNull(groups = Update.class)
     private Long groupId;
 
     /**
      * 组名
      */
+    @NotNull(groups = Insert.class)
     private String groupName;
 
     /**
      * 创建者用户ID
      */
+    @NotNull(groups = Insert.class)
     private Long userId;
 
     /**
@@ -45,4 +54,13 @@ public class Group implements Serializable {
     private Integer deleted;
 
     private static final long serialVersionUID = 1L;
+
+    public Group(AddGroupParam groupParam){
+        this.groupName = groupParam.getGroupName();
+    }
+
+    public Group(UpdateGroupParam groupParam){
+        this.groupName = groupParam.getGroupName();
+        this.userId = groupParam.getUserId();
+    }
 }

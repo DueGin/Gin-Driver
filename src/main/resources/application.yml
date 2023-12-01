@@ -24,6 +24,7 @@ token:
 security:
   excludes:
     - /user/login # 登录api
+    - /user/register # 注册api
     - /verifyImage/** # 验证码api
     # api文档
     - /doc.html

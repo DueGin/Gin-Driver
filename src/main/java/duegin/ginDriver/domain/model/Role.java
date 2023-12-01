@@ -43,7 +43,7 @@ public class Role implements Serializable {
     /**
      * 状态
      */
-    private String status;
+    private Integer status;
 
     private static final long serialVersionUID = 1L;
 }

@@ -15,6 +15,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Slf4j
 public class SecurityUtils {
 
+    public static Long getUserId(){
+        return getLoginUser().getUserId();
+    }
+
     /**
      * 获取用户
      **/

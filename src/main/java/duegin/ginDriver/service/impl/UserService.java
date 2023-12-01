@@ -1,6 +1,8 @@
 package duegin.ginDriver.service.impl;
 
+import cn.hutool.core.util.IdUtil;
 import duegin.ginDriver.common.code.service.IVerifyCodeService;
+import duegin.ginDriver.common.security.utils.SecurityUtils;
 import duegin.ginDriver.common.utils.JwtTokenUtils;
 import duegin.ginDriver.domain.model.User;
 import duegin.ginDriver.domain.vo.UserVO;
@@ -54,17 +56,17 @@ public class UserService implements IUserService {
             verifyCodeService.verify(user.getUuid(), user.getVerifyCode());
 
             verifyCodeService.deleteVerifyCode(user.getUuid());
-
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(user, user.getPassword(), new ArrayList<>());
-
-            // 交给manager发证(他会调用userDetailService去验证)
-            authenticate = authenticationManager.authenticate(authenticationToken);
         } catch (LoginException e) {
-            log.error("登录失败");
+            log.error("登录验证码错误");
             e.printStackTrace();
             return null;
         }
+
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(user, user.getPassword(), new ArrayList<>());
+
+        // 交给manager发证(他会调用userDetailService去验证)
+        authenticate = authenticationManager.authenticate(authenticationToken);
 
         log.info("开始制作token");
         String token;
@@ -84,6 +86,17 @@ public class UserService implements IUserService {
         if (!checkUserForm(user)) {
             return false;
         }
+
+        try {
+            verifyCodeService.verify(user.getUuid(), user.getVerifyCode());
+        } catch (LoginException e) {
+            log.error("注册验证码错误");
+        }
+
+        verifyCodeService.deleteVerifyCode(user.getUuid());
+
+        user.setUserId(IdUtil.getSnowflakeNextId());
+        user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
         // 入库user表，分配USER角色给他
         return userManager.saveUser(user);
     }

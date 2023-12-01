@@ -19,8 +19,8 @@
     <sql id="Group_USER_ROLE_Base_Column_List">
         group_id,user_id,role_id
     </sql>
-    <insert id="insert">
-        insert into `group`(group_name, user_id, group_name) VALUE (#{groupId}, #{userId}, #{groupName});
+    <insert id="insert" useGeneratedKeys="true" keyProperty="groupId">
+        insert into `group`(user_id, group_name) VALUE (#{userId}, #{groupName});
     </insert>
     <insert id="insertGroupUserRole">
         insert into group_user_role(group_id, user_id, role_id) VALUE (#{groupId}, #{userId}, #{roleId})

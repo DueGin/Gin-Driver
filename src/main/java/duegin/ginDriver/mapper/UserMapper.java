@@ -2,6 +2,7 @@ package duegin.ginDriver.mapper;
 
 
 import duegin.ginDriver.domain.model.User;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
@@ -17,9 +18,7 @@ public interface UserMapper {
     @NotNull
     User getUserByUsername(String username);
 
-    @NotNull
-    void insert(User user);
+    void insert(@NotNull User user);
 
-    @NotNull(message = "userId和roleId不能为null")
-    void insertUserRole(Long userId, Long roleId);
+    void insertUserRole(@NotNull @Param("userId") Long userId, @NotNull @Param("roleId") Long roleId);
 }
