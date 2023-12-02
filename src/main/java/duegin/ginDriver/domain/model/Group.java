@@ -5,6 +5,7 @@ import duegin.ginDriver.domain.param.group.AddGroupParam;
 import duegin.ginDriver.domain.param.group.UpdateGroupParam;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Update;
 
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @NoArgsConstructor
+@Accessors(chain = true)
 public class Group implements Serializable {
     /**
      * 组ID
@@ -61,6 +63,5 @@ public class Group implements Serializable {
 
     public Group(UpdateGroupParam groupParam){
         this.groupName = groupParam.getGroupName();
-        this.userId = groupParam.getUserId();
     }
 }

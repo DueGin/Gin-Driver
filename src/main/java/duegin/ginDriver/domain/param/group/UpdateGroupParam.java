@@ -18,11 +18,4 @@ public class UpdateGroupParam {
     @NotNull
     @ApiModelProperty(value = "组名",required = true)
     private String groupName;
-
-    /**
-     * 创建者用户ID
-     */
-    @NotNull
-    @ApiModelProperty(value = "用户ID", required = true)
-    private Long userId;
 }

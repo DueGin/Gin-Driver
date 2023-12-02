@@ -8,6 +8,7 @@
         <id property="roleId" column="role_id" jdbcType="BIGINT"/>
         <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
         <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
         <result property="status" column="status" jdbcType="INTEGER"/>
@@ -21,5 +22,16 @@
         select role_name
         from role
         where role_id in (SELECT role_id FROM user_role WHERE user_id = #{userId})
+    </select>
+    <select id="selectGroupRoleByUserId" resultType="java.util.Map">
+        select r.role_name roleName, gur.group_id groupId
+        from role r
+                 left join group_user_role gur on r.role_id = gur.role_id
+        where gur.user_id = #{userId}
+    </select>
+    <select id="selectGroupRoleByUserIdAndGroupId" resultType="java.lang.String">
+        select role_name
+        from role
+        where role_id = (select role_id from group_user_role where user_id = #{userId} and group_id = #{groupId})
     </select>
 </mapper>

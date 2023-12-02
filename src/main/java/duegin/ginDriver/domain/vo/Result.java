@@ -24,7 +24,11 @@ public class Result <T> {
     }
 
     public static Result<Void> ok(){
-        return new Result<>(200, null, null);
+        return new Result<>(ResultEnum.SUCCESS.getCode(), null, null);
+    }
+
+    public static Result<Void> ok(String msg){
+        return new Result<>(ResultEnum.SUCCESS.getCode(), msg, null);
     }
 
 

@@ -5,13 +5,9 @@ import duegin.ginDriver.domain.model.Group;
 import duegin.ginDriver.domain.param.group.AddGroupParam;
 import duegin.ginDriver.domain.param.group.UpdateGroupParam;
 import duegin.ginDriver.domain.vo.Result;
-import duegin.ginDriver.domain.vo.UserVO;
 import duegin.ginDriver.mapper.GroupMapper;
-import duegin.ginDriver.service.manager.GroupUserManager;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import duegin.ginDriver.service.impl.GroupService;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,72 +25,79 @@ import java.util.List;
 @RequestMapping("group")
 public class GroupController {
     @Resource
-    private GroupUserManager groupUserManager;
+    private GroupService groupService;
 
     @Resource
     private GroupMapper groupMapper;
 
     @ApiOperation("创建组")
-//    @ApiImplicitParam(name = "group", value = "组信息", required = true)
     @PostMapping("create")
-    public Result<Void> createGroup(@RequestBody AddGroupParam groupParam) {
+    public Result<Void> createGroup(@RequestBody @ApiParam(value = "组信息", required = true) AddGroupParam groupParam) {
         log.info(String.valueOf(groupParam));
         Group group = new Group(groupParam);
         group.setUserId(SecurityUtils.getUserId());
-        groupUserManager.createGroup(group);
-        return Result.ok();
+        return groupService.createGroup(group);
     }
 
     @DeleteMapping("{groupId}")
-    public Result<Void> deleteGroup(@PathVariable Long groupId) {
+    public Result<Void> deleteGroup(@PathVariable @ApiParam("组ID") Long groupId) {
         log.info(String.valueOf(groupId));
-        UserVO loginUser = SecurityUtils.getLoginUser();
-        groupUserManager.deleteGroup(groupId, loginUser.getUserId());
+        groupService.deleteGroup(groupId, SecurityUtils.getUserId());
         return Result.ok();
     }
+
 
     @PutMapping("modify")
-    public Result<Void> modifyGroup(@RequestBody @Valid UpdateGroupParam groupParam){
+    public Result<Void> modifyGroup(@RequestBody @Valid UpdateGroupParam groupParam) {
         log.info(String.valueOf(groupParam));
         Group group = new Group(groupParam);
-        groupMapper.modifyByGroupId(group);
-        return Result.ok();
+
+        return groupService.updateGroup(group);
     }
 
-    @GetMapping("list/{userId}")
-    public Result<List<Group>> userGroupList(@PathVariable Long userId){
-        log.info(String.valueOf(userId));
-        List<Group> groups = groupMapper.selectAllByUserId(userId);
+    @PostMapping("god/change")
+    public Result<Void> changeCreator(Long groupId, Long userId) {
+        log.info("groupId: {}, groupNewGodId: {}", groupId, userId);
+        Long oldGodId = SecurityUtils.getUserId();
+        return groupService.changeGroupGod(groupId, oldGodId, userId);
+    }
+
+    @PostMapping("user/remove")
+    public Result<Void> removeGroupUser(Long groupId, Long removedUserId) {
+        log.info("groupId: {}, removeUserId: {}", groupId, removedUserId);
+
+        return groupService.removeGroupUser(groupId, removedUserId);
+    }
+
+    @GetMapping("user_group_list")
+    public Result<List<Group>> userGroupList() {
+        List<Group> groups = groupMapper.selectAllByUserId(SecurityUtils.getUserId());
         return Result.ok(groups);
     }
 
+    // todo 通过分享链接加入组，或者通过用户名查找邀请加入
     @ApiOperation("加入组")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "groupId", value = "组ID", required = true),
             @ApiImplicitParam(name = "userId", value = "用户ID", required = true),
-            @ApiImplicitParam(name = "roleId", value = "角色ID", required = true)
     })
-    @PostMapping("enter")
-    public Result<Void> enterGroup(@NotNull Long groupId, @NotNull Long userId, @NotNull Long roleId) {
-        groupUserManager.enterGroup(groupId, userId, roleId);
-        return Result.ok();
+    @PostMapping("user/enter")
+    public Result<Void> enterGroup(@NotNull Long groupId, @NotNull Long userId) {
+        log.info("groupId: {}, userId: {}", groupId, userId);
+        return groupService.enterGroup(groupId, userId);
     }
 
     @ApiOperation("退出组")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "groupId", value = "组ID", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
-    })
-    @PostMapping("exit")
-    public Result<Void> exitGroup(@NotNull Long groupId, @NotNull Long userId) {
-        groupUserManager.exitGroup(groupId, userId);
-        return Result.ok();
+    @PostMapping("user/exit")
+    public Result<Void> exitGroup(@RequestParam @ApiParam("组ID") Long groupId) {
+        log.info(String.valueOf(groupId));
+        return groupService.exitGroup(groupId, SecurityUtils.getUserId());
     }
 
 
-//    @PostMapping("edit/role")
-//    public Result<Void> editRole(){
-//
-//    }
+    @PostMapping("edit/role")
+    public Result<Void> editRole() {
+        return Result.ok();
+    }
 
 }

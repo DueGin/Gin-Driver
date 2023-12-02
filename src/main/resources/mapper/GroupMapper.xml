@@ -33,26 +33,45 @@
         </trim>
         where group_id = #{groupId};
     </update>
+    <update id="modifyGURoleByGroupIdAndUserId">
+        update group_user_role
+        set role_id = #{roleId}
+        where user_id = #{userId}
+          and group_id = #{groupId}
+    </update>
     <delete id="deleteByGroupId">
         delete
         from `group`
         where group_id = #{groupId};
     </delete>
-    <delete id="deleteGroupUserRoleByGroupIdAndUserId">
+    <delete id="deleteGURByGroupIdAndUserId">
         delete
         from group_user_role
-        where user_id = #{userId} and group_id = #{groupId}
+        where user_id = #{userId}
+          and group_id = #{groupId}
+    </delete>
+    <delete id="deleteGroupUserRoleByGroupId">
+        delete
+        from group_user_role
+        where group_id = #{groupId}
     </delete>
     <select id="selectAllByUserId" resultType="duegin.ginDriver.domain.model.Group">
-        select <include refid="Group_Base_Column_List"/>
+        select
+        <include refid="Group_Base_Column_List"/>
         from `group`
         where group_id in (select group_id
-                          from group_user_role
-                          where user_id = #{userId})
+        from group_user_role
+        where user_id = #{userId})
     </select>
     <select id="selectCreatorIdByGroupId" resultType="java.lang.Long">
         select user_id
         from `group`
         where group_id = #{groupId}
+    </select>
+    <select id="selectGURoleByGroupIdAndUserId" resultType="java.lang.Long">
+        select role_id
+        from group_user_role
+        where user_id = #{userId}
+          and group_id = #{groupId}
     </select>
 </mapper>

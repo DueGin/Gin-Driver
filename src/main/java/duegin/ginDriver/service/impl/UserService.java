@@ -6,6 +6,7 @@ import duegin.ginDriver.common.security.utils.SecurityUtils;
 import duegin.ginDriver.common.utils.JwtTokenUtils;
 import duegin.ginDriver.domain.model.User;
 import duegin.ginDriver.domain.vo.UserVO;
+import duegin.ginDriver.mapper.RoleMapper;
 import duegin.ginDriver.service.IUserService;
 import duegin.ginDriver.service.manager.UserManager;
 import lombok.extern.slf4j.Slf4j;
@@ -14,14 +15,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -41,6 +40,9 @@ public class UserService implements IUserService {
 
     @Resource
     private UserManager userManager;
+
+    @Resource
+    private RoleMapper roleMapper;
 
     /**
      * 处理用户名密码登录
@@ -79,6 +81,56 @@ public class UserService implements IUserService {
         // 返回token
         return token;
     }
+
+    /**
+     * 校验成功后，发放token
+     *
+     * @param authentication 校验结果
+     * @param rememberMe     是否记住我
+     * @return token
+     */
+    private String successfulAuthentication(Authentication authentication, Boolean rememberMe) {
+        // userDetailService返回的userDetail，并不是登录表单的user数据
+        User user = (User) authentication.getPrincipal();
+
+//        List<String> roles = new ArrayList<>();
+
+        List<String> perms = user.getPerms();
+
+        // 组用户角色
+//        List<Map<String,String>> groupRoles = roleMapper.selectGroupRoleByUserId(user.getUserId());
+//        if (!CollectionUtils.isEmpty(groupRoles)) {
+//            for (Map<String, String> groupRole : groupRoles) {
+//                String groupId = groupRole.get("groupId");
+//                String roleName = groupRole.get("roleName");
+//                String role = roleName + "_" + groupId;
+////                roles.add(role);
+//                perms.add(role);
+//            }
+//        }
+
+        // 系统级用户的角色
+//        Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
+//        for (GrantedAuthority authority : authorities) {
+//            roles.add(authority.getAuthority());
+//        }
+
+
+
+        // 根据用户名，角色创建token并返回token
+        String token = JwtTokenUtils.createToken(user.getUsername(), perms, rememberMe);
+
+        log.info("token=>> " + token);
+
+        user.setToken(token);
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user, userVO);
+        UsernamePasswordAuthenticationToken userToken = new UsernamePasswordAuthenticationToken(userVO, null, user.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(userToken);
+
+        return token;
+    }
+
 
     @Override
     public Boolean register(User user) {
@@ -120,36 +172,5 @@ public class UserService implements IUserService {
     }
 
 
-    /**
-     * 校验成功后，发放token
-     *
-     * @param authentication 校验结果
-     * @param rememberMe     是否记住我
-     * @return token
-     */
-    private String successfulAuthentication(Authentication authentication, Boolean rememberMe) {
-        // userDetailService返回的userDetail，并不是登录表单的user数据
-        User user = (User) authentication.getPrincipal();
-
-        List<String> roles = new ArrayList<>();
-
-        Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
-        for (GrantedAuthority authority : authorities) {
-            roles.add(authority.getAuthority());
-        }
-
-        // 根据用户名，角色创建token并返回token
-        String token = JwtTokenUtils.createToken(user.getUsername(), roles, rememberMe);
-
-        log.info("token=>> " + token);
-
-        user.setToken(token);
-        UserVO userVO = new UserVO();
-        BeanUtils.copyProperties(user, userVO);
-        UsernamePasswordAuthenticationToken userToken = new UsernamePasswordAuthenticationToken(userVO, null, user.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(userToken);
-
-        return token;
-    }
 
 }

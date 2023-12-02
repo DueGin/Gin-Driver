@@ -31,6 +31,11 @@ public class Role implements Serializable {
     private String description;
 
     /**
+     * 类型（1: 系统角色，2: 组角色）
+     */
+    private Integer type;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;
