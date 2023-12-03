@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 处理HTTP请求的BASIC授权标头，然后将结果放入SecurityContextHolder
@@ -80,7 +81,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private UsernamePasswordAuthenticationToken getAuthentication(String token) {
         // 从jwt token中拿出username、角色，然后解析出权限
         String username = JwtTokenUtils.getUsername(token);
-        List<String> roles = JwtTokenUtils.getAuthentication(token);
+        List<String> roles = JwtTokenUtils.getRoles(token);
+        Map<String, String> groupRoles = JwtTokenUtils.getGroupRoles(token);
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
         if (username != null) {
@@ -88,11 +90,13 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             for (String role : roles) {
                 authorities.add(new SimpleGrantedAuthority(role));
             }
-
-            User user = userMapper.getUserByUsername(username);
+            // todo 缓存登录用户信息
+            User user = userMapper.selectByUsername(username);
             UserVO userVO = new UserVO();
             BeanUtils.copyProperties(user, userVO);
-            return new UsernamePasswordAuthenticationToken(userVO, null, authorities);
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userVO, null, authorities);
+            authenticationToken.setDetails(groupRoles);
+            return authenticationToken;
         }
         return null;
     }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 /**
@@ -22,6 +23,12 @@ import java.util.List;
 @Slf4j
 @RestControllerAdvice("duegin.ginDriver.controller")
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public Result<Void> validatedExceptionHandler(ConstraintViolationException e){
+        log.error(String.valueOf(e));
+        return Result.ok(ResultEnum.PARAMETER_ERROR.getCode(), e.getMessage());
+    }
 
     /**
      * 忽略参数异常处理器

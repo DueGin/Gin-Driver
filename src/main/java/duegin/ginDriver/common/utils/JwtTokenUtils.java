@@ -8,6 +8,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -36,6 +37,8 @@ public class JwtTokenUtils {
      * 添加角色的key
      */
     private static final String ROLE_CLAIMS = "Role";
+
+    private static final String ROLE_GROUP_CLAIMS = "Role_Group";
     /**
      * 权限key
      */
@@ -45,20 +48,21 @@ public class JwtTokenUtils {
      * 创建token
      * TODO 这里是存在问题，我将权限信封装到jwt中，实际应该存储到redis中。主要是安全问题
      *
-     * @param username
-     * @param roles
-     * @param isRememberMe
-     * @return
+     * @param username 用户名
+     * @param roles 系统角色
+     * @param isRememberMe 是否记住我
+     * @return token
      */
-    public static String createToken(String username, List<String> roles, boolean isRememberMe) {
+    public static String createToken(String username, List<String> roles, Map<String, String> groupRoleMap, boolean isRememberMe) {
         String token = null;
         try {
             long expiration = isRememberMe ? EXPIRATION_REMEMBER : EXPIRATION;
             HashMap<String, Object> map = new HashMap<>();
             map.put(ROLE_CLAIMS, roles);
+            map.put(ROLE_GROUP_CLAIMS, groupRoleMap);
             token = Jwts.builder()
                     .signWith(SignatureAlgorithm.HS512, SECRET)
-                    // 这里要早set一点，放到后面会覆盖别的字段
+                    // 额外信息，这里要早set一点，放到后面会覆盖别的字段
                     .setClaims(map)
                     .setIssuer(ISS)
                     .setSubject(username)
@@ -87,12 +91,16 @@ public class JwtTokenUtils {
 
     /**
      * 从token中获取roles
-     *
-     * @param token
-     * @return
      */
-    public static List<String> getAuthentication(String token) {
+    public static List<String> getRoles(String token) {
         return (List<String>) getTokenBody(token).get(ROLE_CLAIMS);
+    }
+
+    /**
+     * 从token中获取roles
+     */
+    public static Map<String, String> getGroupRoles(String token) {
+        return (Map<String, String>) getTokenBody(token).get(ROLE_GROUP_CLAIMS);
     }
 
     /**

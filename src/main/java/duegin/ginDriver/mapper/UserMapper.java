@@ -3,22 +3,17 @@ package duegin.ginDriver.mapper;
 
 import duegin.ginDriver.domain.model.User;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.validation.annotation.Validated;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * @author DueGin
  */
-@Validated
 public interface UserMapper {
-    @NotNull
-    User getUserById(Long userId);
 
-    @NotNull
-    User getUserByUsername(String username);
+    User selectByUserId(Long userId);
 
-    void insert(@NotNull User user);
+    User selectByUsername(String username);
 
-    void insertUserRole(@NotNull @Param("userId") Long userId, @NotNull @Param("roleId") Long roleId);
+    void insert(User user);
+
+    void insertUserRole(@Param("userId") Long userId, @Param("roleId") Long roleId);
 }

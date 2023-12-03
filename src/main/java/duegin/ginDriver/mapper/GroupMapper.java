@@ -2,6 +2,7 @@ package duegin.ginDriver.mapper;
 
 
 import duegin.ginDriver.domain.model.Group;
+import duegin.ginDriver.domain.vo.GroupVO;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public interface GroupMapper {
      *
      * @return 用户加入的组集合
      */
-    List<Group> selectAllByUserId(Long userId);
+    List<GroupVO> selectAllByUserId(Long userId);
 
     Long selectGURoleByGroupIdAndUserId(Long groupId, Long userId);
 
@@ -37,7 +38,7 @@ public interface GroupMapper {
      *
      * @return true: 加入组成功，false: 加入组失败
      */
-    Boolean insertGroupUserRole(Long groupId, Long userId, Long roleId);
+    Boolean insertGroupUserRole(Long groupId, Long userId, Long roleId, String groupUsername);
 
     /**
      * 通过组ID删除用户、组、角色关联表信息<br/>
@@ -56,6 +57,8 @@ public interface GroupMapper {
 
 
     Boolean modifyGURoleByGroupIdAndUserId(Long groupId, Long userId, Long roleId);
+
+    Boolean modifyGURUsernameByGroupIdAndUserId(Long groupId, Long userId, String groupUsername);
 }
 
 

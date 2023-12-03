@@ -13,8 +13,18 @@
         <result property="deleted" column="deleted" jdbcType="TINYINT"/>
     </resultMap>
 
+    <resultMap id="GroupVOBaseResultMap" type="duegin.ginDriver.domain.vo.GroupVO">
+        <id property="groupId" column="group_id" jdbcType="BIGINT"/>
+        <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
+        <result property="groupGodId" column="user_id" jdbcType="BIGINT"/>
+        <result property="groupGodUsername" column="username" jdbcType="BIGINT"/>
+        <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
     <sql id="Group_Base_Column_List">
-        group_id,group_name,user_id,create_time,update_time,deleted
+        group_id,group_name,user_id,create_time,update_time
     </sql>
     <sql id="Group_USER_ROLE_Base_Column_List">
         group_id,user_id,role_id
@@ -39,6 +49,11 @@
         where user_id = #{userId}
           and group_id = #{groupId}
     </update>
+    <update id="modifyGURUsernameByGroupIdAndUserId">
+        update group_user_role
+        set group_username = #{groupUsername}
+        where user_id = #{userId} and group_id = #{groupId}
+    </update>
     <delete id="deleteByGroupId">
         delete
         from `group`
@@ -55,13 +70,19 @@
         from group_user_role
         where group_id = #{groupId}
     </delete>
-    <select id="selectAllByUserId" resultType="duegin.ginDriver.domain.model.Group">
-        select
-        <include refid="Group_Base_Column_List"/>
-        from `group`
-        where group_id in (select group_id
-        from group_user_role
-        where user_id = #{userId})
+    <select id="selectAllByUserId" resultType="duegin.ginDriver.domain.vo.GroupVO" resultMap="GroupVOBaseResultMap">
+        select g.group_id,
+               g.group_name,
+               g.user_id,
+               u.username,
+               g.create_time,
+               g.update_time,
+               r.role_name
+        from `group` g
+                 left join group_user_role gur on g.group_id = gur.group_id
+                 left join `role` r on gur.role_id = r.role_id
+                 left join user u on g.user_id = u.user_id
+        where gur.user_id = #{userId}
     </select>
     <select id="selectCreatorIdByGroupId" resultType="java.lang.Long">
         select user_id

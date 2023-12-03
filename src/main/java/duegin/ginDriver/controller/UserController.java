@@ -7,6 +7,7 @@ import duegin.ginDriver.domain.param.user.UserParam;
 import duegin.ginDriver.domain.vo.Result;
 import duegin.ginDriver.domain.vo.UserVO;
 import duegin.ginDriver.service.IUserService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @author DueGin
  */
+@Api(tags = "用户")
 @Slf4j
 @RestController
 @RequestMapping("user")

@@ -1,6 +1,8 @@
 package duegin.ginDriver.domain.vo;
 
 import duegin.ginDriver.constant.ResultEnum;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,13 +11,17 @@ import lombok.experimental.Accessors;
 /**
  * @author DueGin
  */
+@ApiModel("统一结果返回对象")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
 public class Result <T> {
+    @ApiModelProperty("状态码")
     private Integer code;
+    @ApiModelProperty("信息")
     private String msg;
+    @ApiModelProperty("数据")
     private T data;
 
     Result(ResultEnum resultEnum){

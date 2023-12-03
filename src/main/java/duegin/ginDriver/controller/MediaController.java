@@ -16,7 +16,7 @@ import javax.annotation.Resource;
 /**
  * @author DueGin
  */
-@Api("媒体")
+@Api(tags = "媒体")
 @Slf4j
 @RestController
 @RequestMapping("media")

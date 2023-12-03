@@ -15,13 +15,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.security.auth.login.LoginException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author DueGin
@@ -93,32 +94,32 @@ public class UserService implements IUserService {
         // userDetailService返回的userDetail，并不是登录表单的user数据
         User user = (User) authentication.getPrincipal();
 
-//        List<String> roles = new ArrayList<>();
-
         List<String> perms = user.getPerms();
 
-        // 组用户角色
-//        List<Map<String,String>> groupRoles = roleMapper.selectGroupRoleByUserId(user.getUserId());
-//        if (!CollectionUtils.isEmpty(groupRoles)) {
-//            for (Map<String, String> groupRole : groupRoles) {
-//                String groupId = groupRole.get("groupId");
-//                String roleName = groupRole.get("roleName");
-//                String role = roleName + "_" + groupId;
-////                roles.add(role);
-//                perms.add(role);
-//            }
-//        }
+        Map<String, String> roleMap = new HashMap<>();
+
 
         // 系统级用户的角色
-//        Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
-//        for (GrantedAuthority authority : authorities) {
-//            roles.add(authority.getAuthority());
-//        }
+        Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
+        for (GrantedAuthority authority : authorities) {
+            roleMap.put("sys", authority.getAuthority());
+        }
 
+        // 组用户角色
+        List<Map<String,Object>> groupRoles = roleMapper.selectGroupRoleByUserId(user.getUserId());
+        if (!CollectionUtils.isEmpty(groupRoles)) {
+            for (Map<String, Object> groupRole : groupRoles) {
+                Long groupId = (Long) groupRole.get("groupId");
+                String roleName = (String) groupRole.get("roleName");
+                String role = groupId + "_" + roleName;
+                perms.add(role);
+                roleMap.put(String.valueOf(groupId), roleName);
+            }
+        }
 
 
         // 根据用户名，角色创建token并返回token
-        String token = JwtTokenUtils.createToken(user.getUsername(), perms, rememberMe);
+        String token = JwtTokenUtils.createToken(user.getUsername(), perms, roleMap, rememberMe);
 
         log.info("token=>> " + token);
 
@@ -126,6 +127,8 @@ public class UserService implements IUserService {
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
         UsernamePasswordAuthenticationToken userToken = new UsernamePasswordAuthenticationToken(userVO, null, user.getAuthorities());
+        // 存储权限kv
+        userToken.setDetails(roleMap);
         SecurityContextHolder.getContext().setAuthentication(userToken);
 
         return token;

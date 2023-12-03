@@ -1,5 +1,6 @@
 package duegin.ginDriver.service.manager;
 
+import duegin.ginDriver.common.security.utils.SecurityUtils;
 import duegin.ginDriver.domain.model.Group;
 import duegin.ginDriver.mapper.GroupMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ public class GroupUserManager {
     public Boolean createGroup(Group group) {
         groupMapper.insert(group);
         // 给组普通用户
-        groupMapper.insertGroupUserRole(group.getGroupId(), group.getUserId(), 4L);
+        groupMapper.insertGroupUserRole(group.getGroupId(), group.getUserId(), 5L, SecurityUtils.getLoginUser().getUsername());
         return true;
     }
 

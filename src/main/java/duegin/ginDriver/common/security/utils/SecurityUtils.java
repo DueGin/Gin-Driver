@@ -4,12 +4,10 @@ package duegin.ginDriver.common.security.utils;
 import duegin.ginDriver.domain.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
  * 安全服务工具类
@@ -44,8 +42,8 @@ public class SecurityUtils {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
-    public static List<String> getRole(){
-        return getAuthentication().getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+    public static Map<String, String> getRole(){
+        return (Map<String, String>) getAuthentication().getDetails();
     }
 
     /**

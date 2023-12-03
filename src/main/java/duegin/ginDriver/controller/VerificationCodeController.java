@@ -23,7 +23,7 @@ import java.util.UUID;
 /**
  * @author DueGin
  */
-@Api("验证码")
+@Api(tags = "验证码")
 @RestController
 @RequestMapping("/verifyImage")
 public class VerificationCodeController {

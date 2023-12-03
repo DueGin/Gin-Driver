@@ -62,6 +62,7 @@ public class Group implements Serializable {
     }
 
     public Group(UpdateGroupParam groupParam){
+        this.groupId = groupParam.getGroupId();
         this.groupName = groupParam.getGroupName();
     }
 }

@@ -24,7 +24,7 @@ public interface RoleMapper {
      * @return [{groupId: 组ID, roleName: 用户角色}]
      */
     @MapKey("groupId")
-    List<Map<String, String>> selectGroupRoleByUserId(Long userId);
+    List<Map<String, Object>> selectGroupRoleByUserId(Long userId);
 
     String selectGroupRoleByUserIdAndGroupId(Long userId, Long groupId);
 }
