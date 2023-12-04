@@ -4,9 +4,11 @@ package duegin.ginDriver.controller;
 import duegin.ginDriver.common.code.entity.ImgTypeConstant;
 import duegin.ginDriver.common.code.entity.VerifyVO;
 import duegin.ginDriver.common.code.service.IVerifyCodeService;
+import duegin.ginDriver.domain.vo.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +27,7 @@ import java.util.UUID;
  */
 @Api(tags = "验证码")
 @RestController
+@CrossOrigin
 @RequestMapping("/verifyImage")
 public class VerificationCodeController {
 
@@ -38,8 +41,8 @@ public class VerificationCodeController {
      * 验证码存储在redis中,key为uuid
      */
     @ApiOperation("获取验证码")
-    @GetMapping("/")
-    public VerifyVO getVerifyImage() throws IOException {
+    @GetMapping("")
+    public Result<VerifyVO> getVerifyImage() throws IOException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             String verifyUuid = UUID.randomUUID().toString().replaceAll("-", "");
 
@@ -52,9 +55,10 @@ public class VerificationCodeController {
 
             verifyBase64 = "data:image/png;base64," + verifyBase64;
 
-            return new VerifyVO()
+            return Result.ok(new VerifyVO()
                     .setImg(verifyBase64)
-                    .setUuid(verifyUuid);
+                    .setUuid(verifyUuid)
+            );
         }
     }
 

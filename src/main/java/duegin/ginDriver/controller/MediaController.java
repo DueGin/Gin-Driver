@@ -30,4 +30,6 @@ public class MediaController {
         mediaMapper.insertOrUpdate(media);
         return Result.ok();
     }
+
+
 }

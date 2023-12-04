@@ -13,10 +13,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Api(tags = "用户")
 @Slf4j
+@CrossOrigin
 @RestController
 @RequestMapping("user")
 public class UserController {
@@ -42,13 +40,15 @@ public class UserController {
     @ApiOperation("登录")
     @ApiImplicitParams({@ApiImplicitParam(name = "user", value = "登录用户信息", required = true)})
     @PostMapping("login")
-    public UserVO login(@RequestBody User user, HttpServletResponse response) {
+    public Result<UserVO> login(@RequestBody User user, HttpServletResponse response) {
         log.info(user.toString());
         // 处理登录
         String token = userService.login(user);
+        // 设置token头浏览器可见
+        response.setHeader("Access-Control-Expose-Headers", JwtTokenUtils.TOKEN_HEADER);
         // 设置响应头
         response.setHeader(JwtTokenUtils.TOKEN_HEADER, JwtTokenUtils.TOKEN_PREFIX + token);
-        return SecurityUtils.getLoginUser();
+        return Result.ok(SecurityUtils.getLoginUser());
     }
 
     @ApiOperation("注册")
