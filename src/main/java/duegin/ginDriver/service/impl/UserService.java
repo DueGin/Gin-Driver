@@ -5,8 +5,12 @@ import duegin.ginDriver.common.code.service.IVerifyCodeService;
 import duegin.ginDriver.common.security.utils.SecurityUtils;
 import duegin.ginDriver.common.utils.JwtTokenUtils;
 import duegin.ginDriver.domain.model.User;
+import duegin.ginDriver.domain.vo.PageVO;
+import duegin.ginDriver.domain.vo.Result;
+import duegin.ginDriver.domain.vo.SysUserVO;
 import duegin.ginDriver.domain.vo.UserVO;
 import duegin.ginDriver.mapper.RoleMapper;
+import duegin.ginDriver.mapper.UserMapper;
 import duegin.ginDriver.service.IUserService;
 import duegin.ginDriver.service.manager.UserManager;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -43,7 +48,12 @@ public class UserService implements IUserService {
     private UserManager userManager;
 
     @Resource
+    private UserMapper userMapper;
+
+    @Resource
     private RoleMapper roleMapper;
+
+    //region login
 
     /**
      * 处理用户名密码登录
@@ -106,7 +116,7 @@ public class UserService implements IUserService {
         }
 
         // 组用户角色
-        List<Map<String,Object>> groupRoles = roleMapper.selectGroupRoleByUserId(user.getUserId());
+        List<Map<String, Object>> groupRoles = roleMapper.selectGroupRoleByUserId(user.getUserId());
         if (!CollectionUtils.isEmpty(groupRoles)) {
             for (Map<String, Object> groupRole : groupRoles) {
                 Long groupId = (Long) groupRole.get("groupId");
@@ -134,6 +144,7 @@ public class UserService implements IUserService {
         return token;
     }
 
+    //endregion
 
     @Override
     public Boolean register(User user) {
@@ -175,5 +186,40 @@ public class UserService implements IUserService {
     }
 
 
+    public Result<Void> addUser(User user) {
+        return userManager.saveUser(user) ? Result.ok("新增成功！") : Result.fail("新增失败");
+    }
+
+    public Result<PageVO<List<SysUserVO>>> queryPage(User user, Integer pageNum, Integer pageSize) {
+log.info(String.valueOf(user));
+        Integer count = userMapper.count(user);
+
+        List<User> list = userMapper.page(user, pageSize * (pageNum - 1), pageSize);
+        List<SysUserVO> vos = new ArrayList<>();
+        list.forEach(u-> {
+            SysUserVO vo = new SysUserVO();
+            BeanUtils.copyProperties(u, vo);
+            vos.add(vo);
+        });
+
+        PageVO<List<SysUserVO>> pageVO = new PageVO<>();
+        pageVO.setTotal(count);
+        pageVO.setPage(pageNum);
+        pageVO.setRows(vos);
+        return Result.ok(pageVO);
+    }
+
+    @Transactional
+    public Result<Void> deleteUser(Long userId) {
+        userMapper.deleteByUserId(userId);
+        roleMapper.deleteUserRoleByUserId(userId);
+        return Result.ok("删除成功！");
+    }
+
+    public Result<Void> modifyUserInfo(User user) {
+        userMapper.updateUserById(user);
+
+        return Result.ok("修改成功！");
+    }
 
 }

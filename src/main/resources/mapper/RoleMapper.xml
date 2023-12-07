@@ -18,6 +18,11 @@
         role_id,role_name,`description`,
         create_time,update_time,`status`
     </sql>
+    <delete id="deleteUserRoleByUserId">
+        delete
+        from user_role
+        where user_id = #{userId}
+    </delete>
     <select id="getUserRole" resultType="java.lang.String">
         select role_name
         from role

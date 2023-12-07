@@ -8,7 +8,6 @@ import duegin.ginDriver.domain.vo.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.codec.binary.Base64;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +26,6 @@ import java.util.UUID;
  */
 @Api(tags = "验证码")
 @RestController
-@CrossOrigin
 @RequestMapping("/verifyImage")
 public class VerificationCodeController {
 

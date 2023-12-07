@@ -27,4 +27,6 @@ public interface RoleMapper {
     List<Map<String, Object>> selectGroupRoleByUserId(Long userId);
 
     String selectGroupRoleByUserIdAndGroupId(Long userId, Long groupId);
+
+    Boolean deleteUserRoleByUserId(Long userId);
 }

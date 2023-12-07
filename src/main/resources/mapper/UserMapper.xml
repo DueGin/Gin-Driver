@@ -12,6 +12,16 @@
         <result property="email" column="email" jdbcType="VARCHAR"/>
     </resultMap>
 
+    <resultMap id="SysUserVOBaseResultMap" type="duegin.ginDriver.domain.vo.SysUserVO">
+        <id property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
     <sql id="User_Base_Column_List">
         user_id,username,`password`,phone,email
     </sql>
@@ -35,6 +45,21 @@
     <insert id="insertUserRole">
         insert into user_role(user_id, role_id) VALUE(#{userId}, #{roleId});
     </insert>
+    <update id="updateUserById">
+        update user
+        <trim prefix="set " suffixOverrides=",">
+            <if test="username != null">username = #{username},</if>
+            <if test="password != null">`password` = #{password},</if>
+            <if test="phone != null">`phone` = #{phone},</if>
+            <if test="email != null">`email` = #{email},</if>
+        </trim>
+        where user_id = #{userId};
+    </update>
+    <delete id="deleteByUserId">
+        delete
+        from user
+        where user_id = #{userId};
+    </delete>
     <select id="selectByUserId" resultType="duegin.ginDriver.domain.model.User" resultMap="UserBaseResultMap">
         select
         <include refid="User_Base_Column_List"/>
@@ -46,5 +71,31 @@
         <include refid="User_Base_Column_List"/>
         from user
         where username = #{username}
+    </select>
+    <select id="page" resultType="duegin.ginDriver.domain.model.User" resultMap="UserBaseResultMap">
+        select
+        <include refid="User_Base_Column_List"/>
+        from user
+        <where>
+            <if test="user.userId != null">and user_id = #{user.userId}</if>
+            <if test="user.username != null">and username = #{user.username}</if>
+            <if test="user.phone != null">and phone = #{user.phone}</if>
+            <if test="user.email != null">and email = #{user.email}</if>
+            <if test="user.createTime != null">and create_time = #{user.createTime}</if>
+            <if test="user.updateTime != null">and update_time = #{user.updateTime}</if>
+        </where>
+        limit #{pageStart}, #{pageSize}
+    </select>
+    <select id="count" resultType="java.lang.Integer">
+        select count(*)
+        from user
+        <where>
+            <if test="userId != null">and user_id = #{userId}</if>
+            <if test="username != null">and username = #{username}</if>
+            <if test="phone != null">and phone = #{phone}</if>
+            <if test="email != null">and email = #{email}</if>
+            <if test="createTime != null">and create_time = #{createTime}</if>
+            <if test="updateTime != null">and update_time = #{updateTime}</if>
+        </where>
     </select>
 </mapper>
