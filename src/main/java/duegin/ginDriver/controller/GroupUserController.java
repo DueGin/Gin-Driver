@@ -1,8 +1,8 @@
 package duegin.ginDriver.controller;
 
 import duegin.ginDriver.common.security.utils.SecurityUtils;
-import duegin.ginDriver.domain.model.GroupUser;
-import duegin.ginDriver.domain.param.group.UpdateGroupUserParam;
+import duegin.ginDriver.domain.dto.group.UpdateGroupUserDTO;
+import duegin.ginDriver.domain.po.GroupUser;
 import duegin.ginDriver.domain.vo.Result;
 import duegin.ginDriver.service.impl.GroupService;
 import io.swagger.annotations.Api;
@@ -52,9 +52,9 @@ public class GroupUserController {
 
     @ApiOperation("更新组内用户个人信息")
     @PutMapping("update")
-    public Result<Void> updateGroupUser(@Valid UpdateGroupUserParam updateGroupUserParam) {
-        log.info(String.valueOf(updateGroupUserParam));
-        GroupUser groupUser = new GroupUser(updateGroupUserParam);
+    public Result<Void> updateGroupUser(@Valid UpdateGroupUserDTO updateGroupUserDTO) {
+        log.info(String.valueOf(updateGroupUserDTO));
+        GroupUser groupUser = new GroupUser(updateGroupUserDTO);
         return groupService.updateGroupByGroupUser(groupUser);
     }
 }

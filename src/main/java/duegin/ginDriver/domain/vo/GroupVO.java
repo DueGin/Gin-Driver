@@ -16,7 +16,7 @@ public class GroupVO {
      * 组ID
      */
     @ApiModelProperty("组ID")
-    private Long groupId;
+    private Long id;
 
     /**
      * 组名

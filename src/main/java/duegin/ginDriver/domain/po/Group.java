@@ -1,8 +1,6 @@
-package duegin.ginDriver.domain.model;
+package duegin.ginDriver.domain.po;
 
 
-import duegin.ginDriver.domain.param.group.AddGroupParam;
-import duegin.ginDriver.domain.param.group.UpdateGroupParam;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -26,7 +24,7 @@ public class Group implements Serializable {
      * 组ID
      */
     @NotNull(groups = Update.class)
-    private Long groupId;
+    private Long id;
 
     /**
      * 组名
@@ -39,6 +37,16 @@ public class Group implements Serializable {
      */
     @NotNull(groups = Insert.class)
     private Long userId;
+
+    /**
+     * 简介
+     */
+    private String description;
+
+    /**
+     * 头像
+     */
+    private String avatar;
 
     /**
      * 创建时间
@@ -57,12 +65,4 @@ public class Group implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public Group(AddGroupParam groupParam){
-        this.groupName = groupParam.getGroupName();
-    }
-
-    public Group(UpdateGroupParam groupParam){
-        this.groupId = groupParam.getGroupId();
-        this.groupName = groupParam.getGroupName();
-    }
 }

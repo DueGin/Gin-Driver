@@ -1,8 +1,9 @@
 package duegin.ginDriver.mapper;
 
 
-import duegin.ginDriver.domain.model.Group;
+import duegin.ginDriver.domain.po.Group;
 import duegin.ginDriver.domain.vo.GroupVO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -38,7 +39,11 @@ public interface GroupMapper {
      *
      * @return true: 加入组成功，false: 加入组失败
      */
-    Boolean insertGroupUserRole(Long groupId, Long userId, Long roleId, String groupUsername);
+    Boolean insertGroupUserRole(@Param("groupId") Long groupId,
+                                @Param("userId") Long userId,
+                                @Param("roleId") Long roleId,
+                                @Param("groupUsername") String groupUsername
+    );
 
     /**
      * 通过组ID删除用户、组、角色关联表信息<br/>

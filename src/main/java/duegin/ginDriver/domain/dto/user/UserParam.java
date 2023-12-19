@@ -1,4 +1,4 @@
-package duegin.ginDriver.domain.param.user;
+package duegin.ginDriver.domain.dto.user;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

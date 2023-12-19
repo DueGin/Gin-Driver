@@ -14,6 +14,7 @@ import java.io.IOException;
 
 /**
  * 身份验证没有通过回调
+ *
  * @author DueGin
  */
 @Slf4j
@@ -22,6 +23,6 @@ public class UnAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
         log.info("未登录");
-        ResponseUtils.result(response,HttpServletResponse.SC_FORBIDDEN,"未登录！");
+        ResponseUtils.result(response, HttpServletResponse.SC_FORBIDDEN, "未登录！");
     }
 }

@@ -18,7 +18,7 @@ import java.util.Map;
 public class SecurityUtils {
 
     public static Long getUserId(){
-        return getLoginUser().getUserId();
+        return getLoginUser().getId();
     }
 
     /**

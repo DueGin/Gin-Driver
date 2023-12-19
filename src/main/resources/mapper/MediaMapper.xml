@@ -4,8 +4,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="duegin.ginDriver.mapper.MediaMapper">
 
-    <resultMap id="BaseResultMap" type="duegin.ginDriver.domain.model.Media">
-        <id property="mediaId" column="media_id" jdbcType="BIGINT"/>
+    <resultMap id="BaseResultMap" type="duegin.ginDriver.domain.po.Media">
+        <id property="id" column="id" jdbcType="BIGINT"/>
         <id property="userId" column="user_id" jdbcType="BIGINT"/>
         <result property="fileName" column="file_name" jdbcType="VARCHAR"/>
         <result property="type" column="type" jdbcType="INTEGER"/>
@@ -18,7 +18,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        media_id,file_name,type,
+        id,user_id,file_name,type,
         src,`status`,is_share,
         `format`,create_time,update_time
     </sql>
@@ -53,9 +53,9 @@
     <delete id="deleteByMediaId">
         delete
         from media
-        where media_id = #{mediaId};
+        where id = #{id};
     </delete>
-    <select id="selectByUserId" resultType="duegin.ginDriver.domain.model.Media">
+    <select id="selectByUserId" resultType="duegin.ginDriver.domain.po.Media">
         select <include refid="Base_Column_List"/>
         from media
         user_id = #{userId};

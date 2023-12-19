@@ -1,7 +1,7 @@
 package duegin.ginDriver.mapper;
 
 
-import duegin.ginDriver.domain.model.User;
+import duegin.ginDriver.domain.po.User;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface UserMapper {
 
-    User selectByUserId(Long userId);
+    User selectByUserId(Long id);
 
     User selectByUsername(String username);
 
@@ -21,7 +21,7 @@ public interface UserMapper {
 
     Boolean updateUserById(User user);
 
-    Boolean deleteByUserId(Long userId);
+    Boolean deleteByUserId(Long id);
 
 
     ////// sys //////

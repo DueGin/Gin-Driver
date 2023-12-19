@@ -4,17 +4,19 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="duegin.ginDriver.mapper.GroupMapper">
 
-    <resultMap id="GroupBaseResultMap" type="duegin.ginDriver.domain.model.Group">
-        <id property="groupId" column="group_id" jdbcType="BIGINT"/>
+    <resultMap id="GroupBaseResultMap" type="duegin.ginDriver.domain.po.Group">
+        <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
         <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
         <result property="deleted" column="deleted" jdbcType="TINYINT"/>
     </resultMap>
 
     <resultMap id="GroupVOBaseResultMap" type="duegin.ginDriver.domain.vo.GroupVO">
-        <id property="groupId" column="group_id" jdbcType="BIGINT"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
         <result property="groupGodId" column="user_id" jdbcType="BIGINT"/>
         <result property="groupGodUsername" column="username" jdbcType="BIGINT"/>
@@ -24,16 +26,28 @@
     </resultMap>
 
     <sql id="Group_Base_Column_List">
-        group_id,group_name,user_id,create_time,update_time
+        id,group_name,user_id,create_time,update_time
     </sql>
     <sql id="Group_USER_ROLE_Base_Column_List">
-        group_id,user_id,role_id
+        id,user_id,role_id
     </sql>
-    <insert id="insert" useGeneratedKeys="true" keyProperty="groupId">
-        insert into `group`(user_id, group_name) VALUE (#{userId}, #{groupName});
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into `group`
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="userId != null">user_id,</if>
+            <if test="groupName != null">group_name,</if>
+            <if test="description != null">`description`,</if>
+            <if test="avatar != null">avatar,</if>
+        </trim>
+        <trim prefix="value(" suffixOverrides="," suffix=")">
+            <if test="userId != null">#{userId},</if>
+            <if test="groupName != null">#{groupName},</if>
+            <if test="description != null">#{description},</if>
+            <if test="avatar != null">#{avatar},</if>
+        </trim>
     </insert>
     <insert id="insertGroupUserRole">
-        insert into group_user_role(group_id, user_id, role_id) VALUE (#{groupId}, #{userId}, #{roleId})
+        insert into group_user_role(group_id, user_id, role_id, group_username) VALUE (#{groupId}, #{userId}, #{roleId}, #{groupUsername})
     </insert>
     <update id="modifyByGroupId">
         update `group`
@@ -41,7 +55,7 @@
             <if test="groupName != null">set group_name = #{groupName},</if>
             <if test="userId != null">set user_id = #{userId},</if>
         </trim>
-        where group_id = #{groupId};
+        where id = #{id};
     </update>
     <update id="modifyGURoleByGroupIdAndUserId">
         update group_user_role
@@ -52,12 +66,13 @@
     <update id="modifyGURUsernameByGroupIdAndUserId">
         update group_user_role
         set group_username = #{groupUsername}
-        where user_id = #{userId} and group_id = #{groupId}
+        where user_id = #{userId}
+          and group_id = #{groupId}
     </update>
     <delete id="deleteByGroupId">
         delete
         from `group`
-        where group_id = #{groupId};
+        where id = #{groupId};
     </delete>
     <delete id="deleteGURByGroupIdAndUserId">
         delete
@@ -71,7 +86,7 @@
         where group_id = #{groupId}
     </delete>
     <select id="selectAllByUserId" resultType="duegin.ginDriver.domain.vo.GroupVO" resultMap="GroupVOBaseResultMap">
-        select g.group_id,
+        select g.id,
                g.group_name,
                g.user_id,
                u.username,
@@ -79,15 +94,15 @@
                g.update_time,
                r.role_name
         from `group` g
-                 left join group_user_role gur on g.group_id = gur.group_id
-                 left join `role` r on gur.role_id = r.role_id
-                 left join user u on g.user_id = u.user_id
+                 left join group_user_role gur on g.id = gur.group_id
+                 left join `role` r on gur.role_id = r.id
+                 left join user u on g.user_id = u.id
         where gur.user_id = #{userId}
     </select>
     <select id="selectCreatorIdByGroupId" resultType="java.lang.Long">
         select user_id
         from `group`
-        where group_id = #{groupId}
+        where id = #{groupId}
     </select>
     <select id="selectGURoleByGroupIdAndUserId" resultType="java.lang.Long">
         select role_id

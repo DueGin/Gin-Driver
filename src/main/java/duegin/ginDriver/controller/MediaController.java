@@ -1,6 +1,6 @@
 package duegin.ginDriver.controller;
 
-import duegin.ginDriver.domain.model.Media;
+import duegin.ginDriver.domain.po.Media;
 import duegin.ginDriver.domain.vo.Result;
 import duegin.ginDriver.mapper.MediaMapper;
 import io.swagger.annotations.Api;

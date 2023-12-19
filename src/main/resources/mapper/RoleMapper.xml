@@ -4,8 +4,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="duegin.ginDriver.mapper.RoleMapper">
 
-    <resultMap id="BaseResultMap" type="duegin.ginDriver.domain.model.Role">
-        <id property="roleId" column="role_id" jdbcType="BIGINT"/>
+    <resultMap id="BaseResultMap" type="duegin.ginDriver.domain.po.Role">
+        <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
         <result property="description" column="description" jdbcType="VARCHAR"/>
         <result property="type" column="type" jdbcType="INTEGER"/>
@@ -26,17 +26,17 @@
     <select id="getUserRole" resultType="java.lang.String">
         select role_name
         from role
-        where role_id in (SELECT role_id FROM user_role WHERE user_id = #{userId})
+        where id in (SELECT role_id FROM user_role WHERE user_id = #{userId})
     </select>
     <select id="selectGroupRoleByUserId" resultType="java.util.Map">
         select r.role_name roleName, gur.group_id groupId
         from role r
-                 left join group_user_role gur on r.role_id = gur.role_id
+                 left join group_user_role gur on r.id = gur.role_id
         where gur.user_id = #{userId}
     </select>
     <select id="selectGroupRoleByUserIdAndGroupId" resultType="java.lang.String">
         select role_name
         from role
-        where role_id = (select role_id from group_user_role where user_id = #{userId} and group_id = #{groupId})
+        where id = (select role_id from group_user_role where user_id = #{userId} and group_id = #{groupId})
     </select>
 </mapper>

@@ -2,8 +2,8 @@ package duegin.ginDriver.controller;
 
 import duegin.ginDriver.common.security.utils.SecurityUtils;
 import duegin.ginDriver.common.utils.JwtTokenUtils;
-import duegin.ginDriver.domain.model.User;
-import duegin.ginDriver.domain.param.user.UserParam;
+import duegin.ginDriver.domain.dto.user.UserParam;
+import duegin.ginDriver.domain.po.User;
 import duegin.ginDriver.domain.vo.Result;
 import duegin.ginDriver.domain.vo.UserVO;
 import duegin.ginDriver.service.IUserService;

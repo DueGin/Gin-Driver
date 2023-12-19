@@ -1,7 +1,7 @@
 package duegin.ginDriver.controller.sys;
 
-import duegin.ginDriver.domain.model.User;
-import duegin.ginDriver.domain.param.user.UserQueryParam;
+import duegin.ginDriver.domain.dto.user.UserQueryParam;
+import duegin.ginDriver.domain.po.User;
 import duegin.ginDriver.domain.vo.PageVO;
 import duegin.ginDriver.domain.vo.Result;
 import duegin.ginDriver.domain.vo.SysUserVO;

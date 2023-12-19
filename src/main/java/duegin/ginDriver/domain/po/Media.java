@@ -1,4 +1,4 @@
-package duegin.ginDriver.domain.model;
+package duegin.ginDriver.domain.po;
 
 
 import lombok.Data;
@@ -20,7 +20,7 @@ public class Media implements Serializable {
      * 媒体ID
      */
     @NotNull(groups = Update.class)
-    private Long mediaId;
+    private Long id;
 
     /**
      * 上传用户

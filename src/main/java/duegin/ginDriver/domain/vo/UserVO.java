@@ -8,7 +8,7 @@ import lombok.Data;
  */
 @Data
 public class UserVO {
-    private Long userId;
+    private Long id;
     private String avatar;
     private String username;
 //    private List<String> perms;

@@ -14,6 +14,7 @@ public class ResponseUtils {
     public static void result(HttpServletResponse response, int code, Object msg) throws IOException {
         response.setStatus(code);
         response.setContentType(RESPONSE_TYPE);
+        response.setHeader("Access-Control-Allow-Origin", "*");
         PrintWriter writer = response.getWriter();
         writer.write(new ObjectMapper().writeValueAsString(msg));
     }

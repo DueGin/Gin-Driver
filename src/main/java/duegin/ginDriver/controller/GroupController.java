@@ -1,9 +1,9 @@
 package duegin.ginDriver.controller;
 
 import duegin.ginDriver.common.security.utils.SecurityUtils;
-import duegin.ginDriver.domain.model.Group;
-import duegin.ginDriver.domain.param.group.AddGroupParam;
-import duegin.ginDriver.domain.param.group.UpdateGroupParam;
+import duegin.ginDriver.domain.dto.group.AddGroupDTO;
+import duegin.ginDriver.domain.dto.group.UpdateGroupDTO;
+import duegin.ginDriver.domain.po.Group;
 import duegin.ginDriver.domain.vo.GroupVO;
 import duegin.ginDriver.domain.vo.Result;
 import duegin.ginDriver.mapper.GroupMapper;
@@ -12,6 +12,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,9 +38,10 @@ public class GroupController {
 
     @ApiOperation("创建组")
     @PostMapping("create")
-    public Result<Void> createGroup(@RequestBody @ApiParam(value = "组信息", required = true) AddGroupParam groupParam) {
+    public Result<Void> createGroup(@RequestBody @ApiParam(value = "组信息", required = true) AddGroupDTO groupParam) {
         log.info(String.valueOf(groupParam));
-        Group group = new Group(groupParam);
+        Group group = new Group();
+        BeanUtils.copyProperties(groupParam, group);
         group.setUserId(SecurityUtils.getUserId());
         return groupService.createGroup(group);
     }
@@ -53,10 +55,10 @@ public class GroupController {
 
     @ApiOperation("修改组信息")
     @PutMapping("modify")
-    public Result<Void> modifyGroup(@RequestBody @Valid UpdateGroupParam groupParam) {
+    public Result<Void> modifyGroup(@RequestBody @Valid UpdateGroupDTO groupParam) {
         log.info(String.valueOf(groupParam));
-        Group group = new Group(groupParam);
-
+        Group group = new Group();
+        BeanUtils.copyProperties(groupParam, group);
         return groupService.updateGroup(group);
     }
 

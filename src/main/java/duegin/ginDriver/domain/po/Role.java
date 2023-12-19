@@ -1,4 +1,4 @@
-package duegin.ginDriver.domain.model;
+package duegin.ginDriver.domain.po;
 
 
 import lombok.Data;
@@ -18,7 +18,7 @@ public class Role implements Serializable {
     /**
      * 角色表id
      */
-    private Long roleId;
+    private Long id;
 
     /**
      * 角色名称

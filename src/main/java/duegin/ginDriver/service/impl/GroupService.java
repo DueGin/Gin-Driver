@@ -1,9 +1,9 @@
 package duegin.ginDriver.service.impl;
 
 import duegin.ginDriver.common.security.utils.SecurityUtils;
-import duegin.ginDriver.domain.model.Group;
-import duegin.ginDriver.domain.model.GroupUser;
-import duegin.ginDriver.domain.model.User;
+import duegin.ginDriver.domain.po.Group;
+import duegin.ginDriver.domain.po.GroupUser;
+import duegin.ginDriver.domain.po.User;
 import duegin.ginDriver.domain.vo.Result;
 import duegin.ginDriver.mapper.GroupMapper;
 import duegin.ginDriver.mapper.UserMapper;
@@ -78,7 +78,7 @@ public class GroupService {
      */
     public Result<Void> updateGroup(Group group) {
         // 判断权限
-        Boolean checked = checkGroupAuth(group.getGroupId(), ADMIN);
+        Boolean checked = checkGroupAuth(group.getId(), ADMIN);
         if (!checked) {
             return Result.fail("权限不足！");
         }
@@ -134,7 +134,7 @@ public class GroupService {
 
         // 修改组表
         groupMapper.modifyByGroupId(new Group()
-                .setGroupId(groupId)
+                .setId(groupId)
                 .setUserId(newGodId)
         );
 

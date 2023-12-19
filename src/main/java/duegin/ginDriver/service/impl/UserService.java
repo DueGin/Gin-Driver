@@ -4,7 +4,7 @@ import cn.hutool.core.util.IdUtil;
 import duegin.ginDriver.common.code.service.IVerifyCodeService;
 import duegin.ginDriver.common.security.utils.SecurityUtils;
 import duegin.ginDriver.common.utils.JwtTokenUtils;
-import duegin.ginDriver.domain.model.User;
+import duegin.ginDriver.domain.po.User;
 import duegin.ginDriver.domain.vo.PageVO;
 import duegin.ginDriver.domain.vo.Result;
 import duegin.ginDriver.domain.vo.SysUserVO;
@@ -116,7 +116,7 @@ public class UserService implements IUserService {
         }
 
         // 组用户角色
-        List<Map<String, Object>> groupRoles = roleMapper.selectGroupRoleByUserId(user.getUserId());
+        List<Map<String, Object>> groupRoles = roleMapper.selectGroupRoleByUserId(user.getId());
         if (!CollectionUtils.isEmpty(groupRoles)) {
             for (Map<String, Object> groupRole : groupRoles) {
                 Long groupId = (Long) groupRole.get("groupId");
@@ -161,7 +161,7 @@ public class UserService implements IUserService {
 
         verifyCodeService.deleteVerifyCode(user.getUuid());
 
-        user.setUserId(IdUtil.getSnowflakeNextId());
+        user.setId(IdUtil.getSnowflakeNextId());
         user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
         // 入库user表，分配USER角色给他
         return userManager.saveUser(user);

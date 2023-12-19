@@ -1,6 +1,6 @@
-package duegin.ginDriver.domain.param.user;
+package duegin.ginDriver.domain.dto.user;
 
-import duegin.ginDriver.domain.model.User;
+import duegin.ginDriver.domain.po.User;
 import lombok.Data;
 import lombok.ToString;
 

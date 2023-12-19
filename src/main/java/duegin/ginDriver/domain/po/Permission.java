@@ -1,4 +1,4 @@
-package duegin.ginDriver.domain.model;
+package duegin.ginDriver.domain.po;
 
 
 import lombok.Data;
@@ -16,7 +16,7 @@ public class Permission implements Serializable {
     /**
      * 权限ID
      */
-    private Long permissionId;
+    private Long id;
 
     /**
      * 权限标识符

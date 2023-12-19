@@ -1,4 +1,4 @@
-package duegin.ginDriver.domain.model;
+package duegin.ginDriver.domain.po;
 
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,7 +19,7 @@ public class User implements UserDetails {
 
     private static final long serialVersionUID = 1L;
 
-    private Long userId;
+    private Long id;
 
     private String username;
 

@@ -1,6 +1,6 @@
 package duegin.ginDriver.service.manager;
 
-import duegin.ginDriver.domain.model.User;
+import duegin.ginDriver.domain.po.User;
 import duegin.ginDriver.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ public class UserManager {
         // 插入用户表
         userMapper.insert(user);
         // 插入用户角色表，并给他一个默认角色（普通用户）
-        userMapper.insertUserRole(user.getUserId(), 2L);
+        userMapper.insertUserRole(user.getId(), 2L);
         return true;
     }
 

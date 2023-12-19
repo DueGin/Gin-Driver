@@ -1,4 +1,4 @@
-package duegin.ginDriver.domain.param.group;
+package duegin.ginDriver.domain.dto.group;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @ApiModel("组更新信息")
-public class UpdateGroupParam {
+public class UpdateGroupDTO {
 
     /**
      * 组ID

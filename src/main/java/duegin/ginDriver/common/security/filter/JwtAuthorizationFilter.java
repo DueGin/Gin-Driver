@@ -2,7 +2,7 @@ package duegin.ginDriver.common.security.filter;
 
 
 import duegin.ginDriver.common.utils.JwtTokenUtils;
-import duegin.ginDriver.domain.model.User;
+import duegin.ginDriver.domain.po.User;
 import duegin.ginDriver.domain.vo.UserVO;
 import duegin.ginDriver.mapper.UserMapper;
 import io.jsonwebtoken.ExpiredJwtException;

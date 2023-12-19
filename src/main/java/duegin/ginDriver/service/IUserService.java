@@ -1,6 +1,6 @@
 package duegin.ginDriver.service;
 
-import duegin.ginDriver.domain.model.User;
+import duegin.ginDriver.domain.po.User;
 
 /**
  * @author DueGin

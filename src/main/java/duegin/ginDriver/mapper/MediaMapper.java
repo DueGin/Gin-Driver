@@ -1,7 +1,7 @@
 package duegin.ginDriver.mapper;
 
 
-import duegin.ginDriver.domain.model.Media;
+import duegin.ginDriver.domain.po.Media;
 import org.apache.ibatis.annotations.Insert;
 import org.springframework.validation.annotation.Validated;
 
@@ -15,7 +15,7 @@ public interface MediaMapper {
 
     Boolean insertOrUpdate(@Validated(Insert.class) Media media);
 
-    Boolean deleteByMediaId(@NotNull Long mediaId);
+    Boolean deleteByMediaId(@NotNull Long id);
 
     /**
      * 根据用户ID查询

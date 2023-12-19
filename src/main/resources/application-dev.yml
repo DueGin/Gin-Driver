@@ -1,0 +1,41 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    druid:
+      username: root
+      password: 1234
+      url: jdbc:mysql://localhost:3306/gin-driver?characterEncoding=utf8&characterSetResults=utf8&autoReconnect=true&failOverReadOnly=false&serverTimezone=Asia/Shanghai&useSSL=false
+  redis:
+    password: 1234
+    database: 0
+    host: localhost
+    port: 6379
+
+security:
+  excludes:
+    - /user/login # 登录api
+    - /user/register # 注册api
+    - /verifyImage/** # 验证码api
+    # api文档
+    - /doc.html
+    - /webjars/**
+    - /swagger-resources
+    - /assets/**
+    - /v2/api-docs
+    - /favicon.ico
+#    - /configuration/security
+#    - /swagger-ui.html/**
+
+# jwt
+token:
+  expire: 3600000
+  key: 123456
+
+# 接口文档
+swagger:
+  enable: true

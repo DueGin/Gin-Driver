@@ -1,41 +1,16 @@
-server:
-  port: 8080
+spring:
+  profiles:
+    active: dev
+
 
 logging:
   level:
     duegin.ginDriver: debug
 
-spring:
-  profiles:
-    active: druid,redis
 
-mybatis:
+mybatis-flex:
   mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: duegin.ginDriver.mybatis.entity
+  type-aliases-package: duegin.ginDriver.domain.po
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-
-
-token:
-  expire: 3600000
-  key: 123456
-
-security:
-  excludes:
-    - /user/login # 登录api
-    - /user/register # 注册api
-    - /verifyImage/** # 验证码api
-    # api文档
-    - /doc.html
-    - /webjars/**
-    - /swagger-resources
-    - /assets/**
-    - /v2/api-docs
-    - /favicon.ico
-#    - /configuration/security
-#    - /swagger-ui.html/**
-
-
-swagger:
-  enable: true

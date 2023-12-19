@@ -1,6 +1,6 @@
-package duegin.ginDriver.domain.model;
+package duegin.ginDriver.domain.po;
 
-import duegin.ginDriver.domain.param.group.UpdateGroupUserParam;
+import duegin.ginDriver.domain.dto.group.UpdateGroupUserDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,7 +18,7 @@ public class GroupUser {
 
     private String groupUsername;
 
-    public GroupUser(UpdateGroupUserParam groupUserParam){
+    public GroupUser(UpdateGroupUserDTO groupUserParam){
         this.groupId = groupUserParam.getGroupId();
         this.userId = groupUserParam.getUserId();
         this.groupUsername = groupUserParam.getGroupUsername();

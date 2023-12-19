@@ -1,7 +1,7 @@
 package duegin.ginDriver.common.security.service;
 
 
-import duegin.ginDriver.domain.model.User;
+import duegin.ginDriver.domain.po.User;
 import duegin.ginDriver.mapper.RoleMapper;
 import duegin.ginDriver.mapper.UserMapper;
 import duegin.ginDriver.service.IPermissionService;
@@ -50,7 +50,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("没有此用户：" + username);
         }
-        user.setPerms(getAuthorities(user.getUserId()));
+        user.setPerms(getAuthorities(user.getId()));
         return user;
     }
 
