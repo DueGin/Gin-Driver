@@ -28,7 +28,7 @@ public class UserManager {
     @Transactional
     public Boolean saveUser(User user) {
         // 插入用户表
-        userMapper.insert(user);
+        userMapper.insert(user, true);
         // 插入用户角色表，并给他一个默认角色（普通用户）
         userMapper.insertUserRole(user.getId(), 2L);
         return true;

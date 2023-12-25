@@ -4,7 +4,7 @@ package duegin.ginDriver.common.security.service;
 import duegin.ginDriver.domain.po.User;
 import duegin.ginDriver.mapper.RoleMapper;
 import duegin.ginDriver.mapper.UserMapper;
-import duegin.ginDriver.service.IPermissionService;
+import duegin.ginDriver.service.PermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -28,7 +28,7 @@ import java.util.Set;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Resource
-    private IPermissionService permissionService;
+    private PermissionService permissionService;
 
     @Resource
     private RoleMapper roleMapper;

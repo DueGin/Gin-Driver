@@ -4,7 +4,7 @@ import duegin.ginDriver.common.security.utils.SecurityUtils;
 import duegin.ginDriver.domain.dto.group.UpdateGroupUserDTO;
 import duegin.ginDriver.domain.po.GroupUser;
 import duegin.ginDriver.domain.vo.Result;
-import duegin.ginDriver.service.impl.GroupService;
+import duegin.ginDriver.service.GroupService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

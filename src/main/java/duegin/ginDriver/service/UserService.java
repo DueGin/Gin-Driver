@@ -1,9 +1,10 @@
-package duegin.ginDriver.service.impl;
+package duegin.ginDriver.service;
 
 import cn.hutool.core.util.IdUtil;
 import duegin.ginDriver.common.code.service.IVerifyCodeService;
 import duegin.ginDriver.common.security.utils.SecurityUtils;
 import duegin.ginDriver.common.utils.JwtTokenUtils;
+import duegin.ginDriver.core.service.impl.MyServiceImpl;
 import duegin.ginDriver.domain.po.User;
 import duegin.ginDriver.domain.vo.PageVO;
 import duegin.ginDriver.domain.vo.Result;
@@ -11,7 +12,6 @@ import duegin.ginDriver.domain.vo.SysUserVO;
 import duegin.ginDriver.domain.vo.UserVO;
 import duegin.ginDriver.mapper.RoleMapper;
 import duegin.ginDriver.mapper.UserMapper;
-import duegin.ginDriver.service.IUserService;
 import duegin.ginDriver.service.manager.UserManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +34,7 @@ import java.util.*;
  */
 @Slf4j
 @Service
-public class UserService implements IUserService {
+public class UserService extends MyServiceImpl<UserMapper, User> {
 
     private final String usernameReg = "^[\u4e00-\u9fa5a-zA-Z0-9]{4,12}$";
 
@@ -61,7 +61,7 @@ public class UserService implements IUserService {
      * @param user 登录表单
      * @return token
      */
-    @Override
+
     public String login(User user) {
         Authentication authenticate;
         try {
@@ -146,7 +146,7 @@ public class UserService implements IUserService {
 
     //endregion
 
-    @Override
+
     public Boolean register(User user) {
         // 校验注册表单
         if (!checkUserForm(user)) {

@@ -18,6 +18,11 @@
         role_id,role_name,`description`,
         create_time,update_time,`status`
     </sql>
+    <update id="modifyUserRole">
+        update user_role
+        set role_id = #{roleId}
+        where user_id = #{userId};
+    </update>
     <delete id="deleteUserRoleByUserId">
         delete
         from user_role

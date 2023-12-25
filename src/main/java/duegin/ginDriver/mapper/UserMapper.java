@@ -1,6 +1,7 @@
 package duegin.ginDriver.mapper;
 
 
+import com.mybatisflex.core.BaseMapper;
 import duegin.ginDriver.domain.po.User;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,13 +10,12 @@ import java.util.List;
 /**
  * @author DueGin
  */
-public interface UserMapper {
+public interface UserMapper extends BaseMapper<User> {
 
     User selectByUserId(Long id);
 
     User selectByUsername(String username);
 
-    void insert(User user);
 
     void insertUserRole(@Param("userId") Long userId, @Param("roleId") Long roleId);
 

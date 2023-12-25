@@ -1,6 +1,8 @@
 package duegin.ginDriver.domain.po;
 
 
+import com.mybatisflex.annotation.Id;
+import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -19,10 +21,12 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @Accessors(chain = true)
+@Table("group")
 public class Group implements Serializable {
     /**
      * 组ID
      */
+    @Id
     @NotNull(groups = Update.class)
     private Long id;
 

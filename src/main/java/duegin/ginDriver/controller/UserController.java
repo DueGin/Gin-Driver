@@ -6,7 +6,7 @@ import duegin.ginDriver.domain.dto.user.UserParam;
 import duegin.ginDriver.domain.po.User;
 import duegin.ginDriver.domain.vo.Result;
 import duegin.ginDriver.domain.vo.UserVO;
-import duegin.ginDriver.service.IUserService;
+import duegin.ginDriver.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 public class UserController {
 
     @Resource
-    private IUserService userService;
+    private UserService userService;
 
     /**
      * 登录

@@ -9,7 +9,6 @@ import duegin.ginDriver.common.security.properties.SecurityProperties;
 import duegin.ginDriver.common.security.service.UserDetailsServiceImpl;
 import duegin.ginDriver.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +32,6 @@ import javax.annotation.Resource;
  */
 @Configuration
 @EnableWebSecurity
-@AutoConfiguration
 @RequiredArgsConstructor
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableConfigurationProperties(SecurityProperties.class)
@@ -43,6 +41,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      * security properties
      * 在配置文件中配置
      */
+    @Resource
     private final SecurityProperties securityProperties;
 
     /***根据用户名找到用户*/

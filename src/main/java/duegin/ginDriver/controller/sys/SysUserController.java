@@ -5,7 +5,7 @@ import duegin.ginDriver.domain.po.User;
 import duegin.ginDriver.domain.vo.PageVO;
 import duegin.ginDriver.domain.vo.Result;
 import duegin.ginDriver.domain.vo.SysUserVO;
-import duegin.ginDriver.service.impl.UserService;
+import duegin.ginDriver.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

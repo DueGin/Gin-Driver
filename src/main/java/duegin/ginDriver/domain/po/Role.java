@@ -1,6 +1,7 @@
 package duegin.ginDriver.domain.po;
 
 
+import com.mybatisflex.annotation.Id;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -18,6 +19,7 @@ public class Role implements Serializable {
     /**
      * 角色表id
      */
+    @Id
     private Long id;
 
     /**

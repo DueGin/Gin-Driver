@@ -1,5 +1,6 @@
 package duegin.ginDriver.domain.po;
 
+import com.mybatisflex.annotation.Id;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,6 +20,7 @@ public class User implements UserDetails {
 
     private static final long serialVersionUID = 1L;
 
+    @Id
     private Long id;
 
     private String username;

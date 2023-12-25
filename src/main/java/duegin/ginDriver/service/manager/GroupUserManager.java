@@ -22,7 +22,7 @@ public class GroupUserManager {
 
     @Transactional
     public Boolean createGroup(Group group) {
-        groupMapper.insert(group);
+        groupMapper.save(group);
         // 给组普通用户
         groupMapper.insertGroupUserRole(group.getId(), group.getUserId(), 5L, SecurityUtils.getLoginUser().getUsername());
         return true;

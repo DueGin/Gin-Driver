@@ -29,7 +29,8 @@ security:
     - /v2/api-docs
     - /favicon.ico
 #    - /configuration/security
-#    - /swagger-ui.html/**
+    - /swagger-ui/**
+    - /swagger-ui.html
 
 # jwt
 token:

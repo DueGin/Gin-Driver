@@ -1,6 +1,8 @@
 package duegin.ginDriver.mapper;
 
 
+import com.mybatisflex.core.BaseMapper;
+import duegin.ginDriver.domain.po.Role;
 import org.apache.ibatis.annotations.MapKey;
 
 import java.util.List;
@@ -9,7 +11,7 @@ import java.util.Map;
 /**
  * @author DueGin
  */
-public interface RoleMapper {
+public interface RoleMapper extends BaseMapper<Role> {
 
     /**
      * 获取用户角色
@@ -28,5 +30,10 @@ public interface RoleMapper {
 
     String selectGroupRoleByUserIdAndGroupId(Long userId, Long groupId);
 
+
+    ////// sys //////
     Boolean deleteUserRoleByUserId(Long userId);
+
+    Boolean modifyUserRole(Long userId, Long roleId);
+
 }

@@ -31,7 +31,7 @@
     <sql id="Group_USER_ROLE_Base_Column_List">
         id,user_id,role_id
     </sql>
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
         insert into `group`
         <trim prefix="(" suffixOverrides="," suffix=")">
             <if test="userId != null">user_id,</if>

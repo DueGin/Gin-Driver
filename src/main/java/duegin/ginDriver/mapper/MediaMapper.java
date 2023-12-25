@@ -1,9 +1,8 @@
 package duegin.ginDriver.mapper;
 
 
+import com.mybatisflex.core.BaseMapper;
 import duegin.ginDriver.domain.po.Media;
-import org.apache.ibatis.annotations.Insert;
-import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -11,9 +10,9 @@ import java.util.List;
 /**
 * @author DueGin
 */
-public interface MediaMapper {
+public interface MediaMapper extends BaseMapper<Media> {
 
-    Boolean insertOrUpdate(@Validated(Insert.class) Media media);
+    int insertOrUpdateByMe(Media media);
 
     Boolean deleteByMediaId(@NotNull Long id);
 

@@ -1,6 +1,7 @@
-package duegin.ginDriver.service.impl;
+package duegin.ginDriver.service;
 
 import duegin.ginDriver.common.security.utils.SecurityUtils;
+import duegin.ginDriver.core.service.impl.MyServiceImpl;
 import duegin.ginDriver.domain.po.Group;
 import duegin.ginDriver.domain.po.GroupUser;
 import duegin.ginDriver.domain.po.User;
@@ -20,7 +21,7 @@ import java.util.Map;
  */
 @Slf4j
 @Service
-public class GroupService {
+public class GroupService extends MyServiceImpl<GroupMapper, Group> {
     @Resource
     private GroupUserManager groupUserManager;
 
@@ -61,6 +62,7 @@ public class GroupService {
      */
     @Transactional
     public Result<Void> deleteGroup(Long groupId, Long groupGodId) {
+        GroupMapper groupMapper = (GroupMapper) super.getMapper();
         // 判断是否为组的拥有者
         Long creatorId = groupMapper.selectCreatorIdByGroupId(groupId);
         if (creatorId.equals(groupGodId)) {

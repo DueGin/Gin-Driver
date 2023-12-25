@@ -1,6 +1,7 @@
 package duegin.ginDriver.domain.po;
 
 
+import com.mybatisflex.annotation.Id;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,6 +17,7 @@ public class Permission implements Serializable {
     /**
      * 权限ID
      */
+    @Id
     private Long id;
 
     /**

@@ -1,6 +1,7 @@
 package duegin.ginDriver.mapper;
 
 
+import com.mybatisflex.core.BaseMapper;
 import duegin.ginDriver.domain.po.Group;
 import duegin.ginDriver.domain.vo.GroupVO;
 import org.apache.ibatis.annotations.Param;
@@ -10,9 +11,9 @@ import java.util.List;
 /**
  * @author DueGin
  */
-public interface GroupMapper {
+public interface GroupMapper extends BaseMapper<Group> {
 
-    Boolean insert(Group group);
+    Boolean save(Group group);
 
     Boolean deleteByGroupId(Long groupId);
 

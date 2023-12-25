@@ -7,7 +7,7 @@ import duegin.ginDriver.domain.po.Group;
 import duegin.ginDriver.domain.vo.GroupVO;
 import duegin.ginDriver.domain.vo.Result;
 import duegin.ginDriver.mapper.GroupMapper;
-import duegin.ginDriver.service.impl.GroupService;
+import duegin.ginDriver.service.GroupService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

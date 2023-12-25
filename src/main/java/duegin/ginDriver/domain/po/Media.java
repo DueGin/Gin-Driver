@@ -1,6 +1,7 @@
 package duegin.ginDriver.domain.po;
 
 
+import com.mybatisflex.annotation.Id;
 import lombok.Data;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Update;
@@ -19,6 +20,7 @@ public class Media implements Serializable {
     /**
      * 媒体ID
      */
+    @Id
     @NotNull(groups = Update.class)
     private Long id;
 

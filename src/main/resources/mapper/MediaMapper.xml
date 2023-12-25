@@ -22,7 +22,7 @@
         src,`status`,is_share,
         `format`,create_time,update_time
     </sql>
-    <insert id="insertOrUpdate">
+    <insert id="insertOrUpdateByMe">
         insert into media
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="fileName != null">fileName,</if>
