@@ -5,8 +5,14 @@
     <groupId>duegin</groupId>
     <artifactId>gin-driver</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>GinDriver</name>
     <description>Gin Driver</description>
+    <modules>
+        <module>Gin-Core</module>
+        <module>Gin-Main</module>
+        <module>Gin-Common</module>
+    </modules>
     <properties>
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,6 +20,7 @@
         <spring-boot.version>2.7.17</spring-boot.version>
         <mybatis-flex.version>1.7.5</mybatis-flex.version>
         <druid.version>1.2.16</druid.version>
+        <minio.version>8.3.0</minio.version>
         <jjwt.version>0.9.0</jjwt.version>
         <commons-codec.version>1.16.0</commons-codec.version>
         <fastjson2.version>2.0.41</fastjson2.version>
@@ -36,7 +43,10 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
 
         <!-- tools -->
         <dependency>
@@ -118,6 +128,13 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
+        <!-- minio -->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>${minio.version}</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -155,6 +172,17 @@
                 <scope>import</scope>
             </dependency>
 
+            <dependency>
+                <groupId>com.duegin</groupId>
+                <artifactId>Gin-Core</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.duegin</groupId>
+                <artifactId>Gin-Common</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
