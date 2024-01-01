@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="duegin.ginDriver.mapper.RoleMapper">
+<mapper namespace="com.ginDriver.main.mapper.RoleMapper">
 
-    <resultMap id="BaseResultMap" type="duegin.ginDriver.domain.po.Role">
+    <resultMap id="BaseResultMap" type="com.ginDriver.main.domain.po.Role">
         <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
         <result property="description" column="description" jdbcType="VARCHAR"/>

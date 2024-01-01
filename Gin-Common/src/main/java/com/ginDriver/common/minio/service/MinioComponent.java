@@ -231,15 +231,17 @@ public class MinioComponent {
     /**
      * 删除文件
      *
+     * @param bucketName 桶名称
      * @param fileName 文件名
-     * @throws Exception
      */
     @SneakyThrows
-    public void remove(String fileName) {
+    public Boolean remove(String bucketName, String fileName) {
         try {
-            minio.removeObject(RemoveObjectArgs.builder().bucket("test").object(fileName).build());
+            minio.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(fileName).build());
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
 
     }

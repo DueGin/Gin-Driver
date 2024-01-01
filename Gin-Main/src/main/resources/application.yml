@@ -1,6 +1,10 @@
 spring:
   profiles:
     active: dev
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 
 logging:
@@ -10,7 +14,6 @@ logging:
 
 mybatis-flex:
   mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: duegin.ginDriver.domain.po
+  type-aliases-package: com.ginDriver.domain.po
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-

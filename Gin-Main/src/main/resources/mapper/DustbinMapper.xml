@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ginDriver.main.mapper.DustbinMapper">
+    <resultMap id="BaseResultMap" type="com.ginDriver.main.domain.po.Dustbin">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="media_id" jdbcType="BIGINT" property="mediaId"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="file_name" jdbcType="VARCHAR" property="fileName"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        `id`, `media_id`, `user_id`, `file_name`, `type`, `create_time`, `update_time`
+    </sql>
+
+</mapper>

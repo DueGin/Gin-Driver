@@ -1,7 +1,7 @@
 package duegin.ginDriver;
 
-import duegin.ginDriver.domain.po.Group;
-import duegin.ginDriver.service.GroupService;
+import com.ginDriver.main.domain.po.Group;
+import com.ginDriver.main.service.GroupService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="duegin.ginDriver.mapper.UserMapper">
+<mapper namespace="com.ginDriver.main.mapper.UserMapper">
 
     <resultMap id="UserBaseResultMap" type="com.ginDriver.core.domain.po.User">
         <id property="id" column="id" jdbcType="BIGINT"/>
@@ -12,7 +12,7 @@
         <result property="email" column="email" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <resultMap id="SysUserVOBaseResultMap" type="duegin.ginDriver.domain.vo.SysUserVO">
+    <resultMap id="SysUserVOBaseResultMap" type="com.ginDriver.main.domain.vo.SysUserVO">
         <id property="userId" column="user_id" jdbcType="BIGINT"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="password" column="password" jdbcType="VARCHAR"/>

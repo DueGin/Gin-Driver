@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="duegin.ginDriver.mapper.GroupMapper">
+<mapper namespace="com.ginDriver.main.mapper.GroupMapper">
 
-    <resultMap id="GroupBaseResultMap" type="duegin.ginDriver.domain.po.Group">
+    <resultMap id="GroupBaseResultMap" type="com.ginDriver.main.domain.po.Group">
         <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
         <result property="userId" column="user_id" jdbcType="BIGINT"/>
@@ -15,11 +15,11 @@
         <result property="deleted" column="deleted" jdbcType="TINYINT"/>
     </resultMap>
 
-    <resultMap id="GroupVOBaseResultMap" type="duegin.ginDriver.domain.vo.GroupVO">
+    <resultMap id="GroupVOBaseResultMap" type="com.ginDriver.main.domain.vo.GroupVO">
         <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
-        <result property="groupGodId" column="user_id" jdbcType="BIGINT"/>
-        <result property="groupGodUsername" column="username" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="username" column="username" jdbcType="BIGINT"/>
         <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
@@ -85,7 +85,7 @@
         from group_user_role
         where group_id = #{groupId}
     </delete>
-    <select id="selectAllByUserId" resultType="duegin.ginDriver.domain.vo.GroupVO" resultMap="GroupVOBaseResultMap">
+    <select id="selectAllByUserId" resultType="com.ginDriver.main.domain.vo.GroupVO" resultMap="GroupVOBaseResultMap">
         select g.id,
                g.group_name,
                g.user_id,
