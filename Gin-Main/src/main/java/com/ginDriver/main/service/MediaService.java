@@ -6,10 +6,12 @@ import com.ginDriver.core.service.impl.MyServiceImpl;
 import com.ginDriver.main.domain.dto.media.MediaDTO;
 import com.ginDriver.main.domain.po.Dustbin;
 import com.ginDriver.main.domain.po.Media;
+import com.ginDriver.main.domain.po.MediaExif;
 import com.ginDriver.main.domain.vo.FileVO;
 import com.ginDriver.main.domain.vo.MediaVO;
 import com.ginDriver.main.mapper.MediaMapper;
 import com.ginDriver.main.security.utils.SecurityUtils;
+import com.ginDriver.main.utils.GpsExifInfoUtil;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +44,9 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
     @Resource
     private DustbinService dustbinService;
 
+    @Resource
+    private MediaExifService mediaExifService;
+
 
     /**
      * 存入minio，存入db
@@ -68,7 +73,7 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
             Media media = new Media();
             media.setUserId(SecurityUtils.getUserId());
             media.setFileName(objName);
-            media.setFormat(file.getContentType());
+            media.setMimeType(file.getContentType());
             mediaList.add(media);
         }
 
@@ -107,15 +112,21 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
 
         // todo 加入队列异步获取exif信息
 
-
         Media m = new Media();
         m.setUserId(SecurityUtils.getUserId());
         m.setFileName(objName);
-        m.setFormat(file.getContentType());
+        m.setMimeType(file.getContentType());
 
         try {
+            Map<String, String> exifInfo = GpsExifInfoUtil.readExifInfo(file.getInputStream());
+            MediaExif exif = GpsExifInfoUtil.convertToExifInfoDTO(exifInfo);
+            m.setMediaDate(exif.getCreateTime() != null ? exif.getCreateTime().toLocalDate() : null);
             // 存入db
             super.save(m);
+
+//            exif.setMediaId(m.getId());
+//             保存exif
+//            mediaExifService.save(exif);
         } catch (Exception e) {
             log.error(e.getMessage());
             // 删除minio

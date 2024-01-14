@@ -3,6 +3,7 @@ package com.ginDriver.main.domain.po;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
+import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import org.apache.ibatis.annotations.Insert;
@@ -10,6 +11,7 @@ import org.apache.ibatis.annotations.Update;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -23,7 +25,7 @@ public class Media implements Serializable {
     /**
      * 媒体ID
      */
-    @Id
+    @Id(keyType = KeyType.Auto)
     @NotNull(groups = Update.class)
     private Long id;
 
@@ -68,7 +70,9 @@ public class Media implements Serializable {
      * 媒体格式
      */
     @NotNull(groups = Insert.class)
-    private String format;
+    private String mimeType;
+
+    private LocalDate mediaDate;
 
     /**
      * 创建时间

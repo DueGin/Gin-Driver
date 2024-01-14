@@ -1,5 +1,5 @@
 -- MySQL dump 10.13  Distrib 8.0.35, for macos14.0 (arm64)
---
+-- 2024.01.14 21:38
 -- Host: 127.0.0.1    Database: gin-driver
 -- ------------------------------------------------------
 -- Server version	8.0.33
@@ -14,6 +14,39 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `dustbin`
+--
+
+DROP TABLE IF EXISTS `dustbin`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dustbin` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `media_id` bigint NOT NULL COMMENT '媒体ID',
+  `user_id` bigint NOT NULL COMMENT '删除者ID',
+  `file_name` varchar(255) NOT NULL COMMENT '文件名',
+  `type` int NOT NULL COMMENT '文件类型(1：图片，2：视频，3：电影，4：其他)',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='媒体资源垃圾箱';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `dustbin`
+--
+
+LOCK TABLES `dustbin` WRITE;
+/*!40000 ALTER TABLE `dustbin` DISABLE KEYS */;
+INSERT INTO `dustbin` VALUES (1,2,1,'file_193de7ebd97f4a4e91a64051782b5f6a',3,'2023-12-31 16:08:08','2023-12-31 16:08:08');
+INSERT INTO `dustbin` VALUES (2,1,1,'file_8afb5ab1ad3b4022925dffa09f72bf4a',3,'2023-12-31 16:08:08','2023-12-31 16:08:08');
+INSERT INTO `dustbin` VALUES (3,13,1,'file_8c05286035f84f44acbe5e9af7e78808',3,'2024-01-12 13:38:09','2024-01-12 13:38:09');
+INSERT INTO `dustbin` VALUES (4,12,1,'file_d35a371e5dc942ab90641630d6b3f324',3,'2024-01-12 13:38:09','2024-01-12 13:38:09');
+INSERT INTO `dustbin` VALUES (5,11,1,'file_9f786376361345b8b60dfb94ee225ed1',3,'2024-01-12 13:38:09','2024-01-12 13:38:09');
+/*!40000 ALTER TABLE `dustbin` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `group`
@@ -41,7 +74,7 @@ CREATE TABLE `group` (
 
 LOCK TABLES `group` WRITE;
 /*!40000 ALTER TABLE `group` DISABLE KEYS */;
-INSERT INTO `group` VALUES (7,'朵拉日记',1730617494076522496,NULL,NULL,'2023-12-01 16:42:44','2023-12-03 09:56:30',0);
+INSERT INTO `group` VALUES (7,'阿甘正传',1730617494076522496,NULL,'hhhhhjnilm','2023-12-01 16:42:44','2023-12-30 05:23:16',0);
 INSERT INTO `group` VALUES (27,'fsda',1730617494076522496,NULL,'fsadf','2023-12-19 16:30:01','2023-12-19 16:30:01',0);
 INSERT INTO `group` VALUES (28,'sfdsaf',1730617494076522496,NULL,'dfas','2023-12-19 16:31:04','2023-12-19 16:31:04',0);
 INSERT INTO `group` VALUES (29,'fsda',1730617494076522496,NULL,'wq','2023-12-19 16:40:05','2023-12-19 16:40:05',0);
@@ -71,7 +104,7 @@ CREATE TABLE `group_user_role` (
 
 LOCK TABLES `group_user_role` WRITE;
 /*!40000 ALTER TABLE `group_user_role` DISABLE KEYS */;
-INSERT INTO `group_user_role` VALUES (7,1,7,'admin');
+INSERT INTO `group_user_role` VALUES (7,1,5,'admin');
 INSERT INTO `group_user_role` VALUES (7,1730617494076522496,4,'test');
 INSERT INTO `group_user_role` VALUES (27,1730617494076522496,5,'test1');
 INSERT INTO `group_user_role` VALUES (28,1730617494076522496,5,'test1');
@@ -90,16 +123,19 @@ CREATE TABLE `media` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `user_id` bigint NOT NULL COMMENT '上传者ID',
   `file_name` varchar(255) NOT NULL COMMENT '文件名',
-  `type` int NOT NULL COMMENT '文件类型1：图片，2：视频，3：电影，4：其他',
-  `src` varchar(255) NOT NULL COMMENT '文件路径',
+  `type` int DEFAULT NULL COMMENT '文件类型1：图片，2：视频，3：电影，4：其他',
+  `src` varchar(255) DEFAULT NULL COMMENT '文件路径',
+  `url` varchar(255) DEFAULT NULL COMMENT 'minio地址',
+  `group_id` bigint NOT NULL DEFAULT '0' COMMENT '组ID',
   `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '文件状态',
-  `is_share` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为公众媒体',
-  `format` varchar(10) DEFAULT NULL COMMENT '媒体格式',
+  `self` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为私有(0:不私有，1:私有)',
+  `mime_type` varchar(32) DEFAULT NULL COMMENT '媒体格式',
+  `media_date` date DEFAULT NULL COMMENT '媒体创建时间',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '软删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='媒体资源';
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='媒体资源';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -108,7 +144,49 @@ CREATE TABLE `media` (
 
 LOCK TABLES `media` WRITE;
 /*!40000 ALTER TABLE `media` DISABLE KEYS */;
+INSERT INTO `media` VALUES (1,1,'file_8afb5ab1ad3b4022925dffa09f72bf4a',3,NULL,NULL,0,1,0,'image/png',NULL,'2023-12-31 07:41:03','2023-12-31 16:08:08',1);
+INSERT INTO `media` VALUES (2,1,'file_193de7ebd97f4a4e91a64051782b5f6a',3,NULL,NULL,0,1,0,'image/png',NULL,'2023-12-31 08:14:59','2023-12-31 16:08:08',1);
+INSERT INTO `media` VALUES (3,1,'file_557aaf1ba53f45499d1e2c335dc4829d',3,NULL,NULL,0,1,0,'image/png','2022-01-01','2023-12-31 08:15:00','2024-01-12 14:32:18',0);
+INSERT INTO `media` VALUES (4,1,'file_dcaae7df511b4828b5d267f4db145303',NULL,NULL,NULL,0,1,0,'image/jpeg','2024-01-16','2024-01-01 10:02:35','2024-01-12 14:32:18',0);
+INSERT INTO `media` VALUES (5,1,'file_495597a4c1b0431fb15058c62f5be3ee',NULL,NULL,NULL,0,1,0,'image/jpeg','2024-01-15','2024-01-01 10:02:36','2024-01-12 14:32:18',0);
+INSERT INTO `media` VALUES (6,1,'file_ea764cabd5a743a6888c84bd96c6294b',NULL,NULL,NULL,0,1,0,'image/jpeg','2022-01-13','2024-01-01 10:02:37','2024-01-12 14:32:18',0);
+INSERT INTO `media` VALUES (7,1,'file_253bd7f0cd0743c59c1cd97e93988e52',NULL,NULL,NULL,0,1,0,'image/jpeg','2023-04-18','2024-01-01 10:06:13','2024-01-12 14:32:18',0);
+INSERT INTO `media` VALUES (8,1,'file_e6133f55deb14ea6b3d9427522993cd0',NULL,NULL,NULL,0,1,0,'image/jpeg','2023-02-07','2024-01-01 10:25:07','2024-01-12 14:32:18',0);
+INSERT INTO `media` VALUES (9,1,'file_e3c60f072ad547c497d2ea148304dd54',NULL,NULL,NULL,0,1,0,'image/jpeg','2023-07-24','2024-01-01 10:26:46','2024-01-12 14:32:18',0);
+INSERT INTO `media` VALUES (10,1,'file_44883c21855942c4b1295bbec0ed3038',NULL,NULL,NULL,0,1,0,'image/jpeg','2024-01-12','2024-01-01 10:26:50','2024-01-12 14:32:18',0);
+INSERT INTO `media` VALUES (11,1,'file_9f786376361345b8b60dfb94ee225ed1',NULL,NULL,NULL,0,1,0,'image/jpeg',NULL,'2024-01-12 04:35:20','2024-01-12 13:38:09',1);
+INSERT INTO `media` VALUES (12,1,'file_d35a371e5dc942ab90641630d6b3f324',NULL,NULL,NULL,0,1,0,'image/jpeg',NULL,'2024-01-12 04:47:50','2024-01-12 13:38:09',1);
+INSERT INTO `media` VALUES (13,1,'file_8c05286035f84f44acbe5e9af7e78808',NULL,NULL,NULL,0,1,0,'image/jpeg',NULL,'2024-01-12 05:02:10','2024-01-12 13:38:09',1);
 /*!40000 ALTER TABLE `media` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `media_exif`
+--
+
+DROP TABLE IF EXISTS `media_exif`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `media_exif` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `media_id` bigint NOT NULL COMMENT '文件id',
+  `width` int DEFAULT NULL,
+  `height` int DEFAULT NULL,
+  `mime_type` varchar(32) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `model` varchar(32) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='媒体资源信息';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `media_exif`
+--
+
+LOCK TABLES `media_exif` WRITE;
+/*!40000 ALTER TABLE `media_exif` DISABLE KEYS */;
+INSERT INTO `media_exif` VALUES (1,13,1920,1080,'image/jpeg','2015-12-09 15:08:53',NULL);
+/*!40000 ALTER TABLE `media_exif` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -123,7 +201,10 @@ CREATE TABLE `menu` (
   `name` varchar(8) NOT NULL COMMENT '菜单名称',
   `parent_id` bigint NOT NULL DEFAULT '0' COMMENT '父菜单ID',
   `path` varchar(32) NOT NULL DEFAULT '' COMMENT '路由地址',
-  `component` varchar(64) NOT NULL COMMENT '组件路径',
+  `component_path` varchar(64) NOT NULL COMMENT '组件路径',
+  `component_name` varchar(32) NOT NULL COMMENT '组件名称',
+  `layout_component` varchar(64) DEFAULT NULL COMMENT '布局组件',
+  `slot_or_router` tinyint DEFAULT NULL COMMENT '使用插槽还是路由(0：插槽，1：路由)',
   `icon` varchar(32) DEFAULT NULL COMMENT '菜单图标',
   `perms` varchar(16) DEFAULT NULL COMMENT '权限标识',
   `status` tinyint NOT NULL DEFAULT '0' COMMENT '菜单状态（1正常 0停用）',
@@ -142,13 +223,14 @@ CREATE TABLE `menu` (
 
 LOCK TABLES `menu` WRITE;
 /*!40000 ALTER TABLE `menu` DISABLE KEYS */;
-INSERT INTO `menu` VALUES (1,'组信息',0,'/group/detail','/group/detail/index',NULL,NULL,1,1,0,'2023-12-24 20:30:21','2023-12-24 12:42:35',NULL);
-INSERT INTO `menu` VALUES (2,'组管理',0,'/group/manager','/group/manager/index',NULL,NULL,1,1,1,'2023-12-24 12:45:12','2023-12-24 12:45:12',NULL);
-INSERT INTO `menu` VALUES (8,'组资源',0,'/group/resource','/group/resource/index',NULL,NULL,1,1,2,'2023-12-24 12:38:53','2023-12-24 12:45:12',NULL);
-INSERT INTO `menu` VALUES (9,'首页',0,'/media/home','/media/index','tdesign:home',NULL,1,2,0,'2023-12-24 12:38:53','2023-12-24 12:38:53',NULL);
-INSERT INTO `menu` VALUES (10,'全部',0,'/media/mediaAll','/media/MediaAll','tabler:photo',NULL,1,2,1,'2023-12-24 12:38:54','2023-12-24 12:38:54',NULL);
-INSERT INTO `menu` VALUES (11,'地点',0,'/media/place','/media/MediaPlace','ep:place',NULL,1,2,2,'2023-12-24 12:38:54','2023-12-24 12:43:04',NULL);
-INSERT INTO `menu` VALUES (12,'分类',0,'/media/classify','/media/classify/MediaClassifyList','mingcute:classify-add-2-line',NULL,1,2,3,'2023-12-24 12:38:54','2023-12-24 15:00:18',NULL);
+INSERT INTO `menu` VALUES (1,'组信息',0,'/group/info','/group/info/index','GroupDetail','HeaderAndSiderLayout',NULL,NULL,NULL,1,1,0,'2023-12-24 20:30:21','2023-12-29 15:35:39',NULL);
+INSERT INTO `menu` VALUES (2,'组管理',0,'/group/manager','/group/manager/index','GroupManager','HeaderAndSiderLayout',NULL,NULL,NULL,1,1,1,'2023-12-24 12:45:12','2023-12-29 15:15:47',NULL);
+INSERT INTO `menu` VALUES (3,'首页',0,'/group/home','/group/index','GroupHome','HeaderLayout',1,NULL,NULL,0,3,0,'2023-12-29 15:13:08','2023-12-29 15:16:09',NULL);
+INSERT INTO `menu` VALUES (8,'组资源',0,'/group/resource','/group/resource/index','GroupResource','HeaderAndSiderLayout',NULL,NULL,NULL,1,1,2,'2023-12-24 12:38:53','2023-12-29 15:15:47',NULL);
+INSERT INTO `menu` VALUES (9,'首页',0,'/media/home','/media/index','MediaHome','HeaderAndSiderLayout',NULL,'tdesign:home',NULL,1,2,0,'2023-12-24 12:38:53','2023-12-29 15:13:59',NULL);
+INSERT INTO `menu` VALUES (10,'全部',0,'/media/mediaAll','/media/MediaAll','MediaAll','HeaderAndSiderLayout',NULL,'tabler:photo',NULL,1,2,1,'2023-12-24 12:38:54','2023-12-29 15:13:59',NULL);
+INSERT INTO `menu` VALUES (11,'地点',0,'/media/place','/media/MediaPlace','MediaPlace','HeaderAndSiderLayout',NULL,'ep:place',NULL,1,2,2,'2023-12-24 12:38:54','2023-12-29 15:13:59',NULL);
+INSERT INTO `menu` VALUES (12,'分类',0,'/media/classify','/media/classify/MediaClassifyList','MediaClassify','HeaderAndSiderLayout',NULL,'mingcute:classify-add-2-line',NULL,1,2,3,'2023-12-24 12:38:54','2023-12-29 15:13:59',NULL);
 /*!40000 ALTER TABLE `menu` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -261,7 +343,7 @@ CREATE TABLE `sys_dict` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='字典表';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='字典表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -272,6 +354,7 @@ LOCK TABLES `sys_dict` WRITE;
 /*!40000 ALTER TABLE `sys_dict` DISABLE KEYS */;
 INSERT INTO `sys_dict` VALUES (2,'menu','group',1,1,NULL,'2023-12-24 14:45:47','2023-12-24 14:52:52');
 INSERT INTO `sys_dict` VALUES (3,'menu','media',2,1,NULL,'2023-12-24 14:45:47','2023-12-24 14:52:52');
+INSERT INTO `sys_dict` VALUES (4,'menu','other',3,1,NULL,'2023-12-30 07:06:45','2023-12-30 07:06:45');
 /*!40000 ALTER TABLE `sys_dict` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -290,7 +373,7 @@ CREATE TABLE `sys_dict_type` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -299,6 +382,7 @@ CREATE TABLE `sys_dict_type` (
 
 LOCK TABLES `sys_dict_type` WRITE;
 /*!40000 ALTER TABLE `sys_dict_type` DISABLE KEYS */;
+INSERT INTO `sys_dict_type` VALUES (1,'menu',1,'菜单','2024-01-14 12:54:12','2024-01-14 12:54:12');
 /*!40000 ALTER TABLE `sys_dict_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -406,4 +490,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-25 11:25:26
+-- Dump completed on 2024-01-14 21:38:15

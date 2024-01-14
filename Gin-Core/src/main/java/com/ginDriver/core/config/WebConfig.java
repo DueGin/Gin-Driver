@@ -1,10 +1,11 @@
-package com.ginDriver.main.config;
+package com.ginDriver.core.config;
 
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -15,8 +16,6 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-//@EnableSwagger2
-//@EnableKnife4j
 public class WebConfig implements WebMvcConfigurer {
     /**
      * 设置静态资源映射
@@ -47,6 +46,20 @@ public class WebConfig implements WebMvcConfigurer {
         messageConverter.setObjectMapper(new JacksonObjectMapper());
         // 将上面的消息转换器对象追加到mvc框架的转换器集合中，需要添加到第一个位置，不然他也只会用前面的转换器
         converters.add(0, messageConverter);
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        // 设置允许跨域的路由
+        registry.addMapping("/**")
+                // 设置允许跨域请求的域名
+                .allowedOriginPatterns("*")
+                // 是否允许证书（cookies）
+                .allowCredentials(true)
+                // 设置允许的方法
+                .allowedMethods("*")
+                // 跨域允许时间
+                .maxAge(3600);
     }
 
 }

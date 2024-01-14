@@ -57,7 +57,7 @@ public class MediaVO {
     /**
      * 媒体格式
      */
-    private String format;
+    private String mimeType;
 
     /**
      * 创建时间

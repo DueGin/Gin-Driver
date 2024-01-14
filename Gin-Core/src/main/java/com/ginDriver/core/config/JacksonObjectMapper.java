@@ -1,4 +1,6 @@
-package com.ginDriver.main.config;
+package com.ginDriver.core.config;
+
+
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

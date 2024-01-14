@@ -11,7 +11,7 @@
         <result property="src" column="src" jdbcType="VARCHAR"/>
         <result property="status" column="status" jdbcType="TINYINT"/>
         <result property="self" column="self" jdbcType="TINYINT"/>
-        <result property="format" column="format" jdbcType="VARCHAR"/>
+        <result property="mimeType" column="mime_type" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -26,14 +26,14 @@
             <if test="src != null">src,</if>
             <if test="status != null">`status`,</if>
             <if test="self != null">self,</if>
-            <if test="format != null">`format`,</if>
+            <if test="mimeType != null">`mime_type`,</if>
         </trim>
         <trim prefix="values(" suffixOverrides="," suffix=")">
             <if test="fileName != null">#{fileName},</if>
             <if test="src != null">#{src},</if>
             <if test="status != null">#{status},</if>
             <if test="self != null">#{self},</if>
-            <if test="format != null">#{format},</if>
+            <if test="mimeType != null">#{mimeType},</if>
         </trim>
         ON DUPLICATE KEY UPDATE
         <trim suffixOverrides=",">
@@ -41,7 +41,7 @@
             <if test="src != null">src = #{src},</if>
             <if test="status != null">`status` = #{status},</if>
             <if test="self != null">self = #{self},</if>
-            <if test="format != null">`format` = #{format},</if>
+            <if test="mimeType != null">`mime_type` = #{mimeType},</if>
         </trim>
     </insert>
     <delete id="deleteByMediaId">
@@ -53,5 +53,22 @@
         select <include refid="Base_Column_List"/>
         from media
         user_id = #{userId};
+    </select>
+    <select id="selectGroupByMonth" resultType="java.util.Map">
+        select year(media_date) year, month(media_date) month
+        from media where media_date is not null
+        group by year(media_date), month(media_date)
+        order by year(media_date), month(media_date)
+    </select>
+    <select id="selectGroupByYear" resultType="java.lang.String">
+        select year(media_date) year
+        from media where media_date is not null
+        group by year(media_date)
+        order by year(media_date)
+    </select>
+    <select id="selectBetweenDate" resultType="com.ginDriver.main.domain.po.Media">
+        select <include refid="Base_Column_List"/>
+        from media
+        where media_date between #{startDate} and #{endDate}
     </select>
 </mapper>
