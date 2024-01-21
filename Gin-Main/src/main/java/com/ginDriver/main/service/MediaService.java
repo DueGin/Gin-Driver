@@ -47,6 +47,8 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
     @Resource
     private MediaExifService mediaExifService;
 
+    private static final Integer EXPIRE = 24 * 60 * 60;
+
 
     /**
      * 存入minio，存入db
@@ -124,9 +126,9 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
             // 存入db
             super.save(m);
 
-//            exif.setMediaId(m.getId());
+            exif.setMediaId(m.getId());
 //             保存exif
-//            mediaExifService.save(exif);
+            mediaExifService.save(exif);
         } catch (Exception e) {
             log.error(e.getMessage());
             // 删除minio
@@ -159,29 +161,53 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
             return voPage;
         }
 
-        Set<Long> userIdSet = page.getRecords().stream().map(Media::getUserId).collect(Collectors.toSet());
-        Map<Long, List<User>> userMap = userService.list(QueryWrapper.create()
-                .from(User.class)
-                .in(User::getId, userIdSet)
-        ).stream().collect(Collectors.groupingBy(User::getId));
-
-        // 转换数据，并获取minio地址
-        Integer expire = 24 * 60 * 60;
-        List<MediaVO> vos = page.getRecords().stream().map(m -> {
-            MediaVO vo = new MediaVO();
-            BeanUtils.copyProperties(m, vo);
-            List<User> users = userMap.get(vo.getUserId());
-            vo.setUsername(users.get(0).getUsername());
-            // 设置minio url
-            String objUrl = fileService.getObjUrl(media, vo.getFileName(), expire);
-            vo.setUrl(objUrl);
-            return vo;
-        }).collect(Collectors.toList());
+        // 转换数据，并设置minio地址，用户信息
+        List<MediaVO> vos = convertToVOListWithUsername(page.getRecords());
 
         Page<MediaVO> voPage = new Page<>();
         BeanUtils.copyProperties(mediaDTO, voPage, "records");
         voPage.setRecords(vos);
         return voPage;
+    }
+
+    /**
+     * 转换MediaVO，并设置minio地址，媒体所属用户信息
+     *
+     * @param list    media集合
+     * @return {@code List<MediaVO>} VO集合
+     */
+    public List<MediaVO> convertToVOListWithUsername(List<Media> list) {
+        // 获取用户信息
+        Set<Long> userIdSet = list.stream().map(Media::getUserId).collect(Collectors.toSet());
+        Map<Long, List<User>> userMap = userService.list(QueryWrapper.create()
+                .from(User.class)
+                .in(User::getId, userIdSet)
+        ).stream().collect(Collectors.groupingBy(User::getId));
+
+        return list.stream().map(m -> {
+            MediaVO vo = new MediaVO();
+            BeanUtils.copyProperties(m, vo);
+            List<User> users = userMap.get(vo.getUserId());
+            vo.setUsername(users.get(0).getUsername());
+            // 设置minio url
+            String objUrl = fileService.getObjUrl(media, vo.getFileName(), EXPIRE);
+            vo.setUrl(objUrl);
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 设置minio地址
+     *
+     * @param list    mediaVO集合
+     * @return {@code List<MediaVO>} VO集合
+     */
+    public void setMinioUrl(List<MediaVO> list) {
+        list.forEach(vo -> {
+            // 设置minio url
+            String objUrl = fileService.getObjUrl(media, vo.getFileName(), EXPIRE);
+            vo.setUrl(objUrl);
+        });
     }
 
     public ResultVO<Void> delete(Long[] ids) {

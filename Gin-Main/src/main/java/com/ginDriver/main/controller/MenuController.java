@@ -71,12 +71,6 @@ public class MenuController {
         return ResultVO.ok(menuService.list());
     }
 
-
-//    @GetMapping("treeList")
-//    public ResultVO<List<Menu>> treeList(){
-//
-//    }
-
     /**
      * 根据菜单权限表主键获取详细信息。
      *

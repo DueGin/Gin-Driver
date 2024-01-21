@@ -53,7 +53,7 @@ public class RoleService extends MyServiceImpl<RoleMapper, Role> {
     }
 
     public Boolean checkSysRole(String needSysRole) {
-        String sysRole = SecurityUtils.getRole().get("sys");
+        String sysRole = SecurityUtils.getSysRole();
         if (sysRole != null) {
             // 判断role
             switch (sysRole) {

@@ -35,8 +35,7 @@
                m.sorted,
                m.remark,
                sd.label typeName
-        from menu m
-                 left join sys_dict sd on m.type = sd.value
+        from menu m inner join sys_dict sd on m.type = sd.id
     </select>
 
 </mapper>

@@ -5,14 +5,15 @@
 <mapper namespace="com.ginDriver.main.mapper.SysDictTypeMapper">
     <resultMap id="BaseResultMap" type="com.ginDriver.main.domain.po.SysDictType">
         <id column="id" jdbcType="BIGINT" property="id"/>
-        <result column="dict_name" jdbcType="VARCHAR" property="dictName"/>
+        <result column="code" jdbcType="VARCHAR" property="code"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="status" jdbcType="TINYINT" property="status"/>
         <result column="remark" jdbcType="VARCHAR" property="remark"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        `id`, `dict_name`, `status`, `remark`, `create_time`, `update_time`
+        `id`, `code`, `name`, `status`, `remark`, `create_time`, `update_time`
     </sql>
 
 </mapper>

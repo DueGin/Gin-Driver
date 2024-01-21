@@ -44,4 +44,20 @@
         from role
         where id = (select role_id from group_user_role where user_id = #{userId} and group_id = #{groupId})
     </select>
+    <select id="selectWithUserRoleByUserId" resultType="com.ginDriver.main.domain.vo.RoleVO">
+        select r.*, ur.user_id
+        from user_role ur left join role r on r.id = ur.role_id
+        where ur.user_id in
+        <foreach collection="userIdList" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+    <select id="selectWithGroupUserRoleByUserId" resultType="com.ginDriver.main.domain.vo.GroupRoleVO">
+        select r.*, gur.user_id, gur.group_id
+        from group_user_role gur left join role r on r.id = gur.role_id
+        where gur.user_id in
+        <foreach collection="userIdList" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

@@ -1,9 +1,11 @@
 package com.ginDriver.main.controller.sys;
 
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.main.domain.dto.sys.dict.SysDictPageDTO;
 import com.ginDriver.main.domain.po.SysDict;
 import com.ginDriver.main.service.SysDictService;
 import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -91,8 +93,11 @@ public class SysDictController {
      * @return 分页对象
      */
     @GetMapping("/page")
-    public ResultVO<Page<SysDict>> page(Page<SysDict> page) {
-        return ResultVO.ok(sysDictService.page(page));
+    public ResultVO<Page<SysDict>> page(SysDictPageDTO page) {
+        QueryWrapper qw = QueryWrapper.create()
+                .from(SysDict.class)
+                .eq(SysDict::getDictType, page.getDictType());
+        return ResultVO.ok(sysDictService.page(page, qw));
     }
 
     @GetMapping("/list/{dictType}")
@@ -105,7 +110,7 @@ public class SysDictController {
         List<SysDict> dictList = sysDictService.getDictByDictType(dictType);
         Map<String, Integer> map = new HashMap<>();
 
-        dictList.forEach(sysDict-> map.put(sysDict.getLabel(), sysDict.getValue()));
+        dictList.forEach(sysDict -> map.put(sysDict.getLabel(), sysDict.getValue()));
 
         return ResultVO.ok(map);
     }

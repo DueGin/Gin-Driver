@@ -1,23 +1,33 @@
 package com.ginDriver.main.domain.vo;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
  * @author DueGin
  */
 @Data
+@ApiModel("媒体VO")
 public class MediaVO {
     /**
      * 媒体ID
      */
+    @ApiModelProperty("媒体ID")
     private Long id;
 
     /**
      * 上传用户
      */
     private Long userId;
+
+    /**
+     * 组ID
+     */
+    private Long groupId;
 
     /**
      * 用户名
@@ -58,6 +68,21 @@ public class MediaVO {
      * 媒体格式
      */
     private String mimeType;
+
+    /**
+     * 媒体拍摄时间
+     */
+    private LocalDate mediaDate;
+
+    /**
+     * 媒体宽度(像素)
+     */
+    private Integer width;
+
+    /**
+     * 媒体高度(像素)
+     */
+    private Integer height;
 
     /**
      * 创建时间

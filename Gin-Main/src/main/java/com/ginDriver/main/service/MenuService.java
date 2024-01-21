@@ -107,29 +107,35 @@ public class MenuService extends MyServiceImpl<MenuMapper, Menu> {
         }
     }
 
-    public Map<String, List<MenuVO>> getMenuMap(){
+    /**
+     * 获取菜单KV集合
+     * @return <字典类型名称, [..MenuVO]>
+     */
+    public Map<String, List<MenuVO>> getMenuMap() {
         MenuMapper mapper = (MenuMapper) super.getMapper();
         List<MenuVO> voList = mapper.getAll();
 
         Map<String, List<MenuVO>> map = new HashMap<>();
-        voList.stream().collect(Collectors.groupingBy(MenuVO::getTypeName)).forEach((k, v)->{
-            // 父菜单，同时也是res
-            List<MenuVO> parentMenuList = new ArrayList<>();
+        voList.stream()
+                .collect(Collectors.groupingBy(MenuVO::getTypeName))
+                .forEach((k, v) -> {
+                    // 父菜单，同时也是res
+                    List<MenuVO> parentMenuList = new ArrayList<>();
 
-            Iterator<MenuVO> iterator = v.iterator();
-            // 父菜单
-            while (iterator.hasNext()) {
-                MenuVO m = iterator.next();
-                if (m.getParentId() == 0) {
-                    parentMenuList.add(m);
-                    iterator.remove();
-                }
-            }
+                    Iterator<MenuVO> iterator = v.iterator();
+                    // 父菜单
+                    while (iterator.hasNext()) {
+                        MenuVO m = iterator.next();
+                        if (m.getParentId() == 0) {
+                            parentMenuList.add(m);
+                            iterator.remove();
+                        }
+                    }
 
-            // 递归设置菜单
-            setMenuVOChildrenList(parentMenuList, v);
-            map.put(k, parentMenuList);
-        });
+                    // 递归设置菜单
+                    setMenuVOChildrenList(parentMenuList, v);
+                    map.put(k, parentMenuList);
+                });
 
         return map;
     }

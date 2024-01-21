@@ -11,13 +11,51 @@
         <result property="src" column="src" jdbcType="VARCHAR"/>
         <result property="status" column="status" jdbcType="TINYINT"/>
         <result property="self" column="self" jdbcType="TINYINT"/>
+        <result property="groupId" column="group_id" jdbcType="BIGINT"/>
         <result property="mimeType" column="mime_type" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
+    <resultMap id="MediaVOResultMap" type="com.ginDriver.main.domain.vo.MediaVO">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="groupId" column="group_id" jdbcType="BIGINT"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="fileName" column="file_name" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
+        <result property="src" column="src" jdbcType="VARCHAR"/>
+        <result property="url" column="url" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="self" column="self" jdbcType="INTEGER"/>
+        <result property="mimeType" column="mime_type" jdbcType="VARCHAR"/>
+        <result property="mediaDate" column="media_date" jdbcType="DATE"/>
+        <result property="width" column="width" jdbcType="INTEGER"/>
+        <result property="height" column="height" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
     <sql id="Base_Column_List">
-        id,user_id,file_name,src,`status`,self,`format`,create_time,update_time
+        id,user_id,file_name,src,`group_id`,`status`,self,`mime_type`,create_time,update_time
+    </sql>
+    <sql id="Media_Base_Column_List">
+        ${alias}.id,
+        ${alias}.user_id,
+        ${alias}.file_name,
+        ${alias}.src,
+        ${alias}.`group_id`,
+        ${alias}.`status`,
+        ${alias}.self,
+        ${alias}.`mime_type`,
+        ${alias}.create_time,
+        ${alias}.update_time
+    </sql>
+    <sql id="MediaVO_Base_Column_List">
+        ${alias}.create_time mediaDate,
+        ${alias}.width,
+        ${alias}.height
     </sql>
     <insert id="insertOrUpdateByMe">
         insert into media
@@ -66,9 +104,19 @@
         group by year(media_date)
         order by year(media_date)
     </select>
-    <select id="selectBetweenDate" resultType="com.ginDriver.main.domain.po.Media">
-        select <include refid="Base_Column_List"/>
-        from media
-        where media_date between #{startDate} and #{endDate}
+    <select id="selectBetweenDate" resultType="com.ginDriver.main.domain.vo.MediaVO">
+        select
+        <include refid="Media_Base_Column_List">
+            <property name="alias" value="m"/>
+        </include>
+        ,
+        <include refid="MediaVO_Base_Column_List">
+            <property name="alias" value="me"/>
+        </include>
+        ,
+        u.username
+        from media m left join media_exif me on m.id = me.media_id
+        left join user u on m.user_id = u.id
+        where me.create_time between #{startDate} and #{endDate}
     </select>
 </mapper>

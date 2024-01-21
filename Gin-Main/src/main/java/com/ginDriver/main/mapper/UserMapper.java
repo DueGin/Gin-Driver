@@ -26,7 +26,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     ////// sys //////
 
-    List<User> page(User user, Integer pageStart, Integer pageSize);
+    List<User> page(@Param("user") User user, @Param("pageStart") Integer pageStart, @Param("pageSize") Integer pageSize);
 
     Integer count(User user);
 

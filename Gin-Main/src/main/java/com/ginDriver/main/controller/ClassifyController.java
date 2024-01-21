@@ -2,6 +2,7 @@ package com.ginDriver.main.controller;
 
 import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.main.domain.vo.ClassifyVO;
+import com.ginDriver.main.domain.vo.MediaVO;
 import com.ginDriver.main.service.MediaClassifyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,9 +33,11 @@ public class ClassifyController {
         return ResultVO.ok(classifyFolderList);
     }
 
-    @GetMapping("{classifyId}")
-    public void getListByClassifyId(@PathVariable String classifyId){
-
+    @GetMapping("{type}/{classifyId}")
+    public ResultVO getListByClassifyId(@PathVariable String classifyId, @PathVariable String type){
+        log.info("type: {}, classifyId: {}", type, classifyId);
+        List<MediaVO> list = mediaClassifyService.getDetailListByClassifyId(type, classifyId);
+        return ResultVO.ok(list);
     }
 
 }

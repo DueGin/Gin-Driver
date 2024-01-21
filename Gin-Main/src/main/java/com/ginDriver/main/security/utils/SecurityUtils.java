@@ -1,13 +1,15 @@
 package com.ginDriver.main.security.utils;
 
 
-import com.ginDriver.core.domain.vo.UserVO;
+import com.ginDriver.core.domain.bo.UserBO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 安全服务工具类
@@ -17,17 +19,17 @@ import java.util.Map;
 @Slf4j
 public class SecurityUtils {
 
-    public static Long getUserId(){
+    public static Long getUserId() {
         return getLoginUser().getId();
     }
 
     /**
      * 获取用户
      **/
-    public static UserVO getLoginUser() {
+    public static UserBO getLoginUser() {
         try {
             Authentication authentication = getAuthentication();
-            return (UserVO) authentication.getPrincipal();
+            return (UserBO) authentication.getPrincipal();
         } catch (Exception e) {
             log.error("获取登录用户异常");
             e.printStackTrace();
@@ -42,8 +44,39 @@ public class SecurityUtils {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
-    public static Map<String, String> getRole(){
+    /**
+     * 获取角色KV集合
+     */
+    public static Map<String, String> getRoleMap() {
         return (Map<String, String>) getAuthentication().getDetails();
+    }
+
+    /**
+     * 获取系统角色
+     */
+    public static String getSysRole() {
+        return getRoleMap().get("sys");
+    }
+
+    /**
+     * 获取组角色KV集合
+     */
+    public static Map<String, String> getGroupRoleMap() {
+        Map<String, String> roleMap = getRoleMap();
+        return roleMap.entrySet().stream()
+                .filter(e -> !e.getKey().equals("sys"))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    /**
+     * 获取组角色列表
+     */
+    public static List<String> getGroupRoleList() {
+        Map<String, String> roleMap = getRoleMap();
+        return roleMap.entrySet().stream()
+                .filter(e -> !e.getKey().equals("sys"))
+                .map(e-> e.getKey() + "=" + e.getValue())
+                .collect(Collectors.toList());
     }
 
     /**

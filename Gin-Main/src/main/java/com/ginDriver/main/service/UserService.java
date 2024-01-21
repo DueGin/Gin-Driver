@@ -3,14 +3,17 @@ package com.ginDriver.main.service;
 import cn.hutool.core.util.IdUtil;
 import com.ginDriver.common.utils.JwtTokenUtils;
 import com.ginDriver.common.verifyCode.service.IVerifyCodeService;
+import com.ginDriver.core.domain.bo.UserBO;
 import com.ginDriver.core.domain.po.User;
 import com.ginDriver.core.domain.vo.ResultVO;
-import com.ginDriver.core.domain.vo.UserVO;
 import com.ginDriver.core.service.impl.MyServiceImpl;
+import com.ginDriver.main.domain.vo.GroupRoleVO;
 import com.ginDriver.main.domain.vo.PageVO;
+import com.ginDriver.main.domain.vo.RoleVO;
 import com.ginDriver.main.domain.vo.SysUserVO;
 import com.ginDriver.main.mapper.RoleMapper;
 import com.ginDriver.main.mapper.UserMapper;
+import com.ginDriver.main.security.service.RoleService;
 import com.ginDriver.main.security.utils.SecurityUtils;
 import com.ginDriver.main.service.manager.UserManager;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import javax.security.auth.login.LoginException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author DueGin
@@ -52,6 +56,9 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
 
     @Resource
     private RoleMapper roleMapper;
+
+    @Resource
+    private RoleService roleService;
 
     //region login
 
@@ -104,8 +111,7 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
         // userDetailService返回的userDetail，并不是登录表单的user数据
         User user = (User) authentication.getPrincipal();
 
-        List<String> perms = user.getPerms();
-
+        List<String> roleList = new ArrayList<>();
         Map<String, String> roleMap = new HashMap<>();
 
 
@@ -113,6 +119,7 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
         Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
         for (GrantedAuthority authority : authorities) {
             roleMap.put("sys", authority.getAuthority());
+            roleList.add("sys=" + authority.getAuthority());
         }
 
         // 组用户角色
@@ -121,22 +128,24 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
             for (Map<String, Object> groupRole : groupRoles) {
                 Long groupId = (Long) groupRole.get("groupId");
                 String roleName = (String) groupRole.get("roleName");
-                String role = groupId + "_" + roleName;
-                perms.add(role);
+                String role = groupId + "=" + roleName;
+                roleList.add(role);
                 roleMap.put(String.valueOf(groupId), roleName);
             }
         }
 
 
         // 根据用户名，角色创建token并返回token
-        String token = JwtTokenUtils.createToken(user.getUsername(), perms, roleMap, rememberMe);
+        String token = JwtTokenUtils.createToken(user.getUsername(), roleList, roleMap, rememberMe);
 
         log.info("token=>> " + token);
 
         user.setToken(token);
-        UserVO userVO = new UserVO();
-        BeanUtils.copyProperties(user, userVO);
-        UsernamePasswordAuthenticationToken userToken = new UsernamePasswordAuthenticationToken(userVO, null, user.getAuthorities());
+        UserBO userBO = new UserBO();
+        BeanUtils.copyProperties(user, userBO);
+        userBO.setRoleList(roleList);
+        userBO.setRoleMap(roleMap);
+        UsernamePasswordAuthenticationToken userToken = new UsernamePasswordAuthenticationToken(userBO, null, user.getAuthorities());
         // 存储权限kv
         userToken.setDetails(roleMap);
         SecurityContextHolder.getContext().setAuthentication(userToken);
@@ -191,16 +200,38 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
     }
 
     public ResultVO<PageVO<List<SysUserVO>>> queryPage(User user, Integer pageNum, Integer pageSize) {
-log.info(String.valueOf(user));
+        log.info(String.valueOf(user));
         Integer count = userMapper.count(user);
 
         List<User> list = userMapper.page(user, pageSize * (pageNum - 1), pageSize);
-        List<SysUserVO> vos = new ArrayList<>();
-        list.forEach(u-> {
+        List<Long> userIdList = list.stream().map(User::getId).collect(Collectors.toList());
+        List<RoleVO> roleVOList = roleMapper.selectWithUserRoleByUserId(userIdList);
+        Map<Long, RoleVO> sysRoleMap = roleVOList.stream().collect(Collectors.toMap(RoleVO::getUserId, r -> r));
+
+        List<GroupRoleVO> groupRoleVOList = roleMapper.selectWithGroupUserRoleByUserId(userIdList);
+        Map<Long, List<GroupRoleVO>> groupRoleListMap = groupRoleVOList.stream().collect(Collectors.groupingBy(GroupRoleVO::getUserId));
+
+
+        List<SysUserVO> vos = list.stream().map(u -> {
+            Long userId = u.getId();
             SysUserVO vo = new SysUserVO();
             BeanUtils.copyProperties(u, vo);
-            vos.add(vo);
-        });
+            // 系统角色
+            vo.setSysRole(sysRoleMap.get(userId).getRoleName());
+
+            // 组角色
+            List<GroupRoleVO> groupRoleVOS = groupRoleListMap.get(userId);
+            if (groupRoleVOS != null) {
+                List<String> groupRoleList = groupRoleVOS.stream()
+                        .map(r -> r.getGroupId() + "=" + r.getRoleName())
+                        .collect(Collectors.toList());
+                vo.setGroupRoleList(groupRoleList);
+            } else {
+                vo.setGroupRoleList(Collections.emptyList());
+            }
+
+            return vo;
+        }).collect(Collectors.toList());
 
         PageVO<List<SysUserVO>> pageVO = new PageVO<>();
         pageVO.setTotal(count);
@@ -211,8 +242,8 @@ log.info(String.valueOf(user));
 
     @Transactional
     public ResultVO<Void> deleteUser(Long userId) {
-        userMapper.deleteByUserId(userId);
-        roleMapper.deleteUserRoleByUserId(userId);
+        super.removeById(userId);
+//        roleMapper.deleteUserRoleByUserId(userId);
         return ResultVO.ok("删除成功！");
     }
 

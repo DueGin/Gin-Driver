@@ -47,6 +47,7 @@ public class User implements UserDetails {
     /**
      * 软删除
      */
+    @Column(isLogicDelete = true)
     private Integer deleted;
 
     // 1:启用 ， 0：禁用

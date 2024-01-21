@@ -1,13 +1,17 @@
 package com.ginDriver.main.controller.sys;
 
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.main.domain.dto.sys.dict.SysDictTypePageDTO;
 import com.ginDriver.main.domain.po.SysDictType;
 import com.ginDriver.main.service.SysDictTypeService;
 import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +46,8 @@ public class SysDictTypeController {
             @ApiImplicitParam(name = "status", value = "状态（0正常 1停用）"),
             @ApiImplicitParam(name = "remark", value = "备注"),
             @ApiImplicitParam(name = "createTime", value = "创建时间"),
-            @ApiImplicitParam(name = "updateTime", value = "更新时间")})
+            @ApiImplicitParam(name = "updateTime", value = "更新时间")
+    })
     public ResultVO<Boolean> save(@RequestBody SysDictType sysDictType) {
         return ResultVO.ok(sysDictTypeService.save(sysDictType));
     }
@@ -56,7 +61,7 @@ public class SysDictTypeController {
      */
     @DeleteMapping("/remove/{id}")
     @ApiOperation(value = "根据主键删除", notes = "根据主键删除")
-    @ApiImplicitParams(value = {
+    @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "", required = true)
     })
     public ResultVO<Boolean> remove(@PathVariable Serializable id) {
@@ -72,13 +77,14 @@ public class SysDictTypeController {
      */
     @PutMapping("/update")
     @ApiOperation(value = "根据主键更新", notes = "根据主键更新")
-    @ApiImplicitParams(value = {
+    @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "", required = true),
             @ApiImplicitParam(name = "dictName", value = "字典名称"),
             @ApiImplicitParam(name = "status", value = "状态（0正常 1停用）"),
             @ApiImplicitParam(name = "remark", value = "备注"),
             @ApiImplicitParam(name = "createTime", value = "创建时间"),
-            @ApiImplicitParam(name = "updateTime", value = "更新时间")})
+            @ApiImplicitParam(name = "updateTime", value = "更新时间")
+    })
     public ResultVO<Boolean> update(@RequestBody SysDictType sysDictType) {
         return ResultVO.ok(sysDictTypeService.updateById(sysDictType));
     }
@@ -104,7 +110,7 @@ public class SysDictTypeController {
      */
     @GetMapping("/getInfo/{id}")
     @ApiOperation(value = "根据主键获取详细信息", notes = "根据主键获取详细信息")
-    @ApiImplicitParams(value = {
+    @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "", required = true)
     })
     public ResultVO<SysDictType> getInfo(@PathVariable Serializable id) {
@@ -115,16 +121,24 @@ public class SysDictTypeController {
     /**
      * 分页查询
      *
-     * @param page 分页对象
+     * @param pageDTO 分页对象
      * @return 分页对象
      */
     @GetMapping("/page")
     @ApiOperation(value = "分页查询", notes = "分页查询")
-    @ApiImplicitParams(value = {
+    @ApiImplicitParams({
             @ApiImplicitParam(name = "pageNumber", value = "页码", required = true),
             @ApiImplicitParam(name = "pageSize", value = "每页大小", required = true)
     })
-    public ResultVO<Page<SysDictType>> page(Page<SysDictType> page) {
-        return ResultVO.ok(sysDictTypeService.page(page));
+    public ResultVO<Page<SysDictType>> page(SysDictTypePageDTO pageDTO) {
+        Page<SysDictType> page = new Page<>();
+        BeanUtils.copyProperties(pageDTO, page);
+        QueryWrapper qw = QueryWrapper.create()
+                .from(SysDictType.class)
+                .eq(SysDictType::getCode, pageDTO.getCode(), StringUtils.isNotBlank(pageDTO.getCode()))
+                .eq(SysDictType::getName, pageDTO.getName(), StringUtils.isNotBlank(pageDTO.getName()))
+                .eq(SysDictType::getStatus, pageDTO.getStatus(), pageDTO.getStatus() != null);
+
+        return ResultVO.ok(sysDictTypeService.page(page, qw));
     }
 }

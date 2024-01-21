@@ -1,6 +1,7 @@
 package com.ginDriver.main.controller;
 
 import com.ginDriver.common.utils.JwtTokenUtils;
+import com.ginDriver.core.domain.bo.UserBO;
 import com.ginDriver.core.domain.po.User;
 import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.core.domain.vo.UserVO;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * @author DueGin
@@ -44,13 +46,26 @@ public class UserController {
     @PostMapping("login")
     public ResultVO<UserVO> login(@RequestBody User user, HttpServletResponse response) {
         log.info(user.toString());
+
         // 处理登录
         String token = userService.login(user);
+
         // 设置token头浏览器可见
         response.setHeader("Access-Control-Expose-Headers", JwtTokenUtils.TOKEN_HEADER);
+
         // 设置响应头
         response.setHeader(JwtTokenUtils.TOKEN_HEADER, JwtTokenUtils.TOKEN_PREFIX + token);
-        return ResultVO.ok(SecurityUtils.getLoginUser());
+
+        UserBO bo = SecurityUtils.getLoginUser();
+        UserVO vo = new UserVO();
+        if (bo != null) {
+            BeanUtils.copyProperties(bo, vo, "roleMap", "roleList");
+            vo.setSysRole(SecurityUtils.getSysRole());
+            // 获取组角色列表
+            List<String> groupRoleList = SecurityUtils.getGroupRoleList();
+            vo.setGroupRoleList(groupRoleList);
+        }
+        return ResultVO.ok(vo);
     }
 
     @ApiOperation("注册")
@@ -62,7 +77,7 @@ public class UserController {
         BeanUtils.copyProperties(userParam, u);
         // 处理注册
         userService.register(u);
-        
+
         return ResultVO.ok();
     }
 

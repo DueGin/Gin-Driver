@@ -2,8 +2,11 @@ package com.ginDriver.main.mapper;
 
 
 import com.ginDriver.main.domain.po.Role;
+import com.ginDriver.main.domain.vo.GroupRoleVO;
+import com.ginDriver.main.domain.vo.RoleVO;
 import com.mybatisflex.core.BaseMapper;
 import org.apache.ibatis.annotations.MapKey;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -35,5 +38,9 @@ public interface RoleMapper extends BaseMapper<Role> {
     Boolean deleteUserRoleByUserId(Long userId);
 
     Boolean modifyUserRole(Long userId, Long roleId);
+
+    List<RoleVO> selectWithUserRoleByUserId(@Param("userIdList") List<Long> userIdList);
+
+    List<GroupRoleVO> selectWithGroupUserRoleByUserId(@Param("userIdList") List<Long> userIdList);
 
 }

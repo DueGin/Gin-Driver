@@ -71,7 +71,7 @@ public class HasGroupRoleAspectj {
      * @return true - 通过，false - 不通过
      */
     public static Boolean checkGroupAuth(Long groupId, GroupAuthEnum needRole) {
-        Map<String, String> roleMap = SecurityUtils.getRole();
+        Map<String, String> roleMap = SecurityUtils.getRoleMap();
         String s = roleMap.get(String.valueOf(groupId));
         // 判断role
         switch (s) {

@@ -36,9 +36,11 @@ public class JwtTokenUtils {
     /**
      * 添加角色的key
      */
-    private static final String ROLE_CLAIMS = "Role";
+    private static final String ROLE_LIST_CLAIMS = "role_list";
 
-    private static final String ROLE_GROUP_CLAIMS = "Role_Group";
+    private static final String SYS_ROLE_CLAIMS = "sys_role";
+
+    private static final String ROLE_MAP_CLAIMS = "role_map";
     /**
      * 权限key
      */
@@ -48,18 +50,19 @@ public class JwtTokenUtils {
      * 创建token
      * TODO 这里是存在问题，我将权限信封装到jwt中，实际应该存储到redis中。主要是安全问题
      *
-     * @param username 用户名
-     * @param roles 系统角色
+     * @param username     用户名
+     * @param roleList     角色集合
+     * @param roleMap      角色KV集合
      * @param isRememberMe 是否记住我
      * @return token
      */
-    public static String createToken(String username, List<String> roles, Map<String, String> groupRoleMap, boolean isRememberMe) {
+    public static String createToken(String username, List<String> roleList, Map<String, String> roleMap, boolean isRememberMe) {
         String token = null;
         try {
             long expiration = isRememberMe ? EXPIRATION_REMEMBER : EXPIRATION;
             HashMap<String, Object> map = new HashMap<>();
-            map.put(ROLE_CLAIMS, roles);
-            map.put(ROLE_GROUP_CLAIMS, groupRoleMap);
+            map.put(ROLE_LIST_CLAIMS, roleList);
+            map.put(ROLE_MAP_CLAIMS, roleMap);
             token = Jwts.builder()
                     .signWith(SignatureAlgorithm.HS512, SECRET)
                     // 额外信息，这里要早set一点，放到后面会覆盖别的字段
@@ -92,15 +95,24 @@ public class JwtTokenUtils {
     /**
      * 从token中获取roles
      */
-    public static List<String> getRoles(String token) {
-        return (List<String>) getTokenBody(token).get(ROLE_CLAIMS);
+    public static List<String> getRoleList(String token) {
+        return (List<String>) getTokenBody(token).get(ROLE_LIST_CLAIMS);
+    }
+
+    public static Map<String, String> getRoleMap(String token) {
+        return (Map<String, String>) getTokenBody(token).get(ROLE_MAP_CLAIMS);
+    }
+
+    public static String getSysRole(String token) {
+        Map<String, String> map = (Map<String, String>) getTokenBody(token).get(ROLE_MAP_CLAIMS);
+        return map.get("sys");
     }
 
     /**
      * 从token中获取roles
      */
-    public static Map<String, String> getGroupRoles(String token) {
-        return (Map<String, String>) getTokenBody(token).get(ROLE_GROUP_CLAIMS);
+    public static Map<String, String> getGroupRoleMap(String token) {
+        return (Map<String, String>) getTokenBody(token).get(ROLE_MAP_CLAIMS);
     }
 
     /**

@@ -3,10 +3,12 @@ package com.ginDriver.main.controller.sys;
 import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.main.domain.po.Role;
 import com.ginDriver.main.security.service.RoleService;
+import com.mybatisflex.core.query.QueryWrapper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author DueGin
@@ -18,6 +20,16 @@ public class SysRoleController {
 
     @Resource
     private RoleService roleService;
+
+    @GetMapping("list")
+    public ResultVO<List<Role>> list(Integer type){
+        List<Role> roleList = roleService.list(QueryWrapper.create()
+                .from(Role.class)
+                .eq(Role::getType, type)
+        );
+
+        return ResultVO.ok(roleList);
+    }
 
     @PutMapping("modify")
     @PreAuthorize("hasRole('admin')")

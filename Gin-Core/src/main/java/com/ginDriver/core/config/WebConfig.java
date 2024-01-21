@@ -32,8 +32,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     /**
      * 扩展mvc框架的消息转换器
-     * 由于js的精度只能保证前16位数，而雪花算法生成的id是19位，所以将id其转换成字符串来传输，而不会丢失精度
-     * 用自己写好的消息转换对象加到converters集合的最前面，这个消息转换器集合默认是有springboot提供的默认消息转换对象
      *
      * @param converters 转换器
      */

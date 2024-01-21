@@ -2,8 +2,8 @@ package com.ginDriver.main.security.filter;
 
 
 import com.ginDriver.common.utils.JwtTokenUtils;
+import com.ginDriver.core.domain.bo.UserBO;
 import com.ginDriver.core.domain.po.User;
-import com.ginDriver.core.domain.vo.UserVO;
 import com.ginDriver.main.mapper.UserMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
@@ -81,21 +81,24 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private UsernamePasswordAuthenticationToken getAuthentication(String token) {
         // 从jwt token中拿出username、角色，然后解析出权限
         String username = JwtTokenUtils.getUsername(token);
-        List<String> roles = JwtTokenUtils.getRoles(token);
-        Map<String, String> groupRoles = JwtTokenUtils.getGroupRoles(token);
+        List<String> roleList = JwtTokenUtils.getRoleList(token);
+        Map<String, String> roleMap = JwtTokenUtils.getRoleMap(token);
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
         if (username != null) {
             // token有用户信息，token未过期
-            for (String role : roles) {
+            for (String role : roleList) {
                 authorities.add(new SimpleGrantedAuthority(role));
             }
             // todo 缓存登录用户信息
             User user = userMapper.selectByUsername(username);
-            UserVO userVO = new UserVO();
-            BeanUtils.copyProperties(user, userVO);
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userVO, null, authorities);
-            authenticationToken.setDetails(groupRoles);
+            UserBO userBO = new UserBO();
+            BeanUtils.copyProperties(user, userBO);
+            userBO.setRoleList(roleList);
+            userBO.setRoleMap(roleMap);
+
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userBO, null, authorities);
+            authenticationToken.setDetails(roleMap);
             return authenticationToken;
         }
         return null;

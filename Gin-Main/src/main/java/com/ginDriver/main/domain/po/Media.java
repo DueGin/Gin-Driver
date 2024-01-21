@@ -53,6 +53,11 @@ public class Media implements Serializable {
     @NotNull(groups = Insert.class)
     private String src;
 
+    /**
+     * 组ID
+     */
+    private Long groupId;
+
 
     /**
      * 文件状态

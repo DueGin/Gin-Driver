@@ -6,6 +6,8 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * 字典表 实体类。
  *
@@ -46,13 +48,13 @@ public class SysDict {
      * 创建时间
      */
     @Column(value = "create_time")
-    private java.time.LocalDateTime createTime;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
     @Column(value = "update_time")
-    private java.time.LocalDateTime updateTime;
+    private LocalDateTime updateTime;
 
 
 }
