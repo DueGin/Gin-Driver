@@ -8,6 +8,8 @@ import com.mybatisflex.core.query.QueryWrapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 字典表 服务层实现。
@@ -18,7 +20,19 @@ import java.util.List;
 @Service
 public class SysDictService extends MyServiceImpl<SysDictMapper, SysDict> {
 
-    public List<SysDict> getDictByDictType(String dictType){
+    public List<SysDict> getDictByDictType(String dictType) {
         return super.list(QueryWrapper.create().eq(SysDict::getDictType, dictType));
+    }
+
+    public Map<Long, SysDict> getDictIdMapByDictType(String dictType) {
+        return list(QueryWrapper.create().eq(SysDict::getDictType, dictType))
+                .stream()
+                .collect(Collectors.toMap(SysDict::getId, d -> d));
+    }
+
+    public Map<Integer, SysDict> getDictValueMapByDictType(String dictType) {
+        return list(QueryWrapper.create().eq(SysDict::getDictType, dictType))
+                .stream()
+                .collect(Collectors.toMap(SysDict::getValue, d -> d));
     }
 }

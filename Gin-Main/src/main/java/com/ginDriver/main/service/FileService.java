@@ -2,8 +2,10 @@ package com.ginDriver.main.service;
 
 import com.ginDriver.common.minio.service.MinioComponent;
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.main.domain.vo.FileVO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,32 +23,80 @@ public class FileService {
     @Resource
     private MinioComponent minioComponent;
 
-    public ResultVO<Void> upload(FileType fileType, MultipartFile file) {
-        String fileName = fileType.name;
+    /**
+     * 上传文件
+     *
+     * @param fileType 文件类型(桶名称)
+     * @param file     文件
+     * @return 对象名字
+     */
+    public ResultVO<FileVO> upload(FileType fileType, MultipartFile file) {
+        String bucketName = fileType.name;
         String objName = uploadWithType(fileType, file);
-        String objectUrl = minioComponent.getObjectUrl(fileName, objName);
-        return ResultVO.ok(objectUrl);
+        String objectUrl = minioComponent.getObjectUrl(bucketName, objName);
+
+        return ResultVO.ok(new FileVO()
+                .setUrl(objectUrl)
+                .setFileName(objName)
+        );
     }
 
+    /**
+     * 获取文件URL
+     *
+     * @param bucketName 桶名称
+     * @param objectName 文件名称
+     * @return Minio URL
+     */
+    public String getObjUrl(String bucketName, String objectName) {
+        return minioComponent.getObjectUrl(bucketName, objectName);
+    }
+
+    /**
+     * 获取文件URL
+     *
+     * @param fileType   文件类型(桶名称)
+     * @param objectName 文件名称
+     * @return Minio URL
+     */
     public String getObjUrl(FileType fileType, String objectName) {
         return minioComponent.getObjectUrl(fileType.name, objectName);
     }
 
+    /**
+     * 获取文件URL
+     *
+     * @param fileType   文件类型(桶名称)
+     * @param objectName 文件名称
+     * @param expire     链接过期时间
+     * @return Minio URL
+     */
     public String getObjUrl(FileType fileType, String objectName, Integer expire) {
         return minioComponent.getObjectUrl(fileType.name, objectName, expire);
     }
 
 
     /**
-     * 返回访问地址
+     * 上传文件
      *
-     * @param fileType 文件类型
+     * @param fileType 文件类型(桶名称)
      * @param file     文件
      * @return 对象名字
      */
     public String uploadWithType(FileType fileType, MultipartFile file) {
         String name = fileType.name;
-        String objName = file.getName() + "_" + UUID.randomUUID().toString().replaceAll("-", "");
+        String filename = file.getResource().getFilename();
+        String objName;
+        if (StringUtils.isNotBlank(filename)) {
+            String[] fileNameSplit = filename.split("\\.");
+            String prefixFilename = fileNameSplit[0];
+            for (int i = 1; i < fileNameSplit.length - 1; i++) {
+                prefixFilename += fileNameSplit[i];
+            }
+            objName = prefixFilename + "_" + UUID.randomUUID().toString().replaceAll("-", "") + "." + fileNameSplit[fileNameSplit.length - 1];
+        } else {
+            objName = UUID.randomUUID().toString().replaceAll("-", "");
+        }
         try {
             minioComponent.putObject(name, objName, file.getInputStream(), file.getContentType());
         } catch (IOException e) {
@@ -56,8 +106,26 @@ public class FileService {
         return objName;
     }
 
-    public Boolean deleteFile(FileType fileType, String objectName){
+    /**
+     * 删除文件
+     *
+     * @param fileType   文件类型(桶名称)
+     * @param objectName 文件名
+     * @return {@code true}-执行成功，{@code false}-执行失败
+     */
+    public Boolean deleteFile(FileType fileType, String objectName) {
         return minioComponent.remove(fileType.name, objectName);
+    }
+
+    /**
+     * 删除文件
+     *
+     * @param bucketName 桶名称
+     * @param objectName 文件名
+     * @return {@code true}-执行成功，{@code false}-执行失败
+     */
+    public Boolean deleteFile(String bucketName, String objectName) {
+        return minioComponent.remove(bucketName, objectName);
     }
 
     @AllArgsConstructor

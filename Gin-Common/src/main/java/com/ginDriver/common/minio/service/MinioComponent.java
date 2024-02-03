@@ -233,6 +233,7 @@ public class MinioComponent {
      *
      * @param bucketName 桶名称
      * @param fileName 文件名
+     * @return {@code true}-执行成功，{@code false}-执行失败
      */
     @SneakyThrows
     public Boolean remove(String bucketName, String fileName) {
@@ -240,6 +241,7 @@ public class MinioComponent {
             minio.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(fileName).build());
             return true;
         } catch (Exception e) {
+            log.error(e.getMessage());
             e.printStackTrace();
             return false;
         }

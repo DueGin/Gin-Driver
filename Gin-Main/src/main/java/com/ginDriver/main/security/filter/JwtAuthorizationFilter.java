@@ -82,14 +82,16 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         // 从jwt token中拿出username、角色，然后解析出权限
         String username = JwtTokenUtils.getUsername(token);
         List<String> roleList = JwtTokenUtils.getRoleList(token);
+        String sysRole = JwtTokenUtils.getSysRole(token);
         Map<String, String> roleMap = JwtTokenUtils.getRoleMap(token);
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
         if (username != null) {
             // token有用户信息，token未过期
-            for (String role : roleList) {
-                authorities.add(new SimpleGrantedAuthority(role));
-            }
+//            for (String role : roleList) {
+//                authorities.add(new SimpleGrantedAuthority(role));
+//            }
+            authorities.add(new SimpleGrantedAuthority(sysRole));
             // todo 缓存登录用户信息
             User user = userMapper.selectByUsername(username);
             UserBO userBO = new UserBO();

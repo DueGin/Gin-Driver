@@ -46,9 +46,23 @@ public class MediaClassifyService {
                 List<String> years = mediaExifMapper.selectGroupByYear();
                 years.forEach(y -> res.add(new ClassifyVO(y, y + "年")));
                 break;
-            case ClassifyConstant.PLACE:
-                log.info("地点分类");
-
+            case ClassifyConstant.PROVINCE:
+                log.info("省份分类");
+                List<Map<String, Object>> provinceAdCodeMap = mediaExifMapper.selectGroupByProvinceAdCode();
+                for (Map<String, Object> map : provinceAdCodeMap) {
+                    String provinceName = (String) map.get("provinceName");
+                    String adcode = String.valueOf(map.get("provinceAdcode"));
+                    res.add(new ClassifyVO(adcode, provinceName));
+                }
+                break;
+            case ClassifyConstant.CITY:
+                log.info("城市分类");
+                List<Map<String, Object>> cityAdCodeMap = mediaExifMapper.selectGroupByCityAdCode();
+                for (Map<String, Object> map : cityAdCodeMap) {
+                    String cityName = (String) map.get("cityName");
+                    String adcode = String.valueOf(map.get("cityAdcode"));
+                    res.add(new ClassifyVO(adcode, cityName));
+                }
                 break;
             default:
                 log.error("没有该分类");
@@ -58,8 +72,9 @@ public class MediaClassifyService {
     }
 
     public List<MediaVO> getDetailListByClassifyId(String type, String classifyId) {
-        MediaMapper mapper = (MediaMapper) mediaService.getMapper();
+        MediaMapper mediaMapper = (MediaMapper) mediaService.getMapper();
         List<MediaVO> vos = new ArrayList<>();
+
         switch (type) {
             case ClassifyConstant.MONTH:
                 String[] split = classifyId.split("_");
@@ -67,22 +82,31 @@ public class MediaClassifyService {
                 String month = split[1];
                 LocalDate startDate1 = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), 1);
                 LocalDate endDate1 = startDate1.plusMonths(1).minusDays(1);
-                vos = mapper.selectBetweenDate(startDate1, endDate1);
-                // 转换数据
-                mediaService.setMinioUrl(vos);
+
+                vos = mediaMapper.selectBetweenDate(startDate1, endDate1);
                 break;
             case ClassifyConstant.YEAR:
                 LocalDate startDate2 = LocalDate.of(Integer.parseInt(classifyId), 1, 1);
                 LocalDate endDate2 = startDate2.plusYears(1).minusDays(1);
-                vos = mapper.selectBetweenDate(startDate2, endDate2);
-                mediaService.setMinioUrl(vos);
+                vos = mediaMapper.selectBetweenDate(startDate2, endDate2);
                 break;
-            case ClassifyConstant.PLACE:
-                log.info("地点分类");
+            case ClassifyConstant.PROVINCE:
+                log.info("省份分类");
+                vos = mediaMapper.selectByProvinceAdCode(Integer.valueOf(classifyId));
+                break;
+            case ClassifyConstant.CITY:
+                log.info("市分类");
+                vos = mediaMapper.selectByCityAdCode(Integer.valueOf(classifyId));
                 break;
             default:
                 log.error("没有该分类");
         }
+
+        // 设置minio url
+        if(!vos.isEmpty()){
+            mediaService.setMinioUrl(vos);
+        }
+
         return vos;
     }
 }

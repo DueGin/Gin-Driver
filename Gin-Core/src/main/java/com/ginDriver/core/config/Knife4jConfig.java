@@ -30,7 +30,7 @@ public class Knife4jConfig {
                 .apiInfo(apiInfo())
                 .select()
                 // 填全类包名
-                .apis(RequestHandlerSelectors.basePackage("duegin.ginDriver.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.ginDriver.controller"))
                 .paths(PathSelectors.any())
                 .build();
     }

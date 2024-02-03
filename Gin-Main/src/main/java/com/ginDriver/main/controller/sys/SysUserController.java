@@ -2,6 +2,7 @@ package com.ginDriver.main.controller.sys;
 
 import com.ginDriver.core.domain.po.User;
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.core.log.GinLog;
 import com.ginDriver.main.domain.dto.user.UserQueryParam;
 import com.ginDriver.main.domain.vo.PageVO;
 import com.ginDriver.main.domain.vo.SysUserVO;
@@ -13,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -42,18 +44,19 @@ public class SysUserController {
         return userService.queryPage(userQueryParam, userQueryParam.getPageNum(), userQueryParam.getPageSize());
     }
 
-    @ApiOperation("修改系统用户信息")
-    @PutMapping("modify")
-    public ResultVO<Void> modifyUser(@RequestBody User user) {
-        log.info(String.valueOf(user));
-        return userService.modifyUserInfo(user);
+    @GinLog
+    @ApiOperation("修改用户信息")
+    @PutMapping("update")
+    public ResultVO<Void> updateUser(@RequestBody @Valid User user) {
+        return userService.updateUserInfo(user, true);
     }
 
-    @ApiOperation("删除系统用户")
-    @DeleteMapping("{userId}")
+    @GinLog
+    @ApiOperation("删除用户")
+    @DeleteMapping("remove/{userId}")
     public ResultVO<Void> deleteUser(@PathVariable Long userId) {
         log.info(String.valueOf(userId));
-        return userService.deleteUser(userId);
+        return userService.deleteUser(userId, true);
     }
 
 

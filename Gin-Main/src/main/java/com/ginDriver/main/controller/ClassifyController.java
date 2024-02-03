@@ -33,7 +33,7 @@ public class ClassifyController {
         return ResultVO.ok(classifyFolderList);
     }
 
-    @GetMapping("{type}/{classifyId}")
+    @GetMapping("list/{type}/{classifyId}")
     public ResultVO getListByClassifyId(@PathVariable String classifyId, @PathVariable String type){
         log.info("type: {}, classifyId: {}", type, classifyId);
         List<MediaVO> list = mediaClassifyService.getDetailListByClassifyId(type, classifyId);

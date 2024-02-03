@@ -18,4 +18,5 @@ public interface MenuMapper extends BaseMapper<Menu> {
 
     List<MenuVO> getAll();
 
+    List<MenuVO> selectAllRouter();
 }

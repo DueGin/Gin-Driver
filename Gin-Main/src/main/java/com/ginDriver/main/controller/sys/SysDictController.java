@@ -7,8 +7,10 @@ import com.ginDriver.main.service.SysDictService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -20,8 +22,9 @@ import java.util.Map;
  * @author DueGin
  * @since 1.0
  */
+@Validated
 @RestController
-@RequestMapping("/sysDict")
+@RequestMapping("/sys/dict")
 public class SysDictController {
 
     @Autowired
@@ -93,7 +96,7 @@ public class SysDictController {
      * @return 分页对象
      */
     @GetMapping("/page")
-    public ResultVO<Page<SysDict>> page(SysDictPageDTO page) {
+    public ResultVO<Page<SysDict>> page(@Valid SysDictPageDTO page) {
         QueryWrapper qw = QueryWrapper.create()
                 .from(SysDict.class)
                 .eq(SysDict::getDictType, page.getDictType());

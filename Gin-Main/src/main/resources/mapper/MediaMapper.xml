@@ -29,7 +29,7 @@
         <result property="status" column="status" jdbcType="INTEGER"/>
         <result property="self" column="self" jdbcType="INTEGER"/>
         <result property="mimeType" column="mime_type" jdbcType="VARCHAR"/>
-        <result property="mediaDate" column="media_date" jdbcType="DATE"/>
+        <result property="originalDateTime" column="original_date_time" jdbcType="TIMESTAMP"/>
         <result property="width" column="width" jdbcType="INTEGER"/>
         <result property="height" column="height" jdbcType="INTEGER"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -52,71 +52,60 @@
         ${alias}.create_time,
         ${alias}.update_time
     </sql>
-    <sql id="MediaVO_Base_Column_List">
-        ${alias}.create_time mediaDate,
+    <sql id="Media_Exif_Base_Column_List">
+        ${alias}.original_date_time,
+        ${alias}.adcode,
         ${alias}.width,
-        ${alias}.height
+        ${alias}.height,
+        ${alias}.longitude,
+        ${alias}.latitude,
+        ${alias}.model
     </sql>
-    <insert id="insertOrUpdateByMe">
-        insert into media
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="fileName != null">fileName,</if>
-            <if test="src != null">src,</if>
-            <if test="status != null">`status`,</if>
-            <if test="self != null">self,</if>
-            <if test="mimeType != null">`mime_type`,</if>
-        </trim>
-        <trim prefix="values(" suffixOverrides="," suffix=")">
-            <if test="fileName != null">#{fileName},</if>
-            <if test="src != null">#{src},</if>
-            <if test="status != null">#{status},</if>
-            <if test="self != null">#{self},</if>
-            <if test="mimeType != null">#{mimeType},</if>
-        </trim>
-        ON DUPLICATE KEY UPDATE
-        <trim suffixOverrides=",">
-            <if test="fileName != null">file_name = #{fileName},</if>
-            <if test="src != null">src = #{src},</if>
-            <if test="status != null">`status` = #{status},</if>
-            <if test="self != null">self = #{self},</if>
-            <if test="mimeType != null">`mime_type` = #{mimeType},</if>
-        </trim>
-    </insert>
-    <delete id="deleteByMediaId">
-        delete
-        from media
-        where id = #{id};
-    </delete>
-    <select id="selectByUserId" resultType="com.ginDriver.main.domain.po.Media">
-        select <include refid="Base_Column_List"/>
-        from media
-        user_id = #{userId};
-    </select>
-    <select id="selectGroupByMonth" resultType="java.util.Map">
-        select year(media_date) year, month(media_date) month
-        from media where media_date is not null
-        group by year(media_date), month(media_date)
-        order by year(media_date), month(media_date)
-    </select>
-    <select id="selectGroupByYear" resultType="java.lang.String">
-        select year(media_date) year
-        from media where media_date is not null
-        group by year(media_date)
-        order by year(media_date)
-    </select>
     <select id="selectBetweenDate" resultType="com.ginDriver.main.domain.vo.MediaVO">
         select
         <include refid="Media_Base_Column_List">
             <property name="alias" value="m"/>
         </include>
         ,
-        <include refid="MediaVO_Base_Column_List">
+        <include refid="Media_Exif_Base_Column_List">
             <property name="alias" value="me"/>
         </include>
         ,
         u.username
         from media m left join media_exif me on m.id = me.media_id
         left join user u on m.user_id = u.id
-        where me.create_time between #{startDate} and #{endDate}
+        where me.original_date_time between #{startDate} and #{endDate} and m.deleted = 0
+    </select>
+    <select id="selectByCityAdCode" resultType="com.ginDriver.main.domain.vo.MediaVO">
+        select
+        <include refid="Media_Base_Column_List">
+            <property name="alias" value="m"/>
+        </include>
+        ,
+        <include refid="Media_Exif_Base_Column_List">
+            <property name="alias" value="me"/>
+        </include>
+        ,
+        u.username
+        from media m left join media_exif me on m.id = me.media_id
+        right join place p on me.adcode = p.adcode
+        right join user u on m.user_id = u.id
+        where p.city_adcode = #{adcode}
+    </select>
+    <select id="selectByProvinceAdCode" resultType="com.ginDriver.main.domain.vo.MediaVO">
+        select
+        <include refid="Media_Base_Column_List">
+            <property name="alias" value="m"/>
+        </include>
+        ,
+        <include refid="Media_Exif_Base_Column_List">
+            <property name="alias" value="me"/>
+        </include>
+        ,
+        u.username
+        from media m left join media_exif me on m.id = me.media_id
+        right join place p on me.adcode = p.adcode
+        right join user u on m.user_id = u.id
+        where p.province_adcode = #{adcode}
     </select>
 </mapper>

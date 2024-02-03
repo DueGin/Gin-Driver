@@ -203,7 +203,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>duegin.ginDriver.GinDriverApplication</mainClass>
+                    <mainClass>com.ginDriver.GinDriverApplication</mainClass>
                     <skip>true</skip>
                 </configuration>
                 <executions>

@@ -1,10 +1,12 @@
 package com.ginDriver.main.domain.po;
 
-import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
+
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 /**
  * 菜单权限表 实体类。
@@ -16,26 +18,34 @@ import lombok.Data;
 @Table(value = "menu")
 public class Menu {
 
+    @NotNull
     @Id(keyType = KeyType.Auto)
     private Long id;
 
     /**
      * 菜单名称
      */
-    @Column(value = "name")
     private String name;
 
     /**
      * 父菜单ID
      */
-    @Column(value = "parent_id")
     private Long parentId;
+
+    /**
+     * 菜单图标
+     */
+    private String icon;
 
     /**
      * 路由地址
      */
-    @Column(value = "path")
     private String path;
+
+    /**
+     * 组件名称
+     */
+    private String componentName;
 
     /**
      * 组件路径
@@ -43,52 +53,49 @@ public class Menu {
     private String componentPath;
 
     /**
-     * 菜单图标
+     * 布局组件ID
      */
-    @Column(value = "icon")
-    private String icon;
+    private Long layoutComponentId;
 
     /**
      * 权限标识
      */
-    @Column(value = "perms")
-    private String perms;
+    private String role;
 
     /**
      * 菜单状态（1正常 0停用）
      */
-    @Column(value = "status")
     private Integer status;
 
     /**
-     * 菜单类型(0:启动台菜单，1:组资源菜单，2:媒体管理菜单，3:其他)
+     * 是否隐藏(1:隐藏，0:不隐藏)
      */
-    @Column(value = "type")
-    private Integer type;
+    private Integer hidden;
+
+    /**
+     * 菜单类型(字典ID)
+     */
+    private Long type;
 
     /**
      * 排序
      */
-    @Column("sorted")
     private Integer sorted;
-
-    /**
-     * 创建时间
-     */
-    @Column(value = "create_time")
-    private java.time.LocalDateTime createTime;
-
-    /**
-     * 更新时间
-     */
-    @Column(value = "update_time")
-    private java.time.LocalDateTime updateTime;
 
     /**
      * 备注
      */
-    @Column(value = "remark")
     private String remark;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
 
 
 }

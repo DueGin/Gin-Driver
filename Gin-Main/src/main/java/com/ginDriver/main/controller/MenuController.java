@@ -1,13 +1,17 @@
 package com.ginDriver.main.controller;
 
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.core.exception.ApiException;
+import com.ginDriver.main.domain.dto.menu.MenuDTO;
 import com.ginDriver.main.domain.po.Menu;
 import com.ginDriver.main.domain.vo.MenuVO;
 import com.ginDriver.main.service.MenuService;
 import com.mybatisflex.core.paginate.Page;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +36,9 @@ public class MenuController {
      * @return {@code true} 添加成功，{@code false} 添加失败
      */
     @PostMapping("/save")
-    public boolean save(@RequestBody Menu menu) {
-        return menuService.save(menu);
+    public void save(@RequestBody Menu menu) {
+
+        menuService.save(menu);
     }
 
 
@@ -44,20 +49,25 @@ public class MenuController {
      * @return {@code true} 删除成功，{@code false} 删除失败
      */
     @DeleteMapping("/remove/{id}")
-    public boolean remove(@PathVariable Serializable id) {
-        return menuService.removeById(id);
+    public void remove(@PathVariable Serializable id) {
+        menuService.removeById(id);
     }
 
 
     /**
      * 根据主键更新菜单权限表
      *
-     * @param menu 菜单权限表
+     * @param dto 菜单权限表
      * @return {@code true} 更新成功，{@code false} 更新失败
      */
     @PutMapping("/update")
-    public boolean update(@RequestBody Menu menu) {
-        return menuService.updateById(menu);
+    public void update(@RequestBody @Valid MenuDTO dto) {
+        if (dto.getParentId() != null && dto.getId() != null && dto.getParentId().equals(dto.getId())) {
+            throw new ApiException("🤨不是，你自己做自己老爸是吧");
+        }
+        Menu menu = new Menu();
+        BeanUtils.copyProperties(dto, menu);
+        menuService.updateById(menu);
     }
 
 
@@ -95,12 +105,17 @@ public class MenuController {
     }
 
     @GetMapping("/list/{type}")
-    public ResultVO<List<MenuVO>> getListByType(@PathVariable Integer type) {
-        return ResultVO.ok(menuService.getMenuByType(type));
+    public ResultVO<List<MenuVO>> getListByType(@PathVariable Long type) {
+        return ResultVO.ok(menuService.getMenuListByType(type));
     }
 
     @GetMapping("/map")
     public ResultVO<Map<String, List<MenuVO>>> getMenuMap() {
         return ResultVO.ok(menuService.getMenuMap());
+    }
+
+    @GetMapping("/router")
+    public ResultVO<Map<Long, List<MenuVO>>> router() {
+        return ResultVO.ok(menuService.getFlatMapGroupByLayoutComponent());
     }
 }

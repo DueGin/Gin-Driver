@@ -27,6 +27,12 @@ public class SysUserVO {
     private String username;
 
     /**
+     * 头像文件名称
+     */
+    @ApiModelProperty("头像URL")
+    private String avatar;
+
+    /**
      * 手机号码
      */
     @ApiModelProperty("手机号码")

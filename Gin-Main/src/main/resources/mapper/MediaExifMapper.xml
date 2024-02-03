@@ -9,23 +9,68 @@
         <result column="width" jdbcType="INTEGER" property="width"/>
         <result column="height" jdbcType="INTEGER" property="height"/>
         <result column="mime_type" jdbcType="VARCHAR" property="mimeType"/>
-        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="original_date_time" jdbcType="TIMESTAMP" property="originalDateTime"/>
         <result column="model" jdbcType="VARCHAR" property="model"/>
     </resultMap>
     <sql id="Base_Column_List">
-        `id`, `media_id`, `width`, `height`, `mime_type`, `create_time`, `model`
+        `id`, `media_id`, `width`, `height`, `mime_type`, `original_date_time`, `place`, `model`, `longitude`, `latitude`
     </sql>
     <select id="selectGroupByMonth" resultType="java.util.Map">
-        select year(create_time) year, month(create_time) month
-        from media_exif where create_time is not null
-        group by year(create_time), month(create_time)
-        order by year(create_time), month(create_time)
+        select year(original_date_time) year, month(original_date_time) month
+        from media_exif me right join media m on m.id = me.media_id
+        where original_date_time is not null and m.deleted = 0
+        group by year(original_date_time), month(original_date_time)
+        order by year(original_date_time), month(original_date_time)
     </select>
     <select id="selectGroupByYear" resultType="java.lang.String">
-        select year(create_time) year
-        from media_exif where create_time is not null
-        group by year(create_time)
-        order by year(create_time)
+        select year(original_date_time) year
+        from media_exif me right join media m on m.id = me.media_id
+        where original_date_time is not null and m.deleted = 0
+        group by year(original_date_time)
+        order by year(original_date_time)
+    </select>
+    <select id="selectGroupByCityAdCode" resultType="java.util.Map">
+        select ANY_VALUE(city.name) cityName,
+               ANY_VALUE(p.name)    name,
+               ANY_VALUE(p.adcode)  adcode,
+               p.city_adcode        cityAdcode
+        from media_exif me
+                 right join place p on me.adcode = p.adcode,
+             (select adcode, name from place) city
+        where me.adcode is not null
+          and p.city_adcode = city.adcode
+        group by p.city_adcode
+    </select>
+    <select id="selectGroupByProvinceAdCode" resultType="java.util.Map">
+        select ANY_VALUE(province.name) provinceName,
+               ANY_VALUE(p.name)        name,
+               ANY_VALUE(p.adcode)      adcode,
+               p.province_adcode        provinceAdcode
+        from media_exif me
+                 right join place p on me.adcode = p.adcode,
+             (select adcode, name from place) province
+        where me.adcode is not null
+          and p.province_adcode = province.adcode
+        group by p.province_adcode
+    </select>
+    <select id="selectByProvinceAdCode" resultType="com.ginDriver.main.domain.vo.MediaExifVO">
+        select me.*,
+               province.adcode provinceAdcode,
+               province.name   provinceName,
+               city.adcode     cityAdcode,
+               city.name       cityName,
+               p.adcode        districtAdcode,
+               p.name          districtName
+        from media_exif me
+                 right join place p on me.adcode = p.adcode,
+             (select adcode, name from place) province,
+             (select adcode, name from place) city
+        where me.adcode = #{adcode}
+          and p.province_adcode = province.adcode
+          and p.city_adcode = city.adcode;
+    </select>
+    <select id="selectByAdCode" resultType="com.ginDriver.main.domain.vo.MediaExifVO">
+
     </select>
 
 </mapper>

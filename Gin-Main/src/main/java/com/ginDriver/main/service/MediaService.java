@@ -1,8 +1,11 @@
 package com.ginDriver.main.service;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.ginDriver.core.domain.po.User;
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.core.exception.ApiException;
 import com.ginDriver.core.service.impl.MyServiceImpl;
+import com.ginDriver.main.domain.dto.exif.ExifInfoDTO;
 import com.ginDriver.main.domain.dto.media.MediaDTO;
 import com.ginDriver.main.domain.po.Dustbin;
 import com.ginDriver.main.domain.po.Media;
@@ -11,12 +14,14 @@ import com.ginDriver.main.domain.vo.FileVO;
 import com.ginDriver.main.domain.vo.MediaVO;
 import com.ginDriver.main.mapper.MediaMapper;
 import com.ginDriver.main.security.utils.SecurityUtils;
-import com.ginDriver.main.utils.GpsExifInfoUtil;
+import com.ginDriver.main.utils.GeoUtil;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -24,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import static com.ginDriver.main.domain.po.table.MediaTableDef.MEDIA;
@@ -46,6 +52,9 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
 
     @Resource
     private MediaExifService mediaExifService;
+
+    @Resource
+    private Executor serviceExecutor;
 
     private static final Integer EXPIRE = 24 * 60 * 60;
 
@@ -99,9 +108,11 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
     /**
      * 存入minio，存入db
      *
-     * @param file 文件
+     * @param file        文件
+     * @param exifInfoDTO exif信息
      */
-    public FileVO save(MultipartFile file) {
+    @Transactional
+    public FileVO save(MultipartFile file, ExifInfoDTO exifInfoDTO) {
         // 解析出exif信息
         // 存储至物理硬盘
         // 将缩略图存入minio
@@ -119,21 +130,42 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
         m.setFileName(objName);
         m.setMimeType(file.getContentType());
 
+        MediaExif exif;
         try {
-            Map<String, String> exifInfo = GpsExifInfoUtil.readExifInfo(file.getInputStream());
-            MediaExif exif = GpsExifInfoUtil.convertToExifInfoDTO(exifInfo);
-            m.setMediaDate(exif.getCreateTime() != null ? exif.getCreateTime().toLocalDate() : null);
             // 存入db
             super.save(m);
 
+            // 保存exif
+            exif = new MediaExif();
+            BeanUtils.copyProperties(exifInfoDTO, exif);
             exif.setMediaId(m.getId());
-//             保存exif
             mediaExifService.save(exif);
+
         } catch (Exception e) {
             log.error(e.getMessage());
             // 删除minio
             fileService.deleteFile(FileService.FileType.media, m.getFileName());
-            throw new RuntimeException(e);
+            throw new ApiException(e.getMessage());
+        }
+        String longitude = exifInfoDTO.getLongitude();
+        String latitude = exifInfoDTO.getLatitude();
+        if (StringUtils.isNotBlank(longitude) && StringUtils.isNotBlank(latitude)) {
+            serviceExecutor.execute(() -> {
+                log.info("executor handle ==> longitude: {}, latitude: {}", longitude, latitude);
+                JSONObject jsonObject = GeoUtil.getAddressWithLngLat(longitude, latitude);
+                // 解析数据，更新exif数据库
+                if ("10000".equals(jsonObject.get("infocode"))) {
+                    JSONObject regeocode = (JSONObject) jsonObject.get("regeocode");
+                    JSONObject addressComponent = (JSONObject) regeocode.get("addressComponent");
+                    // 行政代码
+                    String adcode = (String) addressComponent.get("adcode");
+                    log.info("adcode: {}", adcode);
+                    if (exif != null && exif.getId() != null) {
+                        exif.setAdcode(Integer.valueOf(adcode));
+                        mediaExifService.updateById(exif);
+                    }
+                }
+            });
         }
 
         return new FileVO()
@@ -162,7 +194,7 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
         }
 
         // 转换数据，并设置minio地址，用户信息
-        List<MediaVO> vos = convertToVOListWithUsername(page.getRecords());
+        List<MediaVO> vos = convertToVoListWithUsername(page.getRecords());
 
         Page<MediaVO> voPage = new Page<>();
         BeanUtils.copyProperties(mediaDTO, voPage, "records");
@@ -173,10 +205,10 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
     /**
      * 转换MediaVO，并设置minio地址，媒体所属用户信息
      *
-     * @param list    media集合
+     * @param list media集合
      * @return {@code List<MediaVO>} VO集合
      */
-    public List<MediaVO> convertToVOListWithUsername(List<Media> list) {
+    public List<MediaVO> convertToVoListWithUsername(List<Media> list) {
         // 获取用户信息
         Set<Long> userIdSet = list.stream().map(Media::getUserId).collect(Collectors.toSet());
         Map<Long, List<User>> userMap = userService.list(QueryWrapper.create()
@@ -199,8 +231,7 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
     /**
      * 设置minio地址
      *
-     * @param list    mediaVO集合
-     * @return {@code List<MediaVO>} VO集合
+     * @param list mediaVO集合
      */
     public void setMinioUrl(List<MediaVO> list) {
         list.forEach(vo -> {

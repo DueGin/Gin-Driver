@@ -10,16 +10,17 @@
         <result column="path" jdbcType="VARCHAR" property="path"/>
         <result column="component_path" jdbcType="VARCHAR" property="componentPath"/>
         <result column="icon" jdbcType="VARCHAR" property="icon"/>
-        <result column="perms" jdbcType="VARCHAR" property="perms"/>
+        <result column="role" jdbcType="VARCHAR" property="role"/>
         <result column="status" jdbcType="TINYINT" property="status"/>
-        <result column="type" jdbcType="TINYINT" property="type"/>
+        <result column="hidden" jdbcType="TINYINT" property="hidden"/>
+        <result column="type" jdbcType="BIGINT" property="type"/>
         <result column="sorted" jdbcType="TINYINT" property="sorted"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="remark" jdbcType="VARCHAR" property="remark"/>
     </resultMap>
     <sql id="Base_Column_List">
-        `id`, `name`, `parent_id`, `path`, `component_path`, `icon`, `perms`, `status`, `type`, `create_time`, `update_time`,
+        `id`, `name`, `parent_id`, `path`, `component_path`, `icon`, `perms`, `hidden`, `status`, `type`, `create_time`, `update_time`,
         `remark`
     </sql>
     <select id="getAll" resultType="com.ginDriver.main.domain.vo.MenuVO">
@@ -27,15 +28,38 @@
                m.name,
                m.parent_id,
                m.path,
+               m.component_name,
+               m.layout_component_id,
                m.component_path,
                m.icon,
-               m.perms,
+               m.role,
                m.status,
+               m.hidden,
                m.type,
                m.sorted,
                m.remark,
                sd.label typeName
         from menu m inner join sys_dict sd on m.type = sd.id
+        where m.status = 1
+    </select>
+    <select id="selectAllRouter" resultType="com.ginDriver.main.domain.vo.MenuVO">
+        select m.id,
+               m.name,
+               m.parent_id,
+               m.path,
+               m.component_name,
+               m.layout_component_id,
+               m.component_path,
+               m.icon,
+               m.role,
+               m.status,
+               m.hidden,
+               m.type,
+               m.sorted,
+               m.remark,
+               sd.label typeName
+        from menu m inner join sys_dict sd on m.type = sd.id
+        where m.status = 1 and m.layout_component_id is not null
     </select>
 
 </mapper>

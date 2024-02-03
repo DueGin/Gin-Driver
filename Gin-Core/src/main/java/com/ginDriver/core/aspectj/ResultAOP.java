@@ -3,10 +3,10 @@
 //import com.ginDriver.core.domain.vo.ResultVO;
 //import lombok.extern.slf4j.Slf4j;
 //import org.aspectj.lang.JoinPoint;
-//import org.aspectj.lang.annotation.After;
+//import org.aspectj.lang.ProceedingJoinPoint;
 //import org.aspectj.lang.annotation.AfterReturning;
+//import org.aspectj.lang.annotation.Around;
 //import org.aspectj.lang.annotation.Aspect;
-//import org.aspectj.lang.annotation.Pointcut;
 //import org.springframework.stereotype.Component;
 //
 ///**
@@ -17,12 +17,12 @@
 //@Component
 //public class ResultAOP {
 //
-//    @AfterReturning(value = "execution(* com.ginDriver.*.controller.*Controller(..))", returning = "methodResult")
-//    public ResultVO after(JoinPoint jp, Object methodResult) {
+//    @AfterReturning(value = "execution(* com.ginDriver.*.controller..*Controller.*(..))", returning = "methodResult")
+//    public ResultVO<?> after(JoinPoint jp, Object methodResult) {
 //        if (methodResult != null) {
-//            ResultVO vo;
+//            ResultVO<?> vo;
 //            if (methodResult instanceof ResultVO) {
-//                vo = (ResultVO) methodResult;
+//                vo = (ResultVO<?>) methodResult;
 //            } else {
 //                vo = ResultVO.ok(methodResult);
 //            }
@@ -30,4 +30,5 @@
 //        }
 //        return null;
 //    }
+//
 //}

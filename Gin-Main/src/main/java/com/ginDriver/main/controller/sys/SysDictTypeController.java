@@ -25,7 +25,7 @@ import java.util.List;
  * @since 1.0
  */
 @RestController
-@RequestMapping("/sysDictType")
+@RequestMapping("/sys/dictType")
 @Api(tags = "")
 public class SysDictTypeController {
 

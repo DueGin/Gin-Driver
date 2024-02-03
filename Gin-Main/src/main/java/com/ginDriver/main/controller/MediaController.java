@@ -1,6 +1,8 @@
 package com.ginDriver.main.controller;
 
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.core.log.GinLog;
+import com.ginDriver.main.domain.dto.exif.ExifInfoDTO;
 import com.ginDriver.main.domain.dto.media.MediaDTO;
 import com.ginDriver.main.domain.po.Media;
 import com.ginDriver.main.domain.vo.FileVO;
@@ -13,7 +15,6 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
@@ -49,13 +50,14 @@ public class MediaController {
 //        return ResultVO.ok();
 //    }
 
+    @GinLog(isTiming = true)
     @PostMapping("upload")
-    public ResultVO<FileVO> upload(MultipartFile file){
-        return ResultVO.ok(mediaService.save(file));
+    public ResultVO<FileVO> upload(ExifInfoDTO exifInfoDTO) {
+        return ResultVO.ok(mediaService.save(exifInfoDTO.getFile(), exifInfoDTO));
     }
 
     @PostMapping("upload_zip")
-    public ResultVO<Void> uploadZip(){
+    public ResultVO<Void> uploadZip() {
         // todo
         return ResultVO.ok();
     }
@@ -106,9 +108,7 @@ public class MediaController {
      */
     @GetMapping("/getInfo/{id}")
     @Operation(summary = "根据媒体资源主键获取详细信息")
-    @Parameters(value = {
-            @Parameter(name = "id", description = "", required = true)
-    })
+    @Parameter(name = "id", description = "", required = true)
     public ResultVO<Media> getInfo(@PathVariable Serializable id) {
         return ResultVO.ok(mediaService.getById(id));
     }

@@ -5,6 +5,11 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
+#  mvc:
+#    format:
+#      date-time: yyyy-MM-dd HH:mm:ss
+#      date: yyyy-MM-dd
+#      time: HH:mm:ss
 
 
 logging:

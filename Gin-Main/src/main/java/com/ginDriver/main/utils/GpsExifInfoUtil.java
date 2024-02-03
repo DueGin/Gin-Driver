@@ -112,7 +112,7 @@ public class GpsExifInfoUtil {
         } else if (fileCreateTime != null) {
             createTime = LocalDateTime.parse(fileCreateTime);
         }
-        exif.setCreateTime(createTime);
+        exif.setOriginalDateTime(createTime);
 
         exif.setModel(map.get("Model"));
         return exif;

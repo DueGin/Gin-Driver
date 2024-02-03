@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,11 +25,17 @@ public class User implements UserDetails {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @NotNull
     private Long id;
 
     private String username;
 
     private String password;
+
+    /**
+     * 头像文件名称
+     */
+    private String avatar;
 
     private String phone;
 

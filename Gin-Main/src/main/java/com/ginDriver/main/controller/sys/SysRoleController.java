@@ -15,7 +15,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("sys/role")
-@PreAuthorize("hasRole('admin')")
+@PreAuthorize("hasRole('ADMIN')")
 public class SysRoleController {
 
     @Resource
@@ -32,20 +32,17 @@ public class SysRoleController {
     }
 
     @PutMapping("modify")
-    @PreAuthorize("hasRole('admin')")
     public ResultVO<Void> modifyUserRole(Long userId, Long roleId) {
         return roleService.modifySysRole(userId, roleId);
     }
 
 
     @PostMapping("save")
-    @PreAuthorize("hasRole('admin')")
     public ResultVO<Void> addRole(Role role) {
         return roleService.save(role) ? ResultVO.ok("新增成功") : ResultVO.fail("新增失败");
     }
 
     @DeleteMapping("delete/{roleId}")
-    @PreAuthorize("hasRole('admin')")
     public ResultVO<Void> deleteRole(@PathVariable String roleId){
         return roleService.removeById(roleId) ? ResultVO.ok("删除成功") : ResultVO.fail("删除失败");
     }

@@ -16,6 +16,11 @@ public class UserBO {
 
     private String username;
 
+    /**
+     * 头像文件名称
+     */
+    private String avatar;
+
     private String phone;
 
     private String email;

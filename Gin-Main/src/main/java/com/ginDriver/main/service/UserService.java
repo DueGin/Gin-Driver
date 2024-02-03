@@ -6,11 +6,9 @@ import com.ginDriver.common.verifyCode.service.IVerifyCodeService;
 import com.ginDriver.core.domain.bo.UserBO;
 import com.ginDriver.core.domain.po.User;
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.core.exception.ApiException;
 import com.ginDriver.core.service.impl.MyServiceImpl;
-import com.ginDriver.main.domain.vo.GroupRoleVO;
-import com.ginDriver.main.domain.vo.PageVO;
-import com.ginDriver.main.domain.vo.RoleVO;
-import com.ginDriver.main.domain.vo.SysUserVO;
+import com.ginDriver.main.domain.vo.*;
 import com.ginDriver.main.mapper.RoleMapper;
 import com.ginDriver.main.mapper.UserMapper;
 import com.ginDriver.main.security.service.RoleService;
@@ -25,8 +23,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.security.auth.login.LoginException;
@@ -59,6 +57,9 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
 
     @Resource
     private RoleService roleService;
+
+    @Resource
+    private FileService fileService;
 
     //region login
 
@@ -166,6 +167,7 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
             verifyCodeService.verify(user.getUuid(), user.getVerifyCode());
         } catch (LoginException e) {
             log.error("注册验证码错误");
+            throw new ApiException("验证码错误");
         }
 
         verifyCodeService.deleteVerifyCode(user.getUuid());
@@ -240,17 +242,66 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
         return ResultVO.ok(pageVO);
     }
 
-    @Transactional
-    public ResultVO<Void> deleteUser(Long userId) {
+    public ResultVO<Void> deleteUser(Long userId, boolean isAdmin) {
+
+        if (isAdmin) {
+            // 判断删的是不是自己
+            Long uid = SecurityUtils.getUserId();
+            if (uid.equals(userId)) {
+                return ResultVO.fail("歪，别删自己啊");
+            }
+        }
+
         super.removeById(userId);
-//        roleMapper.deleteUserRoleByUserId(userId);
         return ResultVO.ok("删除成功！");
     }
 
-    public ResultVO<Void> modifyUserInfo(User user) {
-        userMapper.updateUserById(user);
+    public ResultVO<Void> updateUserInfo(User user, boolean isAdmin) {
+        boolean isSelf = false;
+        if (isAdmin) {
+            // 判断删的是不是自己
+            Long userId = SecurityUtils.getUserId();
+            if (user.getId().equals(userId)) {
+                isSelf = true;
+            }
+        }
 
-        return ResultVO.ok("修改成功！");
+        // 更新当前登录用户信息
+        Boolean modified = userMapper.updateUserById(user);
+        String msg;
+        if (modified) {
+            msg = "修改成功！";
+            if (!isAdmin || isSelf) {
+                UserBO bo = SecurityUtils.getLoginUser();
+                if (bo != null) {
+                    BeanUtils.copyProperties(user, bo);
+                } else {
+                    bo = new UserBO();
+                    BeanUtils.copyProperties(user, bo);
+                }
+            }
+        } else {
+            msg = "修改失败！";
+        }
+
+        return ResultVO.ok(msg);
     }
+
+    public ResultVO<FileVO> uploadAvatar(MultipartFile file) {
+        UserBO bo = SecurityUtils.getLoginUser();
+        if (bo == null) {
+            throw new ApiException("登录用户异常");
+        }
+
+        ResultVO<FileVO> vo = fileService.upload(FileService.FileType.system, file);
+        if (StringUtils.isNotBlank(bo.getAvatar())) {
+            Boolean deleted = fileService.deleteFile(FileService.FileType.system, bo.getAvatar());
+            if (!deleted) {
+                log.error("userId: {}, avatar: {} ==> 文件删除失败！", bo.getId(), bo.getAvatar());
+            }
+        }
+        return vo;
+    }
+
 
 }

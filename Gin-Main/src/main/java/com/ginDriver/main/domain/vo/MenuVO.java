@@ -1,6 +1,7 @@
 package com.ginDriver.main.domain.vo;
 
 
+import com.ginDriver.main.domain.po.LayoutComponent;
 import lombok.Data;
 
 import java.util.List;
@@ -26,12 +27,12 @@ public class MenuVO {
     /**
      * 子菜单
      */
-    private List<MenuVO> childrenList;
+    private List<MenuVO> children;
 
     /**
-     * 路由地址
+     * 组件名称
      */
-    private String path;
+    private String componentName;
 
     /**
      * 组件路径
@@ -39,24 +40,49 @@ public class MenuVO {
     private String componentPath;
 
     /**
+     * 路由地址
+     */
+    private String path;
+
+    /**
+     * 布局组件ID
+     */
+    private Long layoutComponentId;
+
+    /**
+     * 布局组件
+     */
+    private LayoutComponent layoutComponent;
+
+    /**
      * 菜单图标
      */
     private String icon;
 
     /**
-     * 权限标识
+     * 角色权限标识
      */
-    private String perms;
+    private String role;
 
     /**
      * 菜单类型(0:启动台菜单，1:组资源菜单，2:媒体管理菜单，3:其他)
      */
-    private Integer type;
+    private Long type;
 
     /**
      * 类型名称
      */
     private String typeName;
+
+    /**
+     * 菜单状态（1正常 0停用）
+     */
+    private Integer status;
+
+    /**
+     * 是否隐藏(1:隐藏，0:不隐藏)
+     */
+    private Integer hidden;
 
     /**
      * 排序
