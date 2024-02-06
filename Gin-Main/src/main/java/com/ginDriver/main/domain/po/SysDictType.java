@@ -1,9 +1,10 @@
 package com.ginDriver.main.domain.po;
 
-import com.mybatisflex.annotation.Column;
-import com.mybatisflex.annotation.Id;
-import com.mybatisflex.annotation.KeyType;
-import com.mybatisflex.annotation.Table;
+
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -18,11 +19,11 @@ import java.time.LocalDateTime;
  */
 @Data
 @ApiModel(value = "", description = "")
-@Table(value = "sys_dict_type")
+@TableName(value = "sys_dict_type")
 public class SysDictType {
 
-    @ApiModelProperty(value = "")
-    @Id(keyType = KeyType.Auto)
+
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
@@ -35,35 +36,30 @@ public class SysDictType {
      * 字典名称
      */
     @ApiModelProperty(value = "字典名称")
-    @Column(value = "name")
     private String name;
 
     /**
      * 状态（0正常 1停用）
      */
     @ApiModelProperty(value = "状态（0正常 1停用）")
-    @Column(value = "status")
     private Integer status;
 
     /**
      * 备注
      */
     @ApiModelProperty(value = "备注")
-    @Column(value = "remark")
     private String remark;
 
     /**
      * 创建时间
      */
     @ApiModelProperty(value = "创建时间")
-    @Column(value = "create_time")
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
     @ApiModelProperty(value = "更新时间")
-    @Column(value = "update_time")
     private LocalDateTime updateTime;
 
 

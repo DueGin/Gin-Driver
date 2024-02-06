@@ -1,7 +1,9 @@
 package com.ginDriver.main.domain.po;
 
 
-import com.mybatisflex.annotation.Id;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -11,7 +13,7 @@ import java.time.LocalDateTime;
 /**
  * 
  * @author DueGin
- * @TableName role
+ * @TableNameName role
  */
 @Data
 @Accessors(chain = true)
@@ -19,7 +21,7 @@ public class Role implements Serializable {
     /**
      * 角色表id
      */
-    @Id
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**

@@ -1,8 +1,9 @@
 package com.ginDriver.main.domain.po;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.ginDriver.main.domain.dto.group.UpdateGroupUserDTO;
-import com.mybatisflex.annotation.Id;
-import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,15 +12,15 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@Table("group_user_role")
+@TableName("group_user_role")
 public class GroupUser {
-    @Id
+    @TableId(type = IdType.AUTO)
     private Long groupId;
 
-    @Id
+    @TableId(type = IdType.AUTO)
     private Long userId;
 
-    @Id
+    @TableId(type = IdType.AUTO)
     private Long roleId;
 
     private String groupUsername;

@@ -17,8 +17,8 @@ logging:
     duegin.ginDriver: debug
 
 
-mybatis-flex:
+mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: com.ginDriver.domain.po
+  type-aliases-package: com.ginDriver..domain.po
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

@@ -41,49 +41,50 @@
         id,user_id,file_name,src,`group_id`,`status`,self,`mime_type`,create_time,update_time
     </sql>
     <sql id="Media_Base_Column_List">
-        ${alias}.id,
-        ${alias}.user_id,
-        ${alias}.file_name,
-        ${alias}.src,
-        ${alias}.`group_id`,
-        ${alias}.`status`,
-        ${alias}.self,
-        ${alias}.`mime_type`,
-        ${alias}.create_time,
-        ${alias}.update_time
+        ${alias}id,
+        ${alias}user_id,
+        ${alias}file_name,
+        ${alias}src,
+        ${alias}`group_id`,
+        ${alias}`status`,
+        ${alias}self,
+        ${alias}`mime_type`,
+        ${alias}create_time,
+        ${alias}update_time
     </sql>
     <sql id="Media_Exif_Base_Column_List">
-        ${alias}.original_date_time,
-        ${alias}.adcode,
-        ${alias}.width,
-        ${alias}.height,
-        ${alias}.longitude,
-        ${alias}.latitude,
-        ${alias}.model
+        ${alias}original_date_time,
+        ${alias}adcode,
+        ${alias}width,
+        ${alias}height,
+        ${alias}longitude,
+        ${alias}latitude,
+        ${alias}model
     </sql>
-    <select id="selectBetweenDate" resultType="com.ginDriver.main.domain.vo.MediaVO">
+    <select id="selectPageBetweenDate" resultType="com.ginDriver.main.domain.vo.MediaVO">
         select
         <include refid="Media_Base_Column_List">
-            <property name="alias" value="m"/>
+            <property name="alias" value="m."/>
         </include>
         ,
         <include refid="Media_Exif_Base_Column_List">
-            <property name="alias" value="me"/>
+            <property name="alias" value="me."/>
         </include>
         ,
         u.username
         from media m left join media_exif me on m.id = me.media_id
         left join user u on m.user_id = u.id
         where me.original_date_time between #{startDate} and #{endDate} and m.deleted = 0
+        order by me.original_date_time desc
     </select>
     <select id="selectByCityAdCode" resultType="com.ginDriver.main.domain.vo.MediaVO">
         select
         <include refid="Media_Base_Column_List">
-            <property name="alias" value="m"/>
+            <property name="alias" value="m."/>
         </include>
         ,
         <include refid="Media_Exif_Base_Column_List">
-            <property name="alias" value="me"/>
+            <property name="alias" value="me."/>
         </include>
         ,
         u.username
@@ -91,15 +92,38 @@
         right join place p on me.adcode = p.adcode
         right join user u on m.user_id = u.id
         where p.city_adcode = #{adcode}
+        order by me.original_date_time desc
+    </select>
+    <select id="selectThatYearTodayByUserId" resultType="com.ginDriver.main.domain.vo.MediaVO">
+        select
+        <include refid="Media_Base_Column_List">
+            <property name="alias" value="m."/>
+        </include>
+        ,
+        <include refid="Media_Exif_Base_Column_List">
+            <property name="alias" value="me."/>
+        </include>
+        ,
+        u.username
+        from media_exif me
+        left join media m on m.id = me.media_id
+        inner join user u on m.user_id = u.id
+        where m.user_id = #{userId}
+        and MONTH(me.original_date_time) = #{month}
+        and DAY(me.original_date_time) = #{day}
+        order by me.original_date_time desc
+        <if test="limit > 0">
+            limit #{limit}
+        </if>
     </select>
     <select id="selectByProvinceAdCode" resultType="com.ginDriver.main.domain.vo.MediaVO">
         select
         <include refid="Media_Base_Column_List">
-            <property name="alias" value="m"/>
+            <property name="alias" value="m."/>
         </include>
         ,
         <include refid="Media_Exif_Base_Column_List">
-            <property name="alias" value="me"/>
+            <property name="alias" value="me."/>
         </include>
         ,
         u.username
@@ -107,5 +131,6 @@
         right join place p on me.adcode = p.adcode
         right join user u on m.user_id = u.id
         where p.province_adcode = #{adcode}
+        order by me.original_date_time desc
     </select>
 </mapper>

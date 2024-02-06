@@ -1,7 +1,7 @@
 package com.ginDriver.main.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ginDriver.main.domain.po.LayoutComponent;
-import com.mybatisflex.core.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

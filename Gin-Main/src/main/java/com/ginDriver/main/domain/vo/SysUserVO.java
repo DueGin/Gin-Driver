@@ -21,6 +21,12 @@ public class SysUserVO {
     private Long id;
 
     /**
+     * 登录用户名
+     */
+    @ApiModelProperty("登录用户名")
+    private String userAccount;
+
+    /**
      * 用户名
      */
     @ApiModelProperty("用户名")

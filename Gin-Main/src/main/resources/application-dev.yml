@@ -9,7 +9,7 @@ spring:
     druid:
       username: root
       password: 1234
-      url: jdbc:mysql://localhost:3306/gin-driver?characterEncoding=utf8&characterSetResults=utf8&autoReconnect=true
+      url: jdbc:mysql://localhost:3306/gin-driver?characterEncoding=utf8&characterSetResults=utf8&autoReconnect=true&rewriteBatchedStatements=true
   redis:
     password: 1234
     database: 0

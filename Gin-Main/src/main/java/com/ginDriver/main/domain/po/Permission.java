@@ -1,7 +1,8 @@
 package com.ginDriver.main.domain.po;
 
 
-import com.mybatisflex.annotation.Id;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -10,14 +11,14 @@ import java.time.LocalDateTime;
 /**
  * 
  * @author DueGin
- * @TableName permission
+ * @TableNameName permission
  */
 @Data
 public class Permission implements Serializable {
     /**
      * 权限ID
      */
-    @Id
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**

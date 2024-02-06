@@ -50,7 +50,7 @@ public class ResultVO<T> {
         return new ResultVO<>(ResultEnum.SUCCESS.getCode(), null, data);
     }
 
-    public static ResultVO<Void> fail(String msg){
+    public static <T> ResultVO<T> fail(String msg){
         return new ResultVO<>(ResultEnum.ERROR.getCode(), msg, null);
     }
 }

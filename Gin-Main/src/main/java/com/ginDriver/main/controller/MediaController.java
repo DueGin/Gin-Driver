@@ -1,19 +1,23 @@
 package com.ginDriver.main.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.core.exception.ApiException;
 import com.ginDriver.core.log.GinLog;
+import com.ginDriver.core.result.BusinessController;
 import com.ginDriver.main.domain.dto.exif.ExifInfoDTO;
-import com.ginDriver.main.domain.dto.media.MediaDTO;
+import com.ginDriver.main.domain.dto.media.MediaPageDTO;
 import com.ginDriver.main.domain.po.Media;
 import com.ginDriver.main.domain.vo.FileVO;
 import com.ginDriver.main.domain.vo.MediaVO;
 import com.ginDriver.main.service.MediaService;
-import com.mybatisflex.core.paginate.Page;
+import com.ginDriver.main.service.manager.MediaManager;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Update;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -27,7 +31,7 @@ import java.util.List;
  * @since 1.0
  */
 @Slf4j
-@RestController
+@BusinessController
 @RequestMapping("/media")
 @Tag(name = "媒体资源控制层")
 public class MediaController {
@@ -35,30 +39,22 @@ public class MediaController {
     @Resource
     private MediaService mediaService;
 
-//    /**
-//     * 添加 媒体资源
-//     *
-//     * @param media 媒体资源
-//     * @return {@code true} 添加成功，{@code false} 添加失败
-//     */
-//    @PostMapping("/save")
-//    @Operation(summary = "添加媒体资源")
-//    public ResultVO<Void> save(@RequestBody Media media) {
-//        log.info(String.valueOf(media));
-//        MediaMapper mapper = (MediaMapper) mediaService.getMapper();
-//        mapper.insertOrUpdateByMe(media);
-//        return ResultVO.ok();
-//    }
+    @Resource
+    private MediaManager mediaManager;
 
     @GinLog(isTiming = true)
     @PostMapping("upload")
     public ResultVO<FileVO> upload(ExifInfoDTO exifInfoDTO) {
-        return ResultVO.ok(mediaService.save(exifInfoDTO.getFile(), exifInfoDTO));
+        try {
+            return ResultVO.ok(mediaService.save(exifInfoDTO.getFile(), exifInfoDTO));
+        } catch (ApiException e) {
+            return ResultVO.fail(e.getMessage());
+        }
     }
 
     @PostMapping("upload_zip")
     public ResultVO<Void> uploadZip() {
-        // todo
+        // todo upload zip
         return ResultVO.ok();
     }
 
@@ -70,8 +66,8 @@ public class MediaController {
      */
     @PostMapping("/remove")
     @Operation(summary = "根据主键删除媒体资源")
-    public ResultVO<Void> remove(@RequestBody Long[] ids) {
-        return mediaService.delete(ids);
+    public void remove(@RequestBody Long[] ids) {
+        mediaService.delete(ids);
     }
 
 
@@ -83,7 +79,7 @@ public class MediaController {
      */
     @PutMapping("/update")
     @Operation(summary = "根据主键更新媒体资源")
-    public ResultVO<Boolean> update(@RequestBody Media media) {
+    public ResultVO<Boolean> update(@RequestBody @Validated(Update.class) Media media) {
         return ResultVO.ok(mediaService.updateById(media));
     }
 
@@ -121,14 +117,15 @@ public class MediaController {
      */
     @GetMapping("/page")
     @Operation(summary = "分页查询媒体资源")
-    @Parameters(value = {
-            @Parameter(name = "pageNumber", description = "页码", required = true),
-            @Parameter(name = "pageSize", description = "每页大小", required = true)
-    })
-    public ResultVO<Page<MediaVO>> page(MediaDTO page) {
+    public ResultVO<Page<MediaVO>> page(MediaPageDTO page) {
         // 返回图片资源
         return ResultVO.ok(mediaService.getMediaPage(page));
     }
 
+    @GetMapping("thatYearToday/{limit}")
+    @Operation(summary = "那年今天")
+    public List<MediaVO> thatYearToday(@PathVariable Integer limit) {
+        return mediaManager.getThatYearTodayList(limit);
+    }
 
 }

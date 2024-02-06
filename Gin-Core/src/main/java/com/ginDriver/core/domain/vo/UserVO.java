@@ -13,6 +13,7 @@ public class UserVO {
     private Long id;
     private String avatar;
     private String avatarUrl;
+    private String userAccount;
     private String username;
     private String phone;
     private String email;

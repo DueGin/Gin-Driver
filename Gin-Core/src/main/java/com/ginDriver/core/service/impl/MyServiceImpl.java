@@ -1,8 +1,8 @@
 package com.ginDriver.core.service.impl;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ginDriver.core.service.MyService;
-import com.mybatisflex.core.BaseMapper;
-import com.mybatisflex.spring.service.impl.ServiceImpl;
 
 /**
  * @author DueGin

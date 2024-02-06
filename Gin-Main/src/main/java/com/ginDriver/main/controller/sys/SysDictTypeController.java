@@ -1,18 +1,20 @@
 package com.ginDriver.main.controller.sys;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.core.result.BusinessController;
 import com.ginDriver.main.domain.dto.sys.dict.SysDictTypePageDTO;
 import com.ginDriver.main.domain.po.SysDictType;
 import com.ginDriver.main.service.SysDictTypeService;
-import com.mybatisflex.core.paginate.Page;
-import com.mybatisflex.core.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
@@ -24,9 +26,10 @@ import java.util.List;
  * @author DueGin
  * @since 1.0
  */
-@RestController
+@BusinessController
 @RequestMapping("/sys/dictType")
 @Api(tags = "")
+@PreAuthorize("hasRole('ADMIN')")
 public class SysDictTypeController {
 
     @Autowired
@@ -131,14 +134,11 @@ public class SysDictTypeController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小", required = true)
     })
     public ResultVO<Page<SysDictType>> page(SysDictTypePageDTO pageDTO) {
-        Page<SysDictType> page = new Page<>();
-        BeanUtils.copyProperties(pageDTO, page);
-        QueryWrapper qw = QueryWrapper.create()
-                .from(SysDictType.class)
-                .eq(SysDictType::getCode, pageDTO.getCode(), StringUtils.isNotBlank(pageDTO.getCode()))
-                .eq(SysDictType::getName, pageDTO.getName(), StringUtils.isNotBlank(pageDTO.getName()))
-                .eq(SysDictType::getStatus, pageDTO.getStatus(), pageDTO.getStatus() != null);
+        LambdaQueryWrapper<SysDictType> qw = new QueryWrapper<SysDictType>().lambda()
+                .eq(StringUtils.isNotBlank(pageDTO.getCode()), SysDictType::getCode, pageDTO.getCode())
+                .eq(StringUtils.isNotBlank(pageDTO.getName()), SysDictType::getName, pageDTO.getName())
+                .eq(pageDTO.getStatus() != null, SysDictType::getStatus, pageDTO.getStatus());
 
-        return ResultVO.ok(sysDictTypeService.page(page, qw));
+        return ResultVO.ok(sysDictTypeService.page(pageDTO, qw));
     }
 }

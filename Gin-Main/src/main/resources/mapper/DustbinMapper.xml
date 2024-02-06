@@ -12,8 +12,37 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
     </resultMap>
+
+    <resultMap id="DustbinVOResultMap" type="com.ginDriver.main.domain.vo.DustbinVO">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="media_id" jdbcType="BIGINT" property="mediaId"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="file_name" jdbcType="VARCHAR" property="fileName"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="mine_type" jdbcType="VARCHAR" property="mimeType"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+
     <sql id="Base_Column_List">
-        `id`, `media_id`, `user_id`, `file_name`, `type`, `create_time`, `update_time`
+        ${als}`id`,
+        ${als}`media_id`,
+        ${als}`user_id`,
+        ${als}`file_name`,
+        ${als}`type`,
+        ${als}`create_time`,
+        ${als}`update_time`
     </sql>
+
+    <select id="getDustbinPage" resultType="com.ginDriver.main.domain.vo.DustbinVO" resultMap="DustbinVOResultMap">
+        select
+        <include refid="Base_Column_List">
+            <property name="als" value="d."/>
+        </include>
+        , me.mime_type
+        from dustbin d left join media_exif me on d.media_id = me.media_id
+        where d.user_id = #{userId}
+    </select>
 
 </mapper>

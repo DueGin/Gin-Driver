@@ -1,8 +1,7 @@
 package com.ginDriver.core.domain.po;
 
-import com.mybatisflex.annotation.Column;
-import com.mybatisflex.annotation.Id;
-import com.mybatisflex.annotation.Table;
+
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,14 +18,17 @@ import java.util.List;
  * @author DueGin
  */
 @Data
-@Table("user")
+@TableName("user")
 public class User implements UserDetails {
 
     private static final long serialVersionUID = 1L;
 
-    @Id
+    @TableId(type = IdType.AUTO)
     @NotNull
     private Long id;
+
+    @TableField(updateStrategy = FieldStrategy.NEVER)
+    private String userAccount;
 
     private String username;
 
@@ -54,45 +56,45 @@ public class User implements UserDetails {
     /**
      * 软删除
      */
-    @Column(isLogicDelete = true)
+    @TableLogic
     private Integer deleted;
 
     // 1:启用 ， 0：禁用
-    @Column(ignore = true)
+    @TableField(exist = false)
     private Integer enabled = 1;
 
     // 1：锁住， 0：未锁
-    @Column(ignore = true)
+    @TableField(exist = false)
     private Integer locked = 0;
 
     /**
      * table not exists
      */
-    @Column(ignore = true)
+    @TableField(exist = false)
     private List<String> perms;
 
     /**
      * table not exists
      */
-    @Column(ignore = true)
+    @TableField(exist = false)
     private String uuid;
 
     /**
      * table not exists
      */
-    @Column(ignore = true)
+    @TableField(exist = false)
     private String verifyCode;
 
     /**
      * table not exists
      */
-    @Column(ignore = true)
+    @TableField(exist = false)
     private Boolean rememberMe;
 
     /**
      * table not exists
      */
-    @Column(ignore = true)
+    @TableField(exist = false)
     private String token;
 
     @Override

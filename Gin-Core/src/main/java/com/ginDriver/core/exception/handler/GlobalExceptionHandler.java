@@ -22,7 +22,7 @@ import java.util.List;
  * @author DueGin
  */
 @Slf4j
-@RestControllerAdvice("com.ginDriver.main.controller")
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -31,10 +31,9 @@ public class GlobalExceptionHandler {
         return ResultVO.ok(ResultEnum.PARAMETER_ERROR.getCode(), e.getMessage());
     }
 
-    @ExceptionHandler({ApiException.class})
+    @ExceptionHandler(ApiException.class)
     public ResultVO<Void> apiExceptionHandle(ApiException e) {
         log.error(e.getMessage());
-        e.printStackTrace();
         return ResultVO.fail(e.getMessage());
     }
 

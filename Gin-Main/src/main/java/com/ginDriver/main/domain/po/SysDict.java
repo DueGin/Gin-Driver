@@ -1,9 +1,10 @@
 package com.ginDriver.main.domain.po;
 
-import com.mybatisflex.annotation.Column;
-import com.mybatisflex.annotation.Id;
-import com.mybatisflex.annotation.KeyType;
-import com.mybatisflex.annotation.Table;
+
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -15,10 +16,10 @@ import java.time.LocalDateTime;
  * @since 1.0
  */
 @Data
-@Table(value = "sys_dict")
+@TableName(value = "sys_dict")
 public class SysDict {
 
-    @Id(keyType = KeyType.Auto)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
@@ -26,34 +27,30 @@ public class SysDict {
      */
     private String dictType;
 
-    @Column(value = "label")
+    
     private String label;
 
-    @Column(value = "value")
+    
     private Integer value;
 
     /**
      * 字典状态(0:禁用，1:启用)
      */
-    @Column(value = "status")
     private Integer status;
 
     /**
      * 备注
      */
-    @Column(value = "remark")
     private String remark;
 
     /**
      * 创建时间
      */
-    @Column(value = "create_time")
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    @Column(value = "update_time")
     private LocalDateTime updateTime;
 
 

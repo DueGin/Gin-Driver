@@ -6,11 +6,14 @@ import com.ginDriver.core.domain.po.User;
 import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.core.domain.vo.UserVO;
 import com.ginDriver.core.log.GinLog;
+import com.ginDriver.core.result.BusinessController;
+import com.ginDriver.main.cache.redis.TokenRedis;
 import com.ginDriver.main.domain.dto.user.UserParam;
 import com.ginDriver.main.domain.vo.FileVO;
 import com.ginDriver.main.security.utils.SecurityUtils;
 import com.ginDriver.main.service.FileService;
 import com.ginDriver.main.service.UserService;
+import com.ginDriver.main.service.manager.UserManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
@@ -33,7 +37,7 @@ import java.util.stream.Collectors;
  */
 @Api(tags = "用户")
 @Slf4j
-@RestController
+@BusinessController
 @RequestMapping("user")
 public class UserController {
 
@@ -41,7 +45,13 @@ public class UserController {
     private UserService userService;
 
     @Resource
+    private UserManager userManager;
+
+    @Resource
     private FileService fileService;
+
+    @Resource
+    private TokenRedis tokenRedis;
 
     /**
      * 登录
@@ -56,7 +66,7 @@ public class UserController {
         log.info(user.toString());
 
         // 处理登录
-        String token = userService.login(user);
+        String token = userManager.login(user);
 
         // 设置token头浏览器可见
         response.setHeader("Access-Control-Expose-Headers", JwtTokenUtils.TOKEN_HEADER);
@@ -71,8 +81,10 @@ public class UserController {
             vo.setSysRole(SecurityUtils.getSysRole());
 
             // 设置头像
-            String avatarUrl = fileService.getObjUrl(FileService.FileType.system, bo.getAvatar());
-            vo.setAvatarUrl(avatarUrl);
+            if (StringUtils.isNotBlank(bo.getAvatar())) {
+                String avatarUrl = fileService.getObjUrl(FileService.FileType.system, bo.getAvatar());
+                vo.setAvatarUrl(avatarUrl);
+            }
 
             // 获取组角色列表
             List<String> groupRoleList = SecurityUtils.getGroupRoleList();
@@ -84,25 +96,31 @@ public class UserController {
     @ApiOperation("注册")
     @ApiImplicitParams({@ApiImplicitParam(name = "userParam", value = "注册信息", required = true)})
     @PostMapping("register")
-    public ResultVO<Void> register(@RequestBody UserParam userParam) {
+    public void register(@RequestBody UserParam userParam) {
         log.info(userParam.toString());
         User u = new User();
         BeanUtils.copyProperties(userParam, u);
         // 处理注册
-        userService.register(u);
+        userManager.register(u);
+    }
 
-        return ResultVO.ok();
+    @GetMapping("logout")
+    public void logout(HttpServletRequest request) {
+        String tokenHeader = request.getHeader(JwtTokenUtils.TOKEN_HEADER);
+        String token = JwtTokenUtils.getToken(tokenHeader);
+        tokenRedis.setBlankToken(token);
+        log.info("登出成功！");
     }
 
     @ApiOperation("获取登录用户详情")
     @GetMapping("detail")
-    public ResultVO<UserVO> detail(){
+    public ResultVO<UserVO> detail() {
         UserBO bo = SecurityUtils.getLoginUser();
         UserVO vo = new UserVO();
         if (bo != null) {
             BeanUtils.copyProperties(bo, vo);
             String avatar = bo.getAvatar();
-            if(StringUtils.isNotBlank(avatar)) {
+            if (StringUtils.isNotBlank(avatar)) {
                 String avatarUrl = fileService.getObjUrl(FileService.FileType.system, avatar);
                 vo.setAvatarUrl(avatarUrl);
             }
@@ -120,19 +138,19 @@ public class UserController {
     }
 
     @PostMapping("avatar/upload")
-    public ResultVO<FileVO> uploadAvatar(MultipartFile file){
+    public ResultVO<FileVO> uploadAvatar(MultipartFile file) {
         return userService.uploadAvatar(file);
     }
 
     @GinLog
     @PutMapping("update")
-    public ResultVO<Void> update(@RequestBody @Valid User user){
+    public ResultVO<Void> update(@RequestBody @Valid User user) {
         return userService.updateUserInfo(user, false);
     }
 
     @GinLog
     @DeleteMapping("remove/{id}")
-    public ResultVO<Void> remove(@PathVariable Long id){
+    public ResultVO<Void> remove(@PathVariable Long id) {
         return userService.deleteUser(id, false);
     }
 }

@@ -1,13 +1,15 @@
 package com.ginDriver.main.security.config;
 
 
-import com.ginDriver.main.mapper.UserMapper;
+import com.ginDriver.main.cache.redis.TokenRedis;
+import com.ginDriver.main.cache.redis.UserRedis;
 import com.ginDriver.main.security.filter.JwtAuthorizationFilter;
 import com.ginDriver.main.security.handle.MyAccessDeniedHandler;
 import com.ginDriver.main.security.handle.MyLogoutSuccessHandler;
 import com.ginDriver.main.security.handle.UnAuthenticationEntryPoint;
 import com.ginDriver.main.security.properties.SecurityProperties;
 import com.ginDriver.main.security.service.UserDetailsServiceImpl;
+import com.ginDriver.main.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -58,7 +60,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private MyLogoutSuccessHandler logoutSuccessHandler;
 
     @Resource
-    private UserMapper userMapper;
+    private UserService userService;
+
+    @Resource
+    private TokenRedis tokenRedis;
+
+    @Resource
+    private UserRedis userRedis;
 
     /**
      * anyRequest          |   匹配所有请求路径
@@ -111,7 +119,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 // 处理HTTP请求的BASIC授权标头，然后将结果放入SecurityContextHolder
-                .addFilterBefore(new JwtAuthorizationFilter(authenticationManager(), userMapper), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthorizationFilter(authenticationManager(), securityProperties, userService, userRedis, tokenRedis), UsernamePasswordAuthenticationFilter.class)
 
                 // 不需要session
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

@@ -1,14 +1,14 @@
 package com.ginDriver.main.domain.dto.media;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.main.domain.po.Media;
-import com.mybatisflex.core.paginate.Page;
 import lombok.Data;
 
 /**
  * @author DueGin
  */
 @Data
-public class MediaDTO extends Page<Media> {
+public class MediaPageDTO extends Page<Media> {
     /**
      * 是否只查看自己的
      */

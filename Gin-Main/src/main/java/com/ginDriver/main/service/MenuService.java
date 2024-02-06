@@ -1,13 +1,19 @@
 package com.ginDriver.main.service;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.ginDriver.core.domain.bo.UserBO;
+import com.ginDriver.core.exception.ApiException;
 import com.ginDriver.core.service.impl.MyServiceImpl;
 import com.ginDriver.main.domain.po.LayoutComponent;
 import com.ginDriver.main.domain.po.Menu;
+import com.ginDriver.main.domain.po.Role;
 import com.ginDriver.main.domain.po.SysDict;
 import com.ginDriver.main.domain.vo.MenuVO;
 import com.ginDriver.main.mapper.MenuMapper;
-import com.mybatisflex.core.query.QueryWrapper;
+import com.ginDriver.main.security.service.RoleService;
+import com.ginDriver.main.security.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -36,13 +42,21 @@ public class MenuService extends MyServiceImpl<MenuMapper, Menu> {
     @Resource
     private SysDictService sysDictService;
 
+    @Resource
+    private RoleService roleService;
+
     public List<MenuVO> getMenuListByType(Long type) {
-        QueryWrapper qw = QueryWrapper.create().from(Menu.class).eq(Menu::getType, type);
+        LambdaQueryWrapper<Menu> qw = new QueryWrapper<Menu>().lambda().eq(Menu::getType, type);
         List<Menu> list = super.list(qw);
 
+        // 布局组件
         Set<Long> layoutComponentIds = list.stream().map(Menu::getLayoutComponentId).collect(Collectors.toSet());
         Map<Long, LayoutComponent> longLayoutComponentMap = layoutComponentService.getLayoutComponentMap(layoutComponentIds);
 
+        // 角色
+        Map<Long, Role> roleMap = roleService.getRoleMap();
+
+        // 字典类型
         Map<Long, SysDict> menuMap = sysDictService.getDictIdMapByDictType("menu");
 
         // 父菜单，同时也是res
@@ -56,14 +70,26 @@ public class MenuService extends MyServiceImpl<MenuMapper, Menu> {
                 MenuVO vo = new MenuVO();
                 BeanUtils.copyProperties(menu, vo);
                 vo.setLayoutComponent(longLayoutComponentMap.get(menu.getLayoutComponentId()));
-                vo.setTypeName(menuMap.get(menu.getType()).getLabel());
+
+                // 字典
+                SysDict sysDict = menuMap.get(menu.getType());
+                if (sysDict != null) {
+                    vo.setTypeName(sysDict.getLabel());
+                }
+
+                // 角色
+                Role role = roleMap.get(menu.getRoleId());
+                if (role != null) {
+                    vo.setRoleName(role.getRoleName());
+                }
+
                 parentMenuList.add(vo);
                 iterator.remove();
             }
         }
 
         // 递归设置菜单
-        setMenuChildrenList(parentMenuList, list, longLayoutComponentMap, menuMap);
+        setMenuChildrenList(parentMenuList, list, longLayoutComponentMap, menuMap, roleMap);
 
         return parentMenuList;
     }
@@ -73,8 +99,9 @@ public class MenuService extends MyServiceImpl<MenuMapper, Menu> {
      *
      * @param parentMenuList 父菜单列表
      * @param originMenuList 待处理菜单列表
+     * @param roleMap 角色集合
      */
-    public void setMenuChildrenList(List<MenuVO> parentMenuList, List<Menu> originMenuList, Map<Long, LayoutComponent> longLayoutComponentMap, Map<Long, SysDict> menuMap) {
+    private void setMenuChildrenList(List<MenuVO> parentMenuList, List<Menu> originMenuList, Map<Long, LayoutComponent> longLayoutComponentMap, Map<Long, SysDict> menuMap, Map<Long, Role> roleMap) {
         // 父菜单
         for (MenuVO vo : parentMenuList) {
             Long id = vo.getId();
@@ -85,8 +112,22 @@ public class MenuService extends MyServiceImpl<MenuMapper, Menu> {
                 if (m.getParentId().equals(id)) {
                     MenuVO v = new MenuVO();
                     BeanUtils.copyProperties(m, v);
+
+                    // 布局组件
                     v.setLayoutComponent(longLayoutComponentMap.get(m.getLayoutComponentId()));
-                    vo.setTypeName(menuMap.get(m.getType()).getLabel());
+
+                    // 字典
+                    SysDict sysDict = menuMap.get(m.getType());
+                    if (sysDict != null) {
+                        vo.setTypeName(sysDict.getLabel());
+                    }
+
+                    // 角色
+                    Role role = roleMap.get(m.getRoleId());
+                    if (role != null) {
+                        vo.setRoleName(role.getRoleName());
+                    }
+
                     children.add(v);
                     iter.remove();
                 }
@@ -96,7 +137,7 @@ public class MenuService extends MyServiceImpl<MenuMapper, Menu> {
         // 子菜单
         if (!originMenuList.isEmpty()) {
             for (MenuVO vo : parentMenuList) {
-                setMenuChildrenList(vo.getChildren(), originMenuList, longLayoutComponentMap, menuMap);
+                setMenuChildrenList(vo.getChildren(), originMenuList, longLayoutComponentMap, menuMap, roleMap);
             }
         }
     }
@@ -107,15 +148,20 @@ public class MenuService extends MyServiceImpl<MenuMapper, Menu> {
      *
      * @param parentMenuList 父菜单列表
      * @param originMenuList 待处理菜单列表
+     * @param roleMap        角色集合
      */
-    public void setMenuVOChildrenList(List<MenuVO> parentMenuList, List<MenuVO> originMenuList) {
+    private void setMenuVoChildrenList(List<MenuVO> parentMenuList, List<MenuVO> originMenuList, Map<Long, String> roleMap) {
         // 父菜单
         for (MenuVO vo : parentMenuList) {
             Long id = vo.getId();
+
             Iterator<MenuVO> iter = originMenuList.iterator();
             List<MenuVO> children = new ArrayList<>();
             while (iter.hasNext()) {
                 MenuVO m = iter.next();
+                if (m.getRoleId() != null) {
+                    m.setRoleName(roleMap.get(m.getRoleId()));
+                }
                 if (m.getParentId().equals(id)) {
                     children.add(m);
                     iter.remove();
@@ -126,7 +172,7 @@ public class MenuService extends MyServiceImpl<MenuMapper, Menu> {
         // 子菜单
         if (!originMenuList.isEmpty()) {
             for (MenuVO vo : parentMenuList) {
-                setMenuVOChildrenList(vo.getChildren(), originMenuList);
+                setMenuVoChildrenList(vo.getChildren(), originMenuList, roleMap);
             }
         }
     }
@@ -136,9 +182,19 @@ public class MenuService extends MyServiceImpl<MenuMapper, Menu> {
      *
      * @return <字典类型名称, [..MenuVO]>
      */
-    public Map<String, List<MenuVO>> getMenuMap() {
-        MenuMapper mapper = (MenuMapper) super.getMapper();
-        List<MenuVO> voList = mapper.getAll();
+    public Map<String, List<MenuVO>> getUserMenuMap() {
+        UserBO userBO = SecurityUtils.getLoginUser();
+        if (userBO == null || userBO.getId() == null) {
+            throw new ApiException("登录状态异常！");
+        }
+
+        MenuMapper mapper = super.getBaseMapper();
+        List<Role> roles = roleService.getYouAndUnderRole(userBO.getRoleMap().get("sys"));
+        List<Long> roleIds = roles.stream().map(Role::getId).collect(Collectors.toList());
+        List<MenuVO> voList = mapper.getUserMenuByUserId(userBO.getId(), roleIds);
+
+        // 装入roleName
+        Map<Long, String> roleMap = roles.stream().collect(Collectors.toMap(Role::getId, Role::getRoleName));
 
         Map<String, List<MenuVO>> map = new HashMap<>();
         Set<Long> layoutComponentIds = voList.stream()
@@ -164,10 +220,13 @@ public class MenuService extends MyServiceImpl<MenuMapper, Menu> {
 
                         // 设置布局组件
                         m.setLayoutComponent(layoutComponentMap.get(m.getLayoutComponentId()));
+                        if (m.getRoleId() != null) {
+                            m.setRoleName(roleMap.get(m.getRoleId()));
+                        }
                     }
 
                     // 递归设置菜单
-                    setMenuVOChildrenList(parentMenuList, v);
+                    setMenuVoChildrenList(parentMenuList, v, roleMap);
                     map.put(k, parentMenuList);
                 });
 
@@ -180,7 +239,7 @@ public class MenuService extends MyServiceImpl<MenuMapper, Menu> {
      * @return {布局组件的路径, 扁平化的菜单VO列表}
      */
     public Map<Long, List<MenuVO>> getFlatMapGroupByLayoutComponent() {
-        MenuMapper mapper = (MenuMapper) super.getMapper();
+        MenuMapper mapper = super.getBaseMapper();
         List<MenuVO> voList = mapper.selectAllRouter();
 
         Set<Long> layoutComponentIds = voList.stream()
@@ -190,7 +249,6 @@ public class MenuService extends MyServiceImpl<MenuMapper, Menu> {
         Map<Long, LayoutComponent> layoutComponentMap = layoutComponentService.getLayoutComponentMap(layoutComponentIds);
 
         List<MenuVO> flatList = getFlatList(voList);
-        log.info(flatList.toString());
 
         Map<Long, List<MenuVO>> map = flatList.stream()
                 .peek(m -> m.setLayoutComponent(layoutComponentMap.get(m.getLayoutComponentId())))

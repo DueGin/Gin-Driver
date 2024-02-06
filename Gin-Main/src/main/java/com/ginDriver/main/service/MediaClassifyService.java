@@ -1,5 +1,6 @@
 package com.ginDriver.main.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.main.constant.ClassifyConstant;
 import com.ginDriver.main.domain.vo.ClassifyVO;
 import com.ginDriver.main.domain.vo.MediaVO;
@@ -28,7 +29,7 @@ public class MediaClassifyService {
 
     public List<ClassifyVO> getClassifyFolderList(String type) {
         List<ClassifyVO> res = new ArrayList<>();
-        MediaExifMapper mediaExifMapper = (MediaExifMapper) mediaExifService.getMapper();
+        MediaExifMapper mediaExifMapper = mediaExifService.getBaseMapper();
 
         switch (type) {
             case ClassifyConstant.MONTH:
@@ -71,9 +72,8 @@ public class MediaClassifyService {
         return res;
     }
 
-    public List<MediaVO> getDetailListByClassifyId(String type, String classifyId) {
-        MediaMapper mediaMapper = (MediaMapper) mediaService.getMapper();
-        List<MediaVO> vos = new ArrayList<>();
+    public Page<MediaVO> getDetailPageByClassifyId(Page<MediaVO> page, String type, String classifyId) {
+        MediaMapper mediaMapper = mediaService.getBaseMapper();
 
         switch (type) {
             case ClassifyConstant.MONTH:
@@ -83,30 +83,30 @@ public class MediaClassifyService {
                 LocalDate startDate1 = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), 1);
                 LocalDate endDate1 = startDate1.plusMonths(1).minusDays(1);
 
-                vos = mediaMapper.selectBetweenDate(startDate1, endDate1);
+                mediaMapper.selectPageBetweenDate(page, startDate1, endDate1);
                 break;
             case ClassifyConstant.YEAR:
                 LocalDate startDate2 = LocalDate.of(Integer.parseInt(classifyId), 1, 1);
                 LocalDate endDate2 = startDate2.plusYears(1).minusDays(1);
-                vos = mediaMapper.selectBetweenDate(startDate2, endDate2);
+                mediaMapper.selectPageBetweenDate(page, startDate2, endDate2);
                 break;
             case ClassifyConstant.PROVINCE:
                 log.info("省份分类");
-                vos = mediaMapper.selectByProvinceAdCode(Integer.valueOf(classifyId));
+                mediaMapper.selectByProvinceAdCode(page, Integer.valueOf(classifyId));
                 break;
             case ClassifyConstant.CITY:
                 log.info("市分类");
-                vos = mediaMapper.selectByCityAdCode(Integer.valueOf(classifyId));
+                mediaMapper.selectByCityAdCode(page, Integer.valueOf(classifyId));
                 break;
             default:
                 log.error("没有该分类");
         }
 
         // 设置minio url
-        if(!vos.isEmpty()){
-            mediaService.setMinioUrl(vos);
+        if (!page.getRecords().isEmpty()) {
+            mediaService.setMinioUrl(page.getRecords());
         }
 
-        return vos;
+        return page;
     }
 }

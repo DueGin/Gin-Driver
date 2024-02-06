@@ -30,7 +30,7 @@ public class JwtTokenUtils {
     /**
      * 选择了记住我之后的过期时间为7天
      */
-    private static final long EXPIRATION_REMEMBER = 604800L;
+    public static final long EXPIRATION_REMEMBER = 604800L;
 
 
     /**
@@ -50,13 +50,13 @@ public class JwtTokenUtils {
      * 创建token
      * TODO 这里是存在问题，我将权限信封装到jwt中，实际应该存储到redis中。主要是安全问题
      *
-     * @param username     用户名
+     * @param userId  登录用户名和ID，格式：userAccount_userId
      * @param roleList     角色集合
      * @param roleMap      角色KV集合
      * @param isRememberMe 是否记住我
      * @return token
      */
-    public static String createToken(String username, List<String> roleList, Map<String, String> roleMap, boolean isRememberMe) {
+    public static String createToken(String userId, List<String> roleList, Map<String, String> roleMap, boolean isRememberMe) {
         String token = null;
         try {
             long expiration = isRememberMe ? EXPIRATION_REMEMBER : EXPIRATION;
@@ -68,7 +68,7 @@ public class JwtTokenUtils {
                     // 额外信息，这里要早set一点，放到后面会覆盖别的字段
                     .setClaims(map)
                     .setIssuer(ISS)
-                    .setSubject(username)
+                    .setSubject(userId)
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
                     .compact();
@@ -83,12 +83,9 @@ public class JwtTokenUtils {
     }
 
     /**
-     * 从token中获取用户名
-     *
-     * @param token
-     * @return
+     * 从token中获取登录用户名
      */
-    public static String getUsername(String token) {
+    public static String getUserId(String token) {
         return getTokenBody(token).getSubject();
     }
 

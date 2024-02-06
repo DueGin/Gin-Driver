@@ -1,6 +1,6 @@
 package com.ginDriver.core.service;
 
-import com.mybatisflex.core.service.IService;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * @author DueGin

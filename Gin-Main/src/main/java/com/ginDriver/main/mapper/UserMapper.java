@@ -1,8 +1,8 @@
 package com.ginDriver.main.mapper;
 
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ginDriver.core.domain.po.User;
-import com.mybatisflex.core.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

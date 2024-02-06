@@ -1,16 +1,17 @@
 package com.ginDriver.main.controller.sys;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.core.result.BusinessController;
 import com.ginDriver.main.domain.dto.layoutComponent.LayoutComponentPageDTO;
 import com.ginDriver.main.domain.po.LayoutComponent;
 import com.ginDriver.main.service.LayoutComponentService;
-import com.mybatisflex.core.paginate.Page;
-import com.mybatisflex.core.query.QueryWrapper;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -25,7 +26,7 @@ import java.util.Map;
  * @author DueGin
  * @since 1.0
  */
-@RestController
+@BusinessController
 @RequestMapping("/sys/layoutComponent")
 @Api(tags = "组件布局")
 public class LayoutComponentController {
@@ -39,17 +40,9 @@ public class LayoutComponentController {
      * @param layoutComponent 组件布局
      * @return {@code true} 添加成功，{@code false} 添加失败
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/save")
     @ApiOperation(value = "添加组件布局", notes = "添加组件布局")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = ""),
-            @ApiImplicitParam(name = "name", value = "组件名称"),
-            @ApiImplicitParam(name = "path", value = "组件路径"),
-            @ApiImplicitParam(name = "hasSlot", value = "是否存在插槽，0:不存在，1:存在"),
-            @ApiImplicitParam(name = "hasRouter", value = "是否存在路由插槽，0:不存在，1:存在"),
-            @ApiImplicitParam(name = "createTime", value = "创建时间"),
-            @ApiImplicitParam(name = "updateTime", value = "更新时间"),
-            @ApiImplicitParam(name = "remark", value = "备注")})
     public ResultVO<Boolean> save(@RequestBody LayoutComponent layoutComponent) {
         layoutComponent.setCreateTime(null);
         layoutComponent.setUpdateTime(null);
@@ -63,11 +56,9 @@ public class LayoutComponentController {
      * @param id 主键
      * @return {@code true} 删除成功，{@code false} 删除失败
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/remove/{id}")
     @ApiOperation(value = "根据主键删除组件布局", notes = "根据主键删除组件布局")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "", required = true)
-    })
     public ResultVO<Boolean> remove(@PathVariable Serializable id) {
         return ResultVO.ok(layoutComponentService.removeById(id));
     }
@@ -79,17 +70,9 @@ public class LayoutComponentController {
      * @param layoutComponent 组件布局
      * @return {@code true} 更新成功，{@code false} 更新失败
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update")
     @ApiOperation(value = "根据主键更新组件布局", notes = "根据主键更新组件布局")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "", required = true),
-            @ApiImplicitParam(name = "name", value = "组件名称"),
-            @ApiImplicitParam(name = "path", value = "组件路径"),
-            @ApiImplicitParam(name = "hasSlot", value = "是否存在插槽，0:不存在，1:存在"),
-            @ApiImplicitParam(name = "hasRouter", value = "是否存在路由插槽，0:不存在，1:存在"),
-            @ApiImplicitParam(name = "createTime", value = "创建时间"),
-            @ApiImplicitParam(name = "updateTime", value = "更新时间"),
-            @ApiImplicitParam(name = "remark", value = "备注")})
     public ResultVO<Boolean> update(@RequestBody LayoutComponent layoutComponent) {
         layoutComponent.setCreateTime(null);
         layoutComponent.setUpdateTime(null);
@@ -102,6 +85,7 @@ public class LayoutComponentController {
      *
      * @return 所有数据
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/list")
     @ApiOperation(value = "查询所有组件布局", notes = "查询所有组件布局")
     public ResultVO<List<LayoutComponent>> list() {
@@ -131,9 +115,6 @@ public class LayoutComponentController {
      */
     @GetMapping("/getInfo/{id}")
     @ApiOperation(value = "根据组件布局主键获取详细信息", notes = "根据组件布局主键获取详细信息")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "", required = true)
-    })
     public ResultVO<LayoutComponent> getInfo(@PathVariable Serializable id) {
         return ResultVO.ok(layoutComponentService.getById(id));
     }
@@ -145,19 +126,16 @@ public class LayoutComponentController {
      * @param dto 分页对象
      * @return 分页对象
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/page")
     @ApiOperation(value = "分页查询组件布局", notes = "分页查询组件布局")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "pageNumber", value = "页码", required = true),
-            @ApiImplicitParam(name = "pageSize", value = "每页大小", required = true)
-    })
-    public ResultVO<Page<LayoutComponent>> page(LayoutComponentPageDTO dto) {
-        QueryWrapper qw = QueryWrapper.create().from(LayoutComponent.class)
-                .like(LayoutComponent::getName, dto.getName(), StringUtils.isNotBlank(dto.getName()))
-                .like(LayoutComponent::getPath, dto.getPath(), StringUtils.isNotBlank(dto.getPath()))
-                .eq(LayoutComponent::getHasSlot, dto.getHasSlot(), dto.getHasSlot() != null)
-                .eq(LayoutComponent::getHasRouter, dto.getHasRouter(), dto.getHasRouter() != null);
-        Page<LayoutComponent> page = layoutComponentService.page(dto, qw);
-        return ResultVO.ok(page);
+    public ResultVO<IPage<LayoutComponent>> page(LayoutComponentPageDTO dto) {
+        LambdaQueryWrapper<LayoutComponent> qw = new QueryWrapper<LayoutComponent>().lambda()
+                .like(StringUtils.isNotBlank(dto.getName()), LayoutComponent::getName, dto.getName())
+                .like(StringUtils.isNotBlank(dto.getPath()), LayoutComponent::getPath, dto.getPath())
+                .eq(dto.getHasSlot() != null, LayoutComponent::getHasSlot, dto.getHasSlot())
+                .eq(dto.getHasRouter() != null, LayoutComponent::getHasRouter, dto.getHasRouter());
+        layoutComponentService.page(dto, qw);
+        return ResultVO.ok(dto);
     }
 }

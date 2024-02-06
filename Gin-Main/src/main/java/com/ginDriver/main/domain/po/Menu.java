@@ -1,8 +1,9 @@
 package com.ginDriver.main.domain.po;
 
-import com.mybatisflex.annotation.Id;
-import com.mybatisflex.annotation.KeyType;
-import com.mybatisflex.annotation.Table;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -15,11 +16,11 @@ import java.time.LocalDateTime;
  * @since 1.0
  */
 @Data
-@Table(value = "menu")
+@TableName(value = "menu")
 public class Menu {
 
     @NotNull
-    @Id(keyType = KeyType.Auto)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
@@ -58,9 +59,9 @@ public class Menu {
     private Long layoutComponentId;
 
     /**
-     * 权限标识
+     * 角色ID
      */
-    private String role;
+    private Long roleId;
 
     /**
      * 菜单状态（1正常 0停用）

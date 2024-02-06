@@ -3,6 +3,7 @@ package com.ginDriver.main.controller.sys;
 import com.ginDriver.core.domain.po.User;
 import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.core.log.GinLog;
+import com.ginDriver.core.result.BusinessController;
 import com.ginDriver.main.domain.dto.user.UserQueryParam;
 import com.ginDriver.main.domain.vo.PageVO;
 import com.ginDriver.main.domain.vo.SysUserVO;
@@ -10,6 +11,7 @@ import com.ginDriver.main.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +25,9 @@ import java.util.List;
 @Api(tags = "用户管理")
 @Slf4j
 @Validated
-@RestController
+@BusinessController
 @RequestMapping("sys/user")
+@PreAuthorize("hasRole('ADMIN')")
 public class SysUserController {
 
     @Resource
@@ -32,9 +35,9 @@ public class SysUserController {
 
     @ApiOperation("新增系统用户")
     @PostMapping("add")
-    public ResultVO<Void> addUser(@RequestBody User user) {
+    public void addUser(@RequestBody User user) {
         log.info(String.valueOf(user));
-        return userService.addUser(user);
+        userService.saveUser(user);
     }
 
     @ApiOperation("逻辑分页查询")

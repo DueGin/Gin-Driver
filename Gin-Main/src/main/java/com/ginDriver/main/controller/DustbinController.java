@@ -1,16 +1,19 @@
 package com.ginDriver.main.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.core.result.BusinessController;
 import com.ginDriver.main.domain.po.Dustbin;
+import com.ginDriver.main.domain.vo.DustbinVO;
 import com.ginDriver.main.service.DustbinService;
-import com.mybatisflex.core.paginate.Page;
+import com.ginDriver.main.service.manager.DustbinManager;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.List;
 
@@ -20,13 +23,16 @@ import java.util.List;
  * @author DueGin
  * @since 1.0
  */
-@RestController
-@RequestMapping("/dustbin")
+@BusinessController
+@RequestMapping("/media/dustbin")
 @Api(tags = "媒体资源垃圾箱")
 public class DustbinController {
 
     @Autowired
     private DustbinService dustbinService;
+
+    @Resource
+    private DustbinManager dustbinManager;
 
     /**
      * 添加 媒体资源垃圾箱
@@ -36,14 +42,6 @@ public class DustbinController {
      */
     @PostMapping("/save")
     @ApiOperation(value = "添加媒体资源垃圾箱", notes = "添加媒体资源垃圾箱")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = ""),
-            @ApiImplicitParam(name = "mediaId", value = "媒体ID"),
-            @ApiImplicitParam(name = "userId", value = "删除者ID"),
-            @ApiImplicitParam(name = "fileName", value = "文件名"),
-            @ApiImplicitParam(name = "type", value = "文件类型(1：图片，2：视频，3：电影，4：其他)"),
-            @ApiImplicitParam(name = "createTime", value = "创建时间"),
-            @ApiImplicitParam(name = "updateTime", value = "更新时间")})
     public ResultVO<Boolean> save(@RequestBody Dustbin dustbin) {
         return ResultVO.ok(dustbinService.save(dustbin));
     }
@@ -52,16 +50,12 @@ public class DustbinController {
     /**
      * 根据主键删除媒体资源垃圾箱
      *
-     * @param id 主键
-     * @return {@code true} 删除成功，{@code false} 删除失败
+     * @param ids 主键集合
      */
-    @DeleteMapping("/remove/{id}")
+    @PostMapping("/remove")
     @ApiOperation(value = "根据主键删除媒体资源垃圾箱", notes = "根据主键删除媒体资源垃圾箱")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "", required = true)
-    })
-    public ResultVO<Boolean> remove(@PathVariable Serializable id) {
-        return ResultVO.ok(dustbinService.removeById(id));
+    public void remove(@RequestBody Long[] ids) {
+        dustbinManager.remove(List.of(ids));
     }
 
 
@@ -73,16 +67,8 @@ public class DustbinController {
      */
     @PutMapping("/update")
     @ApiOperation(value = "根据主键更新媒体资源垃圾箱", notes = "根据主键更新媒体资源垃圾箱")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "", required = true),
-            @ApiImplicitParam(name = "mediaId", value = "媒体ID"),
-            @ApiImplicitParam(name = "userId", value = "删除者ID"),
-            @ApiImplicitParam(name = "fileName", value = "文件名"),
-            @ApiImplicitParam(name = "type", value = "文件类型(1：图片，2：视频，3：电影，4：其他)"),
-            @ApiImplicitParam(name = "createTime", value = "创建时间"),
-            @ApiImplicitParam(name = "updateTime", value = "更新时间")})
-    public ResultVO<Boolean> update(@RequestBody Dustbin dustbin) {
-        return ResultVO.ok(dustbinService.updateById(dustbin));
+    public void update(@RequestBody @Valid Dustbin dustbin) {
+        dustbinService.updateById(dustbin);
     }
 
 
@@ -106,9 +92,6 @@ public class DustbinController {
      */
     @GetMapping("/getInfo/{id}")
     @ApiOperation(value = "根据媒体资源垃圾箱主键获取详细信息", notes = "根据媒体资源垃圾箱主键获取详细信息")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "", required = true)
-    })
     public ResultVO<Dustbin> getInfo(@PathVariable Serializable id) {
         return ResultVO.ok(dustbinService.getById(id));
     }
@@ -122,11 +105,7 @@ public class DustbinController {
      */
     @GetMapping("/page")
     @ApiOperation(value = "分页查询媒体资源垃圾箱", notes = "分页查询媒体资源垃圾箱")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "pageNumber", value = "页码", required = true),
-            @ApiImplicitParam(name = "pageSize", value = "每页大小", required = true)
-    })
-    public ResultVO<Page<Dustbin>> page(Page<Dustbin> page) {
-        return ResultVO.ok(dustbinService.page(page));
+    public ResultVO<Page<DustbinVO>> page(Page<DustbinVO> page) {
+        return ResultVO.ok(dustbinManager.getDustbinPage(page));
     }
 }

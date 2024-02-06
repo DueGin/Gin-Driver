@@ -1,7 +1,7 @@
 package com.ginDriver.main.domain.dto.layoutComponent;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.main.domain.po.LayoutComponent;
-import com.mybatisflex.core.paginate.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

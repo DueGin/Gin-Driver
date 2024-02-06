@@ -1,5 +1,6 @@
 package com.ginDriver.main.service;
 
+
 import com.ginDriver.core.service.impl.MyServiceImpl;
 import com.ginDriver.main.domain.po.Dustbin;
 import com.ginDriver.main.mapper.DustbinMapper;
@@ -12,4 +13,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class DustbinService extends MyServiceImpl<DustbinMapper, Dustbin> {
+
+
+
+
 }

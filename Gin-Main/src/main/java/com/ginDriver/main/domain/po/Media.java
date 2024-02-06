@@ -1,10 +1,12 @@
 package com.ginDriver.main.domain.po;
 
 
-import com.mybatisflex.annotation.Column;
-import com.mybatisflex.annotation.Id;
-import com.mybatisflex.annotation.KeyType;
-import com.mybatisflex.annotation.Table;
+
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Update;
@@ -17,15 +19,15 @@ import java.time.LocalDateTime;
 /**
  * 媒体资源
  * @author DueGin
- * @TableName media
+ * @TableNameName media
  */
 @Data
-@Table("media")
+@TableName("media")
 public class Media implements Serializable {
     /**
      * 媒体ID
      */
-    @Id(keyType = KeyType.Auto)
+    @TableId(type = IdType.AUTO)
     @NotNull(groups = Update.class)
     private Long id;
 
@@ -40,12 +42,6 @@ public class Media implements Serializable {
      */
     @NotNull(groups = Insert.class)
     private String fileName;
-
-//    /**
-//     * 文件类型1：图片，2：视频，3：电影，4：其他
-//     */
-//    @NotNull(groups = Insert.class)
-//    private Integer type;
 
     /**
      * 文件路径
@@ -92,7 +88,7 @@ public class Media implements Serializable {
     /**
      * 软删除
      */
-    @Column(isLogicDelete = true)
+    @TableLogic
     private Integer deleted;
 
     private static final long serialVersionUID = 1L;

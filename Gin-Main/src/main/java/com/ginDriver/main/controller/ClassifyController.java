@@ -1,5 +1,6 @@
 package com.ginDriver.main.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.main.domain.vo.ClassifyVO;
 import com.ginDriver.main.domain.vo.MediaVO;
@@ -33,10 +34,10 @@ public class ClassifyController {
         return ResultVO.ok(classifyFolderList);
     }
 
-    @GetMapping("list/{type}/{classifyId}")
-    public ResultVO getListByClassifyId(@PathVariable String classifyId, @PathVariable String type){
+    @GetMapping("page/{type}/{classifyId}")
+    public ResultVO<Page<MediaVO>> getPageByClassifyId(Page<MediaVO> page, @PathVariable String classifyId, @PathVariable String type){
         log.info("type: {}, classifyId: {}", type, classifyId);
-        List<MediaVO> list = mediaClassifyService.getDetailListByClassifyId(type, classifyId);
+        Page<MediaVO> list = mediaClassifyService.getDetailPageByClassifyId(page, type, classifyId);
         return ResultVO.ok(list);
     }
 

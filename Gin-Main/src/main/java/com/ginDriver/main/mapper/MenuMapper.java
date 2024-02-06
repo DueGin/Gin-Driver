@@ -1,10 +1,12 @@
 package com.ginDriver.main.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ginDriver.main.domain.po.Menu;
 import com.ginDriver.main.domain.vo.MenuVO;
-import com.mybatisflex.core.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -17,6 +19,8 @@ import java.util.List;
 public interface MenuMapper extends BaseMapper<Menu> {
 
     List<MenuVO> getAll();
+
+    List<MenuVO> getUserMenuByUserId(@Param("userId") Long userId, @Param("roleIds") Collection<Long> roleIds);
 
     List<MenuVO> selectAllRouter();
 }

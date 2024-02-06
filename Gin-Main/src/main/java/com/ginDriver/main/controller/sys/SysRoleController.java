@@ -1,9 +1,10 @@
 package com.ginDriver.main.controller.sys;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.core.result.BusinessController;
 import com.ginDriver.main.domain.po.Role;
 import com.ginDriver.main.security.service.RoleService;
-import com.mybatisflex.core.query.QueryWrapper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +14,7 @@ import java.util.List;
 /**
  * @author DueGin
  */
-@RestController
+@BusinessController
 @RequestMapping("sys/role")
 @PreAuthorize("hasRole('ADMIN')")
 public class SysRoleController {
@@ -23,8 +24,7 @@ public class SysRoleController {
 
     @GetMapping("list")
     public ResultVO<List<Role>> list(Integer type){
-        List<Role> roleList = roleService.list(QueryWrapper.create()
-                .from(Role.class)
+        List<Role> roleList = roleService.list(new QueryWrapper<Role>().lambda()
                 .eq(Role::getType, type)
         );
 

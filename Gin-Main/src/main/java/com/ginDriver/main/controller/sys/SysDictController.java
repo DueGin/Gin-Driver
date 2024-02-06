@@ -1,12 +1,14 @@
 package com.ginDriver.main.controller.sys;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.core.result.BusinessController;
 import com.ginDriver.main.domain.dto.sys.dict.SysDictPageDTO;
 import com.ginDriver.main.domain.po.SysDict;
 import com.ginDriver.main.service.SysDictService;
-import com.mybatisflex.core.paginate.Page;
-import com.mybatisflex.core.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +25,9 @@ import java.util.Map;
  * @since 1.0
  */
 @Validated
-@RestController
+@BusinessController
 @RequestMapping("/sys/dict")
+@PreAuthorize("hasRole('ADMIN')")
 public class SysDictController {
 
     @Autowired
@@ -97,10 +100,10 @@ public class SysDictController {
      */
     @GetMapping("/page")
     public ResultVO<Page<SysDict>> page(@Valid SysDictPageDTO page) {
-        QueryWrapper qw = QueryWrapper.create()
-                .from(SysDict.class)
-                .eq(SysDict::getDictType, page.getDictType());
-        return ResultVO.ok(sysDictService.page(page, qw));
+        sysDictService.page(page, new QueryWrapper<SysDict>().lambda()
+                .eq(SysDict::getDictType, page.getDictType()));
+
+        return ResultVO.ok(page);
     }
 
     @GetMapping("/list/{dictType}")

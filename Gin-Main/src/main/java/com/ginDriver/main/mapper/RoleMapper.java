@@ -1,10 +1,10 @@
 package com.ginDriver.main.mapper;
 
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ginDriver.main.domain.po.Role;
 import com.ginDriver.main.domain.vo.GroupRoleVO;
 import com.ginDriver.main.domain.vo.RoleVO;
-import com.mybatisflex.core.BaseMapper;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 

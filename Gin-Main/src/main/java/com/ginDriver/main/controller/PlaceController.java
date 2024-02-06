@@ -1,9 +1,9 @@
 package com.ginDriver.main.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.main.domain.po.Place;
 import com.ginDriver.main.service.PlaceService;
-import com.mybatisflex.core.paginate.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

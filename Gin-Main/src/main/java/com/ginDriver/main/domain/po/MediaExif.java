@@ -1,8 +1,8 @@
 package com.ginDriver.main.domain.po;
 
-import com.mybatisflex.annotation.Id;
-import com.mybatisflex.annotation.KeyType;
-import com.mybatisflex.annotation.Table;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -17,10 +17,10 @@ import java.time.LocalDateTime;
  */
 @Data
 @ApiModel(value = "媒体资源信息", description = "媒体资源信息")
-@Table(value = "media_exif")
+@TableName(value = "media_exif")
 public class MediaExif {
 
-    @Id(keyType = KeyType.Auto)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**

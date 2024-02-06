@@ -2,6 +2,7 @@ package com.ginDriver.core.domain.bo;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -10,9 +11,13 @@ import java.util.Map;
  * @author DueGin
  */
 @Data
-public class UserBO {
+public class UserBO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private Long id;
+
+    private String userAccount;
 
     private String username;
 

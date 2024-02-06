@@ -6,6 +6,7 @@
 
     <resultMap id="UserBaseResultMap" type="com.ginDriver.core.domain.po.User">
         <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userAccount" column="user_account" jdbcType="VARCHAR"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="password" column="password" jdbcType="VARCHAR"/>
         <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
@@ -17,6 +18,7 @@
 
     <resultMap id="SysUserVOBaseResultMap" type="com.ginDriver.main.domain.vo.SysUserVO">
         <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userAccount" column="user_account" jdbcType="VARCHAR"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="phone" column="phone" jdbcType="VARCHAR"/>
         <result property="email" column="email" jdbcType="VARCHAR"/>
@@ -25,10 +27,10 @@
     </resultMap>
 
     <sql id="User_Base_Column_List">
-        id,username,`password`,avatar,phone,email,create_time,update_time
+        id,user_account,username,`password`,avatar,phone,email,create_time,update_time
     </sql>
     <insert id="insertUserRole">
-        insert into user_role(id, role_id) VALUE(#{userId}, #{roleId});
+        insert into user_role(user_id, role_id) VALUE(#{userId}, #{roleId});
     </insert>
     <update id="updateUserById">
         update user

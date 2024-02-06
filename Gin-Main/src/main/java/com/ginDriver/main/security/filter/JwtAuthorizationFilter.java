@@ -4,7 +4,10 @@ package com.ginDriver.main.security.filter;
 import com.ginDriver.common.utils.JwtTokenUtils;
 import com.ginDriver.core.domain.bo.UserBO;
 import com.ginDriver.core.domain.po.User;
-import com.ginDriver.main.mapper.UserMapper;
+import com.ginDriver.main.cache.redis.TokenRedis;
+import com.ginDriver.main.cache.redis.UserRedis;
+import com.ginDriver.main.security.properties.SecurityProperties;
+import com.ginDriver.main.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +36,20 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private final Logger log = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
 
-    private final UserMapper userMapper;
+    private final UserService userService;
+
+    private final TokenRedis tokenRedis;
+
+    private final UserRedis userRedis;
+    private final SecurityProperties properties;
 
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserMapper userMapper) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, SecurityProperties properties, UserService userService, UserRedis userRedis, TokenRedis tokenRedis) {
         super(authenticationManager);
-        this.userMapper = userMapper;
+        this.userService = userService;
+        this.tokenRedis = tokenRedis;
+        this.userRedis = userRedis;
+        this.properties = properties;
     }
 
     /**
@@ -48,6 +59,14 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain) throws IOException, ServletException {
+        // 过滤白名单路由
+        String uri = request.getRequestURI();
+        for (String exclude : properties.getExcludes()) {
+            if (uri.equals("/api" + exclude)){
+                super.doFilterInternal(request, response, chain);
+                return;
+            }
+        }
 
         // 拿出请求头的token
         String tokenHeader = request.getHeader(JwtTokenUtils.TOKEN_HEADER);
@@ -60,7 +79,15 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         String token = JwtTokenUtils.getToken(tokenHeader);
 
-        UsernamePasswordAuthenticationToken authentication = null;
+        // token是否在黑名单中 或 已经退出登录的token
+        boolean had = this.tokenRedis.hasBlankToken(token);
+        if (had) {
+            log.error("token在黑名单中 ==> token: {}", token);
+            chain.doFilter(request, response);
+            return;
+        }
+
+        UsernamePasswordAuthenticationToken authentication;
         try {
             authentication = getAuthentication(token);
         } catch (ExpiredJwtException e) {
@@ -80,26 +107,27 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
      */
     private UsernamePasswordAuthenticationToken getAuthentication(String token) {
         // 从jwt token中拿出username、角色，然后解析出权限
-        String username = JwtTokenUtils.getUsername(token);
+        Long userId = Long.valueOf(JwtTokenUtils.getUserId(token));
         List<String> roleList = JwtTokenUtils.getRoleList(token);
         String sysRole = JwtTokenUtils.getSysRole(token);
         Map<String, String> roleMap = JwtTokenUtils.getRoleMap(token);
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
-        if (username != null) {
-            // token有用户信息，token未过期
-//            for (String role : roleList) {
-//                authorities.add(new SimpleGrantedAuthority(role));
-//            }
+        if (userId != null) {
             authorities.add(new SimpleGrantedAuthority(sysRole));
-            // todo 缓存登录用户信息
-            User user = userMapper.selectByUsername(username);
-            UserBO userBO = new UserBO();
-            BeanUtils.copyProperties(user, userBO);
-            userBO.setRoleList(roleList);
-            userBO.setRoleMap(roleMap);
 
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userBO, null, authorities);
+            UserBO bo = userRedis.getUserBO(userId);
+            if (bo == null) {
+                User user = userService.getById(userId);
+                bo = new UserBO();
+                BeanUtils.copyProperties(user, bo);
+                bo.setRoleList(roleList);
+                bo.setRoleMap(roleMap);
+                // 缓存登录用户信息
+                userRedis.setUserBO(bo);
+            }
+
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(bo, null, authorities);
             authenticationToken.setDetails(roleMap);
             return authenticationToken;
         }

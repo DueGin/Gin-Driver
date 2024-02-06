@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ginDriver.main.mapper.AMapMapper">
+    <resultMap id="AMapVOResultMap" type="com.ginDriver.main.domain.vo.amap.AMapVO">
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="file_name" jdbcType="VARCHAR" property="fileName"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="longitude" jdbcType="VARCHAR" property="longitude"/>
+        <result column="latitude" jdbcType="VARCHAR" property="latitude"/>
+        <result column="mime_type" jdbcType="VARCHAR" property="mimeType"/>
+        <result column="original_date_time" jdbcType="TIMESTAMP" property="originalDateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+
+    <select id="selectAllByUserId" resultType="com.ginDriver.main.domain.vo.amap.AMapVO" resultMap="AMapVOResultMap">
+        select m.file_name,
+               m.user_id,
+               u.username,
+               me.latitude,
+               me.longitude,
+               me.mime_type,
+               me.original_date_time,
+               m.create_time,
+               m.update_time
+        from media_exif me
+                 left join media m on m.id = me.media_id
+                 left join user u on m.user_id = u.id
+        where m.user_id = #{userId}
+          and me.latitude is not null
+          and me.longitude is not null
+          and m.deleted = 0
+    </select>
+</mapper>

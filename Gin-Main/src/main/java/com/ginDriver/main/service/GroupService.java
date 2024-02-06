@@ -49,7 +49,7 @@ public class GroupService extends MyServiceImpl<GroupMapper, Group> {
      */
     @Transactional
     public ResultVO<Void> deleteGroup(Long groupId, Long groupGodId) {
-        GroupMapper groupMapper = (GroupMapper) super.getMapper();
+        GroupMapper groupMapper = (GroupMapper) super.getBaseMapper();
         // 判断是否为组的拥有者
         Long creatorId = groupMapper.selectCreatorIdByGroupId(groupId);
         if (creatorId.equals(groupGodId)) {

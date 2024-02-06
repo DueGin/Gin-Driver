@@ -8,8 +8,14 @@ import com.ginDriver.main.mapper.RoleMapper;
 import com.ginDriver.main.security.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author DueGin
@@ -27,7 +33,17 @@ public class RoleService extends MyServiceImpl<RoleMapper, Role> {
     private RoleMapper roleMapper;
 
 
+    public Map<Long, Role> getRoleMap() {
+        return getRoleMap(null);
+    }
 
+    public Map<Long, Role> getRoleMap(Collection<Long> roleIds) {
+        return super.lambdaQuery()
+                .in(!CollectionUtils.isEmpty(roleIds), Role::getId, roleIds)
+                .list()
+                .stream()
+                .collect(Collectors.toMap(Role::getId, s -> s));
+    }
 
     /**
      * 只有管理员才能修改角色，且不能修改自己的
@@ -45,7 +61,7 @@ public class RoleService extends MyServiceImpl<RoleMapper, Role> {
             return ResultVO.fail("无法修改自己的角色");
         }
 
-        RoleMapper mapper = (RoleMapper) this.getMapper();
+        RoleMapper mapper = this.getBaseMapper();
 
         Boolean modified = mapper.modifyUserRole(userId, roleId);
 
@@ -73,4 +89,34 @@ public class RoleService extends MyServiceImpl<RoleMapper, Role> {
         log.warn("未设置权限");
         return false;
     }
+
+    /**
+     * 获取当前角色及其低级权限角色
+     *
+     * @param sysRole 当前角色
+     * @return [当前角色, ...比当前角色权限低级的]
+     */
+    public List<Role> getYouAndUnderRole(String sysRole) {
+        List<Role> roleList = lambdaQuery().eq(Role::getType, 1).list();
+        switch (sysRole) {
+            case ADMIN:
+                return roleList;
+            case USER:
+                return roleList.stream()
+                        .filter(r -> !ADMIN.equals(r.getRoleName()))
+                        .collect(Collectors.toList());
+            case VISITOR:
+                return roleList.stream()
+                        .filter(r -> !ADMIN.equals(r.getRoleName()) && !USER.equals(r.getRoleName()))
+                        .collect(Collectors.toList());
+            case DISABLED:
+                return roleList.stream()
+                        .filter(r -> DISABLED.equals(r.getRoleName()))
+                        .collect(Collectors.toList());
+            default:
+                log.warn("未设置权限");
+                return Collections.emptyList();
+        }
+    }
+
 }

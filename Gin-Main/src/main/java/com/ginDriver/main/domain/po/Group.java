@@ -1,8 +1,8 @@
 package com.ginDriver.main.domain.po;
 
-
-import com.mybatisflex.annotation.Id;
-import com.mybatisflex.annotation.Table;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -16,17 +16,17 @@ import java.time.LocalDateTime;
 /**
  * 组
  * @author DueGin
- * @TableName group
+ * @TableNameName group
  */
 @Data
 @NoArgsConstructor
 @Accessors(chain = true)
-@Table("group")
+@TableName("group")
 public class Group implements Serializable {
     /**
      * 组ID
      */
-    @Id
+    @TableId(type = IdType.AUTO)
     @NotNull(groups = Update.class)
     private Long id;
 

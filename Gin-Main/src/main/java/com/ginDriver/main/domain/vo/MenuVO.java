@@ -60,9 +60,14 @@ public class MenuVO {
     private String icon;
 
     /**
-     * 角色权限标识
+     * 角色权限
      */
-    private String role;
+    private Long roleId;
+
+    /**
+     * 角色名称
+     */
+    private String roleName;
 
     /**
      * 菜单类型(0:启动台菜单，1:组资源菜单，2:媒体管理菜单，3:其他)

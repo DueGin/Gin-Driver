@@ -65,7 +65,7 @@ public class MenuDTO {
      * 权限标识
      */
     @ApiModelProperty("权限标识")
-    private String role;
+    private Long roleId;
 
     /**
      * 菜单状态（1正常 0停用）

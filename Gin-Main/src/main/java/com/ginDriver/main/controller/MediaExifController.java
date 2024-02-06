@@ -1,9 +1,9 @@
 package com.ginDriver.main.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.main.domain.po.MediaExif;
 import com.ginDriver.main.service.MediaExifService;
-import com.mybatisflex.core.paginate.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -73,14 +73,6 @@ public class MediaExifController {
      */
     @PutMapping("/update")
     @ApiOperation(value = "根据主键更新媒体资源信息", notes = "根据主键更新媒体资源信息")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "", required = true),
-            @ApiImplicitParam(name = "mediaId", value = "文件id"),
-            @ApiImplicitParam(name = "width", value = ""),
-            @ApiImplicitParam(name = "height", value = ""),
-            @ApiImplicitParam(name = "mimeType", value = ""),
-            @ApiImplicitParam(name = "createTime", value = ""),
-            @ApiImplicitParam(name = "model", value = "")})
     public ResultVO<Boolean> update(@RequestBody MediaExif mediaExif) {
         return ResultVO.ok(mediaExifService.updateById(mediaExif));
     }
@@ -122,10 +114,6 @@ public class MediaExifController {
      */
     @GetMapping("/page")
     @ApiOperation(value = "分页查询媒体资源信息", notes = "分页查询媒体资源信息")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "pageNumber", value = "页码", required = true),
-            @ApiImplicitParam(name = "pageSize", value = "每页大小", required = true)
-    })
     public ResultVO<Page<MediaExif>> page(Page<MediaExif> page) {
         return ResultVO.ok(mediaExifService.page(page));
     }

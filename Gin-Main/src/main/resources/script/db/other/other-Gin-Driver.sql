@@ -16,27 +16,21 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `media`
+-- Table structure for table `place`
 --
 
-DROP TABLE IF EXISTS `media`;
+DROP TABLE IF EXISTS `place`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `media` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `user_id` bigint NOT NULL COMMENT '上传者ID',
-  `file_name` varchar(255) NOT NULL COMMENT '文件名',
-  `src` varchar(255) DEFAULT NULL COMMENT '文件路径',
-  `group_id` bigint NOT NULL DEFAULT '0' COMMENT '组ID',
-  `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '文件状态',
-  `self` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为私有(0:不私有，1:私有)',
-  `mime_type` varchar(32) DEFAULT NULL COMMENT '媒体格式',
-  `media_date` date DEFAULT NULL COMMENT '媒体创建时间',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '软删除',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='媒体资源';
+CREATE TABLE `place` (
+                         `id` int NOT NULL AUTO_INCREMENT,
+                         `name` varchar(16) NOT NULL COMMENT '区域名称',
+                         `adcode` int NOT NULL COMMENT '行政区域编码，唯一',
+                         `city_adcode` int NOT NULL COMMENT '县区所属的市区域编码',
+                         `province_adcode` int NOT NULL COMMENT '县区或市所属省份区域编码',
+                         PRIMARY KEY (`id`),
+                         UNIQUE KEY `place_adcode_uindex` (`adcode`)
+) ENGINE=InnoDB AUTO_INCREMENT=65290 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='行政区域';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,18 +41,42 @@ DROP TABLE IF EXISTS `media_exif`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `media_exif` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `media_id` bigint NOT NULL COMMENT '媒体id',
-  `width` int DEFAULT NULL,
-  `height` int DEFAULT NULL,
-  `mime_type` varchar(32) DEFAULT NULL,
-  `original_date_time` datetime DEFAULT NULL COMMENT '媒体拍摄时间',
-  `adcode` int DEFAULT NULL COMMENT '行政区域编码',
-  `longitude` double(50,6) DEFAULT NULL COMMENT '经度',
-  `latitude` double(50,6) DEFAULT NULL COMMENT '纬度',
-  `model` varchar(32) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='媒体资源信息';
+                              `id` bigint NOT NULL AUTO_INCREMENT,
+                              `media_id` bigint NOT NULL COMMENT '媒体id',
+                              `width` int DEFAULT NULL,
+                              `height` int DEFAULT NULL,
+                              `mime_type` varchar(32) DEFAULT NULL,
+                              `original_date_time` datetime DEFAULT NULL COMMENT '媒体拍摄时间',
+                              `adcode` int DEFAULT NULL COMMENT '行政区域编码',
+                              `longitude` double(50,6) DEFAULT NULL COMMENT '经度',
+                              `latitude` double(50,6) DEFAULT NULL COMMENT '纬度',
+                              `model` varchar(32) DEFAULT NULL,
+                              PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=134 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='媒体资源信息';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `media`
+--
+
+DROP TABLE IF EXISTS `media`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `media` (
+                         `id` bigint NOT NULL AUTO_INCREMENT,
+                         `user_id` bigint NOT NULL COMMENT '上传者ID',
+                         `file_name` varchar(255) NOT NULL COMMENT '文件名',
+                         `src` varchar(255) DEFAULT NULL COMMENT '文件路径',
+                         `group_id` bigint NOT NULL DEFAULT '0' COMMENT '组ID',
+                         `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '文件状态',
+                         `self` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为私有(0:不私有，1:私有)',
+                         `mime_type` varchar(32) DEFAULT NULL COMMENT '媒体格式',
+                         `media_date` date DEFAULT NULL COMMENT '媒体创建时间',
+                         `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                         `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                         `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '软删除',
+                         PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=165 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='媒体资源';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -69,32 +87,13 @@ DROP TABLE IF EXISTS `group_user_role`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `group_user_role` (
-  `group_id` bigint NOT NULL COMMENT '组ID',
-  `user_id` bigint NOT NULL COMMENT '用户ID',
-  `role_id` bigint NOT NULL COMMENT '用户组角色ID',
-  `group_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '组内用户昵称',
-  PRIMARY KEY (`user_id`,`group_id`,`role_id`),
-  UNIQUE KEY `group_user_role_pk` (`group_id`,`user_id`,`role_id`)
+                                   `group_id` bigint NOT NULL COMMENT '组ID',
+                                   `user_id` bigint NOT NULL COMMENT '用户ID',
+                                   `role_id` bigint NOT NULL COMMENT '用户组角色ID',
+                                   `group_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '组内用户昵称',
+                                   PRIMARY KEY (`user_id`,`group_id`,`role_id`),
+                                   UNIQUE KEY `group_user_role_pk` (`group_id`,`user_id`,`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `dustbin`
---
-
-DROP TABLE IF EXISTS `dustbin`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `dustbin` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `media_id` bigint NOT NULL COMMENT '媒体ID',
-  `user_id` bigint NOT NULL COMMENT '删除者ID',
-  `file_name` varchar(255) NOT NULL COMMENT '文件名',
-  `type` int NOT NULL COMMENT '文件类型(1：图片，2：视频，3：电影，4：其他)',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='媒体资源垃圾箱';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -105,16 +104,35 @@ DROP TABLE IF EXISTS `group`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `group` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `group_name` varchar(20) NOT NULL COMMENT '组名',
-  `user_id` bigint NOT NULL COMMENT '创建者用户ID',
-  `avatar` varchar(255) DEFAULT NULL COMMENT '资源组头像',
-  `description` varchar(255) DEFAULT NULL COMMENT '简介',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '软删除',
-  PRIMARY KEY (`id`)
+                         `id` bigint NOT NULL AUTO_INCREMENT,
+                         `group_name` varchar(20) NOT NULL COMMENT '组名',
+                         `user_id` bigint NOT NULL COMMENT '创建者用户ID',
+                         `avatar` varchar(255) DEFAULT NULL COMMENT '资源组头像',
+                         `description` varchar(255) DEFAULT NULL COMMENT '简介',
+                         `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                         `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                         `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '软删除',
+                         PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='组';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dustbin`
+--
+
+DROP TABLE IF EXISTS `dustbin`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dustbin` (
+                           `id` bigint NOT NULL AUTO_INCREMENT,
+                           `media_id` bigint NOT NULL COMMENT '媒体ID',
+                           `user_id` bigint NOT NULL COMMENT '删除者ID',
+                           `file_name` varchar(255) NOT NULL COMMENT '文件名',
+                           `type` int NOT NULL COMMENT '文件类型(1：图片，2：视频，3：电影，4：其他)',
+                           `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                           `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                           PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='媒体资源垃圾箱';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -126,4 +144,4 @@ CREATE TABLE `group` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-02-03 13:56:56
+-- Dump completed on 2024-02-06 22:55:34

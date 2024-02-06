@@ -10,7 +10,7 @@
         <result column="path" jdbcType="VARCHAR" property="path"/>
         <result column="component_path" jdbcType="VARCHAR" property="componentPath"/>
         <result column="icon" jdbcType="VARCHAR" property="icon"/>
-        <result column="role" jdbcType="VARCHAR" property="role"/>
+        <result column="role_id" jdbcType="VARCHAR" property="roleId"/>
         <result column="status" jdbcType="TINYINT" property="status"/>
         <result column="hidden" jdbcType="TINYINT" property="hidden"/>
         <result column="type" jdbcType="BIGINT" property="type"/>
@@ -20,8 +20,8 @@
         <result column="remark" jdbcType="VARCHAR" property="remark"/>
     </resultMap>
     <sql id="Base_Column_List">
-        `id`, `name`, `parent_id`, `path`, `component_path`, `icon`, `perms`, `hidden`, `status`, `type`, `create_time`, `update_time`,
-        `remark`
+        `id`, `name`, `parent_id`, `path`, `component_path`, `icon`, `role_id`, `hidden`, `status`, `type`, `create_time`, `update_time`,
+        `remark`, `sorted`
     </sql>
     <select id="getAll" resultType="com.ginDriver.main.domain.vo.MenuVO">
         select m.id,
@@ -32,14 +32,16 @@
                m.layout_component_id,
                m.component_path,
                m.icon,
-               m.role,
+               m.role_id,
                m.status,
                m.hidden,
                m.type,
                m.sorted,
                m.remark,
-               sd.label typeName
+               sd.label typeName,
+               r.role_name
         from menu m inner join sys_dict sd on m.type = sd.id
+        left join role r on m.role_id = r.id
         where m.status = 1
     </select>
     <select id="selectAllRouter" resultType="com.ginDriver.main.domain.vo.MenuVO">
@@ -51,15 +53,40 @@
                m.layout_component_id,
                m.component_path,
                m.icon,
-               m.role,
+               m.role_id,
                m.status,
                m.hidden,
                m.type,
                m.sorted,
                m.remark,
-               sd.label typeName
-        from menu m inner join sys_dict sd on m.type = sd.id
+               sd.label typeName,
+               r.role_name
+        from menu m inner join sys_dict sd on m.type = sd.id left join role r on m.role_id = r.id
         where m.status = 1 and m.layout_component_id is not null
+    </select>
+    <select id="getUserMenuByUserId" resultType="com.ginDriver.main.domain.vo.MenuVO">
+        select
+        m.id,
+        m.name,
+        m.parent_id,
+        m.path,
+        m.component_name,
+        m.layout_component_id,
+        m.component_path,
+        m.icon,
+        m.role_id,
+        m.status,
+        m.hidden,
+        m.type,
+        m.sorted,
+        m.remark,
+        sd.label typeName
+        from menu m
+        left join sys_dict sd on m.type = sd.id
+        where m.status = 1 and m.role_id in
+        <foreach collection="roleIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
     </select>
 
 </mapper>
