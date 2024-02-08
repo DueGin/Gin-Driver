@@ -36,7 +36,7 @@
     </dependencies>
 
     <build>
-        <finalName>GinDriver</finalName>
+        <finalName>Gin-Driver</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
