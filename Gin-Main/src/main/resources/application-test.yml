@@ -45,7 +45,7 @@ minio:
   endpoint: http://8.134.91.25:9000  #地址
   accessKey: 5lYVWgKJUZf2n9moBfYV # 账号
   secretKey: JdEz8eo53PgELqFx4B2KSXH5ghV7vWHi8eS7lrMP # 密码
-  secure: false # 如果是true，则用的是https而不是http,默认值是true
+  secure: true # 如果是true，则用的是https而不是http,默认值是true
   bucketName: "test" # 存储桶
 
 amap:
