@@ -1,0 +1,52 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    druid:
+      username: root
+      password: Asdfg20020322.
+      url: jdbc:mysql://localhost:3306/gin-driver?characterEncoding=utf8&characterSetResults=utf8&autoReconnect=true&rewriteBatchedStatements=true
+  redis:
+    password: A20240201z?
+    database: 0
+    host: localhost
+    port: 6379
+
+security:
+  excludes:
+    - /user/login # 登录api
+    - /user/register # 注册api
+    - /verifyImage/** # 验证码api
+    # api文档
+    - /doc.html
+    - /webjars/**
+    - /swagger-resources
+    - /assets/**
+    - /v2/api-docs
+    - /favicon.ico
+    #    - /configuration/security
+    - /swagger-ui/**
+    - /swagger-ui.html
+
+# jwt
+token:
+  expire: 3600000
+  key: 123456
+
+# 接口文档
+swagger:
+  enable: false
+
+minio:
+  endpoint: http://8.134.91.25:9000  #地址
+  accessKey: minioadmin # 账号
+  secretKey: minioadmin # 密码
+  secure: false # 如果是true，则用的是https而不是http,默认值是true
+  bucketName: "test" # 存储桶
+
+amap:
+  key: f298653b18f53dfccb4c99f9cddb4afe
