@@ -47,9 +47,6 @@ minio:
   secretKey: JdEz8eo53PgELqFx4B2KSXH5ghV7vWHi8eS7lrMP # 密码
   secure: true # 如果是true，则用的是https而不是http,默认值是true
   bucketName: "test" # 存储桶
-  ssl:
-    trustStore: /var/lib/docker/volumes/minio-config/_data/certs/public.crt
-    trustStorePassword: changeit
 
 amap:
   key: f298653b18f53dfccb4c99f9cddb4afe
