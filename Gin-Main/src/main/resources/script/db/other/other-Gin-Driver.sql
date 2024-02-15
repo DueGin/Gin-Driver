@@ -18,24 +18,6 @@
 use `gin-driver`;
 
 --
--- Table structure for table `place`
---
-
-DROP TABLE IF EXISTS `place`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `place` (
-                         `id` int NOT NULL AUTO_INCREMENT,
-                         `name` varchar(16) NOT NULL COMMENT '区域名称',
-                         `adcode` int NOT NULL COMMENT '行政区域编码，唯一',
-                         `city_adcode` int NOT NULL COMMENT '县区所属的市区域编码',
-                         `province_adcode` int NOT NULL COMMENT '县区或市所属省份区域编码',
-                         PRIMARY KEY (`id`),
-                         UNIQUE KEY `place_adcode_uindex` (`adcode`)
-) ENGINE=InnoDB AUTO_INCREMENT=65290 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='行政区域';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `media_exif`
 --
 

@@ -57,6 +57,7 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
 
     private static final Integer EXPIRE = 24 * 60 * 60;
 
+    // todo 解析压缩包图片，做批量上传解析
 
     /**
      * 存入minio，存入db
@@ -69,6 +70,7 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
         // 解析出exif信息
         // 存储至物理硬盘
         // 将缩略图存入minio
+        Long userId = SecurityUtils.getUserId();
 
 
         // 存入minio
@@ -79,7 +81,7 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
         // todo 加入队列异步获取exif信息
 
         Media m = new Media();
-        m.setUserId(SecurityUtils.getUserId());
+        m.setUserId(userId);
         m.setFileName(objName);
         m.setMimeType(file.getContentType());
 
@@ -116,6 +118,8 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
                         exif.setAdcode(Integer.valueOf(adcode));
                         mediaExifService.updateById(exif);
                     }
+                } else {
+                    log.warn("无法获取行政区编码=>> lat: {}, lng: {}, userId: {}, mediaId: {}, exifId: {}", latitude, longitude, userId, m.getId(), exif.getId());
                 }
             });
         }
