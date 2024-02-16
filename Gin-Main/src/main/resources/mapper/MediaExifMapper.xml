@@ -17,15 +17,23 @@
     </sql>
     <select id="selectGroupByMonth" resultType="java.util.Map">
         select year(original_date_time) year, month(original_date_time) month
-        from media_exif me right join media m on m.id = me.media_id
-        where original_date_time is not null and m.deleted = 0
+        from media_exif me
+                 right join media m on m.id = me.media_id
+                 left join user u on m.user_id = u.id
+        where m.user_id = #{userId}
+          and original_date_time is not null
+          and m.deleted = 0
         group by year(original_date_time), month(original_date_time)
         order by year(original_date_time), month(original_date_time)
     </select>
     <select id="selectGroupByYear" resultType="java.lang.String">
         select year(original_date_time) year
-        from media_exif me right join media m on m.id = me.media_id
-        where original_date_time is not null and m.deleted = 0
+        from media_exif me
+                 right join media m on m.id = me.media_id
+                 left join user u on m.user_id = u.id
+        where m.user_id = #{userId}
+          and original_date_time is not null
+          and m.deleted = 0
         group by year(original_date_time)
         order by year(original_date_time)
     </select>
@@ -35,9 +43,13 @@
                ANY_VALUE(p.adcode)  adcode,
                p.city_adcode        cityAdcode
         from media_exif me
-                 right join place p on me.adcode = p.adcode,
+                 right join media m on m.id = me.media_id
+                 right join place p on me.adcode = p.adcode
+                 left join user u on u.id = m.user_id,
              (select adcode, name from place) city
-        where me.adcode is not null
+        where m.user_id = #{userId}
+          and m.deleted = 0
+          and me.adcode is not null
           and p.city_adcode = city.adcode
         group by p.city_adcode
     </select>
@@ -47,9 +59,13 @@
                ANY_VALUE(p.adcode)      adcode,
                p.province_adcode        provinceAdcode
         from media_exif me
-                 right join place p on me.adcode = p.adcode,
+                 right join media m on m.id = me.media_id
+                 right join place p on me.adcode = p.adcode
+                 left join user u on m.user_id = u.id,
              (select adcode, name from place) province
-        where me.adcode is not null
+        where m.user_id = #{userId}
+          and m.deleted = 0
+          and me.adcode is not null
           and p.province_adcode = province.adcode
         group by p.province_adcode
     </select>
@@ -62,10 +78,14 @@
                p.adcode        districtAdcode,
                p.name          districtName
         from media_exif me
-                 right join place p on me.adcode = p.adcode,
+                 right join media m on m.id = me.media_id
+                 right join place p on me.adcode = p.adcode
+                 left join user u on m.user_id = u.id,
              (select adcode, name from place) province,
              (select adcode, name from place) city
-        where me.adcode = #{adcode}
+        where m.user_id = #{userId}
+          and m.deleted = 0
+          and me.adcode = #{adcode}
           and p.province_adcode = province.adcode
           and p.city_adcode = city.adcode;
     </select>

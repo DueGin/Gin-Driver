@@ -72,9 +72,12 @@
         </include>
         ,
         u.username
-        from media m left join media_exif me on m.id = me.media_id
+        from media m
+        left join media_exif me on m.id = me.media_id
         left join user u on m.user_id = u.id
-        where me.original_date_time between #{startDate} and #{endDate} and m.deleted = 0
+        where m.user_id = #{userId}
+            and m.deleted = 0
+            and me.original_date_time between #{startDate} and #{endDate}
         order by me.original_date_time desc
     </select>
     <select id="selectByCityAdCode" resultType="com.ginDriver.main.domain.vo.MediaVO">
@@ -88,10 +91,13 @@
         </include>
         ,
         u.username
-        from media m left join media_exif me on m.id = me.media_id
+        from media m
+        left join media_exif me on m.id = me.media_id
         right join place p on me.adcode = p.adcode
         right join user u on m.user_id = u.id
-        where p.city_adcode = #{adcode}
+        where m.user_id = #{userId}
+        and m.deleted = 0
+        and p.city_adcode = #{adcode}
         order by me.original_date_time desc
     </select>
     <select id="selectThatYearTodayByUserId" resultType="com.ginDriver.main.domain.vo.MediaVO">
@@ -109,6 +115,7 @@
         left join media m on m.id = me.media_id
         inner join user u on m.user_id = u.id
         where m.user_id = #{userId}
+        and m.deleted = 0
         and MONTH(me.original_date_time) = #{month}
         and DAY(me.original_date_time) = #{day}
         order by me.original_date_time desc
@@ -130,7 +137,9 @@
         from media m left join media_exif me on m.id = me.media_id
         right join place p on me.adcode = p.adcode
         right join user u on m.user_id = u.id
-        where p.province_adcode = #{adcode}
+        where m.user_id = #{userId}
+        and m.deleted = 0
+        and p.province_adcode = #{adcode}
         order by me.original_date_time desc
     </select>
 </mapper>

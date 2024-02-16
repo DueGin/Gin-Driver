@@ -15,11 +15,11 @@ import java.util.List;
 */
 public interface MediaMapper extends BaseMapper<Media> {
 
-    Page<MediaVO> selectPageBetweenDate(Page<MediaVO> page, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    Page<MediaVO> selectPageBetweenDate(Page<MediaVO> page, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("userId") Long userId);
 
-    Page<MediaVO> selectByCityAdCode(Page<MediaVO> page, @Param("adcode") Integer adcode);
+    Page<MediaVO> selectByCityAdCode(Page<MediaVO> page, @Param("adcode") Integer adcode, @Param("userId") Long userId);
 
-    Page<MediaVO> selectByProvinceAdCode(Page<MediaVO> page, @Param("adcode") Integer adcode);
+    Page<MediaVO> selectByProvinceAdCode(Page<MediaVO> page, @Param("adcode") Integer adcode, @Param("userId") Long userId);
 
     List<MediaVO> selectThatYearTodayByUserId(@Param("userId") Long userId, @Param("month") Integer month, @Param("day") Integer day, @Param("limit") Integer limit);
 }

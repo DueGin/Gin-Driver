@@ -17,10 +17,14 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Update;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
@@ -42,6 +46,9 @@ public class MediaController {
     @Resource
     private MediaManager mediaManager;
 
+    @Value("${test.upload_zip_path:/Users/duegin/Desktop/hh/p1.zip}")
+    private String uploadZipPath;
+
     @GinLog(isTiming = true)
     @PostMapping("upload")
     public ResultVO<FileVO> upload(ExifInfoDTO exifInfoDTO) {
@@ -52,9 +59,12 @@ public class MediaController {
         }
     }
 
+    @GinLog
     @PostMapping("upload_zip")
-    public ResultVO<Void> uploadZip() {
+    public ResultVO<Void> uploadZip(ExifInfoDTO exifInfoDTO) throws IOException {
         // todo upload zip
+        MultipartFile file = exifInfoDTO.getFile();
+        file.transferTo(new File(uploadZipPath));
         return ResultVO.ok();
     }
 
@@ -62,7 +72,6 @@ public class MediaController {
      * 根据主键删除媒体资源
      *
      * @param ids 主键
-     * @return {@code true} 删除成功，{@code false} 删除失败
      */
     @PostMapping("/remove")
     @Operation(summary = "根据主键删除媒体资源")

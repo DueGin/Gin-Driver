@@ -18,13 +18,13 @@ import java.util.Map;
 @Mapper
 public interface MediaExifMapper extends BaseMapper<MediaExif> {
 
-    List<Map<String, Integer>> selectGroupByMonth();
+    List<Map<String, Integer>> selectGroupByMonth(@Param("userId") Long userId);
 
-    List<String> selectGroupByYear();
+    List<String> selectGroupByYear(@Param("userId") Long userId);
 
-    List<Map<String, Object>> selectGroupByCityAdCode();
+    List<Map<String, Object>> selectGroupByCityAdCode(@Param("userId") Long userId);
 
-    List<Map<String, Object>> selectGroupByProvinceAdCode();
+    List<Map<String, Object>> selectGroupByProvinceAdCode(@Param("userId") Long userId);
 
     /**
      * 通过省份adcode查询exif信息
