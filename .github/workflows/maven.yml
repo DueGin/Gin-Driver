@@ -40,4 +40,4 @@ jobs:
 
       - name: Deploy to Server
         run: |
-          ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} -P ${{ secrets.SERVER_PORT }} 'cd /usr/local/src/gin-driver && sh ./stop.sh && sh ./start.sh'
+          ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'cd /usr/local/src/gin-driver && sh ./stop.sh && sh ./start.sh'
