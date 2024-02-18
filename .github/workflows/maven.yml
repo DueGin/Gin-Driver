@@ -39,9 +39,8 @@ jobs:
         run: scp -o StrictHostKeyChecking=no -P ${{ secrets.SERVER_PORT }} ./Gin-Main/target/Gin-Driver.jar ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/usr/local/src/gin-driver/
 
       - name: Deploy to Server
-        uses: appleboy/ssh-action@master
-        with:
-          script: |
-            cd /usr/local/src/gin-driver
-            sh ./stop.sh
-            sh ./start.sh
+        run: |
+          ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} -P ${{ secrets.SERVER_PORT }}
+          cd /usr/local/src/gin-driver
+          sh ./stop.sh
+          sh ./start.sh
