@@ -30,16 +30,16 @@ jobs:
     - name: Build with Maven
       run: mvn -B package -DskipTests --file pom.xml
 
-    - name: Configure SSH
-      uses: webfactory/ssh-agent@v0.5.0
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SSH_USERNAME }} # 这个需要你在 GitHub 仓库的 Secrets 中配置
-        password: ${{ secrets.SSH_PASSWORD }} # 或者你也可以使用 SSH 密钥
-
-    - name: Transform Jar To Server
-      run: scp -o StrictHostKeyChecking=no -P ${{ secrets.SERVER_PORT }} \
-          ./Gin-Main/target/Gin-Driver.jar ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/usr/local/src/gin-driver
+#    - name: Configure SSH
+#      uses: webfactory/ssh-agent@v0.5.0
+#      with:
+#        host: ${{ secrets.SERVER_HOST }}
+#        username: ${{ secrets.SSH_USERNAME }} # 这个需要你在 GitHub 仓库的 Secrets 中配置
+#        password: ${{ secrets.SSH_PASSWORD }} # 或者你也可以使用 SSH 密钥
+#
+#    - name: Transform Jar To Server
+#      run: scp -o StrictHostKeyChecking=no -P ${{ secrets.SERVER_PORT }} \
+#          ./Gin-Main/target/Gin-Driver.jar ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/usr/local/src/gin-driver
 
       # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Deploy to Server
@@ -49,6 +49,8 @@ jobs:
 #        username: ${{ secrets.SSH_USERNAME }} # 这个需要你在 GitHub 仓库的 Secrets 中配置
 #        password: ${{ secrets.SSH_PASSWORD }} # 或者你也可以使用 SSH 密钥
         script: |
+          scp -o StrictHostKeyChecking=no -P ${{ secrets.SERVER_PORT }} \
+          ./Gin-Main/target/Gin-Driver.jar ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/usr/local/src/gin-driver
           cd /usr/local/src/gin-driver
           sh ./stop.sh
           sh ./start.sh
