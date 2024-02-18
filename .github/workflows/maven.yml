@@ -40,7 +40,7 @@ jobs:
       run: ssh-keyscan ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
     - name: Transform Jar To Server
-      run: scp -o StrictHostKeyChecking=no -P ${{ secrets.SERVER_PORT }} ./Gin-Main/target/Gin-Driver.jar ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/usr/local/src/gin-driver
+      run: scp -P ${{ secrets.SERVER_PORT }} ./Gin-Main/target/Gin-Driver.jar ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/usr/local/src/gin-driver/
 
     - name: Deploy to Server
       run: |
