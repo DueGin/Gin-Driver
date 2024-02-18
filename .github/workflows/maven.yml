@@ -36,7 +36,7 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Transform Jar To Server
-      run: scp -o StrictHostKeyChecking=no -P ${{ secrets.SERVER_PORT }} -i ~/.ssh/id_rsa ./Gin-Main/target/Gin-Driver.jar ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/usr/local/src/gin-driver
+      run: scp -o StrictHostKeyChecking=no -P ${{ secrets.SERVER_PORT }} ./Gin-Main/target/Gin-Driver.jar ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/usr/local/src/gin-driver
 
     - name: Deploy to Server
       run: |
