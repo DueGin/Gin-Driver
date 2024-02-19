@@ -42,7 +42,7 @@ swagger:
   enable: false
 
 minio:
-  endpoint: https://8.134.91.25:9000  #地址
+  endpoint: https://app6588.acapp.acwing.com.cn:9000  #地址
   accessKey: 5lYVWgKJUZf2n9moBfYV # 账号
   secretKey: JdEz8eo53PgELqFx4B2KSXH5ghV7vWHi8eS7lrMP # 密码
   secure: true # 如果是true，则用的是https而不是http,默认值是true
