@@ -80,4 +80,24 @@ public class DustbinManager {
 
         return page;
     }
+
+    /**
+     * 撤销媒体删除
+     *
+     * @param ids 垃圾箱主键集合
+     */
+    @Transactional
+    public void reborn(Collection<Long> ids) {
+        List<Long> mediaIds = dustbinService.lambdaQuery()
+                .in(Dustbin::getId, ids)
+                .list()
+                .stream()
+                .map(Dustbin::getMediaId)
+                .collect(Collectors.toList());
+
+        if (!CollectionUtils.isEmpty(mediaIds)) {
+            mediaService.getBaseMapper().updateMediaDeleted(mediaIds);
+            dustbinService.removeByIds(ids);
+        }
+    }
 }

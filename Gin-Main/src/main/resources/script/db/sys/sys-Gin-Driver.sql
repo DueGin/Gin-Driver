@@ -243,38 +243,6 @@ INSERT INTO `sys_dict_type` VALUES (9,'f f','f',1,NULL,'2024-01-21 17:30:12','20
 UNLOCK TABLES;
 
 --
--- Table structure for table `sys_menu`
---
-
-DROP TABLE IF EXISTS `sys_menu`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `sys_menu` (
-                            `id` bigint NOT NULL AUTO_INCREMENT,
-                            `name` varchar(8) NOT NULL COMMENT '菜单名称',
-                            `parent_id` bigint DEFAULT '0' COMMENT '父菜单ID',
-                            `path` varchar(128) DEFAULT '' COMMENT '路由地址',
-                            `component` varchar(128) DEFAULT NULL COMMENT '组件路径',
-                            `icon` varchar(32) DEFAULT '#' COMMENT '菜单图标',
-                            `perms` varchar(64) DEFAULT NULL COMMENT '权限标识',
-                            `status` tinyint DEFAULT '0' COMMENT '菜单状态（0正常 1停用）',
-                            `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                            `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-                            `remark` varchar(500) DEFAULT '' COMMENT '备注',
-                            PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜单权限表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sys_menu`
---
-
-LOCK TABLES `sys_menu` WRITE;
-/*!40000 ALTER TABLE `sys_menu` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sys_menu` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `user`
 --
 
@@ -323,7 +291,7 @@ CREATE TABLE `user_role` (
                              `id` bigint NOT NULL AUTO_INCREMENT,
                              `user_id` bigint NOT NULL COMMENT '用户表id',
                              `role_id` bigint NOT NULL COMMENT '角色表id',
-                             `create_time` datetime DEFAULT (now()) COMMENT '创建时间',
+                             `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                              `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                              PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;

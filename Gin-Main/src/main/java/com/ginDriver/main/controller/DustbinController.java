@@ -2,6 +2,7 @@ package com.ginDriver.main.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.core.exception.ApiException;
 import com.ginDriver.core.result.BusinessController;
 import com.ginDriver.main.domain.po.Dustbin;
 import com.ginDriver.main.domain.vo.DustbinVO;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -107,5 +109,14 @@ public class DustbinController {
     @ApiOperation(value = "分页查询媒体资源垃圾箱", notes = "分页查询媒体资源垃圾箱")
     public ResultVO<Page<DustbinVO>> page(Page<DustbinVO> page) {
         return ResultVO.ok(dustbinManager.getDustbinPage(page));
+    }
+
+    @PostMapping("/reborn")
+    @ApiOperation(value = "根据主键还原媒体资源", notes = "根据主键还原媒体资源")
+    public void reborn(@RequestBody @NotNull Long[] ids) {
+        if (ids == null || ids.length == 0) {
+            throw new ApiException("id不能传空");
+        }
+        dustbinManager.reborn(List.of(ids));
     }
 }

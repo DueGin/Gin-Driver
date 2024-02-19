@@ -8,6 +8,7 @@ import com.ginDriver.main.domain.vo.MediaVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,6 +23,8 @@ public interface MediaMapper extends BaseMapper<Media> {
     Page<MediaVO> selectByProvinceAdCode(Page<MediaVO> page, @Param("adcode") Integer adcode, @Param("userId") Long userId);
 
     List<MediaVO> selectThatYearTodayByUserId(@Param("userId") Long userId, @Param("month") Integer month, @Param("day") Integer day, @Param("limit") Integer limit);
+
+    void updateMediaDeleted(@Param("ids") Collection<Long> ids);
 }
 
 

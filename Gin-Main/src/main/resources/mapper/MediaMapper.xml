@@ -61,6 +61,14 @@
         ${alias}latitude,
         ${alias}model
     </sql>
+    <update id="updateMediaDeleted">
+        update media
+        set deleted = 0
+        where id in
+        <foreach collection="ids" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </update>
     <select id="selectPageBetweenDate" resultType="com.ginDriver.main.domain.vo.MediaVO">
         select
         <include refid="Media_Base_Column_List">
