@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.security.auth.login.LoginException;
 import javax.validation.ConstraintViolationException;
 import java.util.List;
 
@@ -87,4 +88,9 @@ public class GlobalExceptionHandler {
         return ResultVO.ok(ResultEnum.PARAMETER_ERROR);
     }
 
+    @ExceptionHandler(LoginException.class)
+    public ResultVO<Void> loginExceptionHandle(LoginException e){
+        log.error(e.getMessage());
+        return ResultVO.fail(e.getMessage());
+    }
 }

@@ -8,6 +8,7 @@ import com.ginDriver.core.domain.vo.UserVO;
 import com.ginDriver.core.log.GinLog;
 import com.ginDriver.core.result.BusinessController;
 import com.ginDriver.main.cache.redis.TokenRedis;
+import com.ginDriver.main.domain.dto.user.UpdateUserDTO;
 import com.ginDriver.main.domain.dto.user.UserParam;
 import com.ginDriver.main.domain.vo.FileVO;
 import com.ginDriver.main.security.utils.SecurityUtils;
@@ -144,7 +145,7 @@ public class UserController {
 
     @GinLog
     @PutMapping("update")
-    public ResultVO<Void> update(@RequestBody @Valid User user) {
+    public ResultVO<Void> update(@RequestBody @Valid UpdateUserDTO user) {
         return userService.updateUserInfo(user, false);
     }
 

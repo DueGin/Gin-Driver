@@ -1,11 +1,12 @@
 package com.ginDriver.main.controller.sys;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.domain.po.User;
 import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.core.log.GinLog;
 import com.ginDriver.core.result.BusinessController;
-import com.ginDriver.main.domain.dto.user.UserQueryParam;
-import com.ginDriver.main.domain.vo.PageVO;
+import com.ginDriver.main.domain.dto.user.SysUserPageDTO;
+import com.ginDriver.main.domain.dto.user.UpdateUserDTO;
 import com.ginDriver.main.domain.vo.SysUserVO;
 import com.ginDriver.main.service.UserService;
 import io.swagger.annotations.Api;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.util.List;
 
 /**
  * @author DueGin
@@ -42,15 +42,15 @@ public class SysUserController {
 
     @ApiOperation("逻辑分页查询")
     @GetMapping("page")
-    public ResultVO<PageVO<List<SysUserVO>>> queryUserPage(UserQueryParam userQueryParam) {
-        log.info(String.valueOf(userQueryParam));
-        return userService.queryPage(userQueryParam, userQueryParam.getPageNum(), userQueryParam.getPageSize());
+    public ResultVO<Page<SysUserVO>> queryUserPage(SysUserPageDTO pageDTO) {
+        log.info(String.valueOf(pageDTO));
+        return userService.queryPage(pageDTO);
     }
 
     @GinLog
     @ApiOperation("修改用户信息")
     @PutMapping("update")
-    public ResultVO<Void> updateUser(@RequestBody @Valid User user) {
+    public ResultVO<Void> updateUser(@RequestBody @Valid UpdateUserDTO user) {
         return userService.updateUserInfo(user, true);
     }
 
