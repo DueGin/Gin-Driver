@@ -51,10 +51,10 @@ public class SysUserVO {
     private String email;
 
     /**
-     * 系统角色
+     * 系统角色ID
      */
-    @ApiModelProperty("系统角色")
-    private String sysRole;
+    @ApiModelProperty("系统角色ID")
+    private Long sysRoleId;
 
     /**
      * 组角色列表

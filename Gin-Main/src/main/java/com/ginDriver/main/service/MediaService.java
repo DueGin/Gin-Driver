@@ -164,7 +164,7 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
      * 转换MediaVO，并设置minio地址，媒体所属用户信息
      *
      * @param list media集合
-     * @return {@code List<MediaVO>} VO集合
+     * @return {@link List<MediaVO>} VO集合
      */
     public List<MediaVO> convertToVoListWithUsername(List<Media> list) {
         // 获取用户信息

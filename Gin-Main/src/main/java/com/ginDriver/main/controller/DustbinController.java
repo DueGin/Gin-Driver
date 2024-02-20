@@ -115,7 +115,7 @@ public class DustbinController {
     @ApiOperation(value = "根据主键还原媒体资源", notes = "根据主键还原媒体资源")
     public void reborn(@RequestBody @NotNull Long[] ids) {
         if (ids == null || ids.length == 0) {
-            throw new ApiException("id不能传空");
+            throw new ApiException("ids不能为空");
         }
         dustbinManager.reborn(List.of(ids));
     }

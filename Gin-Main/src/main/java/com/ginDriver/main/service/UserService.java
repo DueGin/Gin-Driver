@@ -1,26 +1,26 @@
 package com.ginDriver.main.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.domain.bo.UserBO;
 import com.ginDriver.core.domain.po.User;
 import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.core.exception.ApiException;
 import com.ginDriver.core.service.impl.MyServiceImpl;
 import com.ginDriver.main.cache.redis.UserRedis;
-import com.ginDriver.main.domain.vo.*;
-import com.ginDriver.main.mapper.RoleMapper;
+import com.ginDriver.main.domain.dto.user.SysUserPageDTO;
+import com.ginDriver.main.domain.dto.user.UpdateUserDTO;
+import com.ginDriver.main.domain.vo.FileVO;
+import com.ginDriver.main.domain.vo.SysUserVO;
 import com.ginDriver.main.mapper.UserMapper;
 import com.ginDriver.main.security.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author DueGin
@@ -31,9 +31,6 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
 
     @Resource
     private UserMapper userMapper;
-
-    @Resource
-    private RoleMapper roleMapper;
 
     @Resource
     private FileService fileService;
@@ -53,45 +50,12 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
         userMapper.insertUserRole(user.getId(), 2L);
     }
 
-    public ResultVO<PageVO<List<SysUserVO>>> queryPage(User user, Integer pageNum, Integer pageSize) {
-        log.info(String.valueOf(user));
-        Integer count = userMapper.count(user);
+    public ResultVO<Page<SysUserVO>> queryPage(SysUserPageDTO page) {
+        User user = new User();
+        BeanUtils.copyProperties(page, user);
+        userMapper.page(page, user);
 
-        List<User> list = userMapper.page(user, pageSize * (pageNum - 1), pageSize);
-        List<Long> userIdList = list.stream().map(User::getId).collect(Collectors.toList());
-        List<RoleVO> roleVOList = roleMapper.selectWithUserRoleByUserId(userIdList);
-        Map<Long, RoleVO> sysRoleMap = roleVOList.stream().collect(Collectors.toMap(RoleVO::getUserId, r -> r));
-
-        List<GroupRoleVO> groupRoleVOList = roleMapper.selectWithGroupUserRoleByUserId(userIdList);
-        Map<Long, List<GroupRoleVO>> groupRoleListMap = groupRoleVOList.stream().collect(Collectors.groupingBy(GroupRoleVO::getUserId));
-
-
-        List<SysUserVO> vos = list.stream().map(u -> {
-            Long userId = u.getId();
-            SysUserVO vo = new SysUserVO();
-            BeanUtils.copyProperties(u, vo);
-            // 系统角色
-            vo.setSysRole(sysRoleMap.get(userId).getRoleName());
-
-            // 组角色
-            List<GroupRoleVO> groupRoleVOS = groupRoleListMap.get(userId);
-            if (groupRoleVOS != null) {
-                List<String> groupRoleList = groupRoleVOS.stream()
-                        .map(r -> r.getGroupId() + "=" + r.getRoleName())
-                        .collect(Collectors.toList());
-                vo.setGroupRoleList(groupRoleList);
-            } else {
-                vo.setGroupRoleList(Collections.emptyList());
-            }
-
-            return vo;
-        }).collect(Collectors.toList());
-
-        PageVO<List<SysUserVO>> pageVO = new PageVO<>();
-        pageVO.setTotal(count);
-        pageVO.setPage(pageNum);
-        pageVO.setRows(vos);
-        return ResultVO.ok(pageVO);
+        return ResultVO.ok(page);
     }
 
     public ResultVO<Void> deleteUser(Long userId, boolean isAdmin) {
@@ -108,7 +72,8 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
         return ResultVO.ok("删除成功！");
     }
 
-    public ResultVO<Void> updateUserInfo(User user, boolean isAdmin) {
+    @Transactional
+    public ResultVO<Void> updateUserInfo(UpdateUserDTO user, boolean isAdmin) {
         boolean isSelf = false;
 
         // 判断删的是不是自己
@@ -144,6 +109,11 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
             msg = "修改失败！";
         }
 
+        if(user.getSysRoleId() != null){
+            userMapper.updateUserRole(user.getId(), user.getSysRoleId());
+        }
+
+        userRedis.removeUserBO(user.getId());
         return ResultVO.ok(msg);
     }
 

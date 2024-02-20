@@ -2,10 +2,10 @@ package com.ginDriver.main.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.domain.po.User;
+import com.ginDriver.main.domain.vo.SysUserVO;
 import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
 
 /**
  * @author DueGin
@@ -19,6 +19,8 @@ public interface UserMapper extends BaseMapper<User> {
 
     void insertUserRole(@Param("userId") Long userId, @Param("roleId") Long roleId);
 
+    void updateUserRole(@Param("userId") Long userId, @Param("roleId") Long roleId);
+
     Boolean updateUserById(User user);
 
     Boolean deleteByUserId(Long id);
@@ -26,9 +28,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     ////// sys //////
 
-    List<User> page(@Param("user") User user, @Param("pageStart") Integer pageStart, @Param("pageSize") Integer pageSize);
-
-    Integer count(User user);
+    Page<SysUserVO> page(Page<SysUserVO> page, @Param("user") User user);
 
 
 }
