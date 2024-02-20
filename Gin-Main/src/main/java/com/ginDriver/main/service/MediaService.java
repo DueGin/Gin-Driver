@@ -200,6 +200,9 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
         // 只有自己上传的才能删
         for (Long id : ids) {
             Media m = super.getById(id);
+            if (m == null) {
+                continue;
+            }
             if (!m.getUserId().equals(userId)) {
                 throw new ApiException("删除失败，不能删除别人的照片");
             }
