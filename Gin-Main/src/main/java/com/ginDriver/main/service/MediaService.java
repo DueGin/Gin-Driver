@@ -57,8 +57,6 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
 
     private static final Integer EXPIRE = 24 * 60 * 60;
 
-    // todo 解析压缩包图片，做批量上传解析
-
     /**
      * 存入minio，存入db
      *
@@ -77,8 +75,6 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
         String objName = fileService.uploadWithType(media, file);
         // 获取url
         String objUrl = fileService.getObjUrl(media, objName);
-
-        // todo 加入队列异步获取exif信息
 
         Media m = new Media();
         m.setUserId(userId);

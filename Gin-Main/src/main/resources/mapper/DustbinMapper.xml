@@ -44,5 +44,13 @@
         from dustbin d left join media_exif me on d.media_id = me.media_id
         where d.user_id = #{userId}
     </select>
+    <select id="selectAllByDate" resultType="com.ginDriver.main.domain.po.Dustbin">
+        select
+        <include refid="Base_Column_List">
+            <property name="als" value=""/>
+        </include>
+        from dustbin
+        where YEAR(create_time) = #{year} and MONTH(create_time) = #{month} and DAY(create_time) = #{day}
+    </select>
 
 </mapper>
