@@ -181,7 +181,8 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
         Long userId = SecurityUtils.getUserId();
 
         LambdaQueryWrapper<Media> qw = new QueryWrapper<Media>().lambda()
-                .eq(Media::getUserId, userId);
+                .eq(Media::getUserId, userId)
+                .orderByDesc(Media::getCreateTime);
 //                .or()
 //                .eq(mediaPageDTO.getOnlyLookSelf() != null && mediaPageDTO.getOnlyLookSelf(), Media::getSelf, 0);
 

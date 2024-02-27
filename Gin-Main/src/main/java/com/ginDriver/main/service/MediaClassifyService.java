@@ -37,8 +37,8 @@ public class MediaClassifyService {
             case ClassifyConstant.MONTH:
                 List<Map<String, Integer>> maps = mediaExifMapper.selectGroupByMonth(userId);
                 for (Map<String, Integer> map : maps) {
-                    Integer month = map.get("month");
-                    Integer year = map.get("year");
+                    String month = String.valueOf(map.get("month"));
+                    String year = String.valueOf(map.get("year"));
                     res.add(new ClassifyVO()
                             .setName(year + "年" + month + "月")
                             .setId(year + "_" + month)
