@@ -33,6 +33,11 @@
             <artifactId>easyexcel</artifactId>
             <version>3.3.3</version>
         </dependency>
+
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,8 +1,6 @@
 package com.ginDriver.main.domain.po;
 
 
-
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
@@ -13,7 +11,6 @@ import org.apache.ibatis.annotations.Update;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -44,7 +41,7 @@ public class Media implements Serializable {
     private String fileName;
 
     /**
-     * 文件路径
+     * 文件存储路径
      */
     @NotNull(groups = Insert.class)
     private String src;
@@ -68,12 +65,9 @@ public class Media implements Serializable {
     private Integer self;
 
     /**
-     * 媒体格式
+     * 文件类型
      */
-    @NotNull(groups = Insert.class)
-    private String mimeType;
-
-    private LocalDate mediaDate;
+    private String contentType;
 
     /**
      * 创建时间

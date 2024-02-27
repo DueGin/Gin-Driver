@@ -29,6 +29,7 @@
         <knife4j.version>3.0.3</knife4j.version>
         <metadata-extractor.version>2.19.0</metadata-extractor.version>
         <jaxb-api.version>2.3.0</jaxb-api.version>
+        <thumbnailator.version>0.4.20</thumbnailator.version>
     </properties>
     <dependencies>
         <dependency>
@@ -189,6 +190,13 @@
                 <artifactId>Gin-Common</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>net.coobird</groupId>
+                <artifactId>thumbnailator</artifactId>
+                <version>${thumbnailator.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

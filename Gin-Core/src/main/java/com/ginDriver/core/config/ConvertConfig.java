@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * 有时候因为某些原因，比如表单数据，接收的时候好像就不能利用{@code JacksonObjectMapper}来转换成功
+ * 有时候因为某些原因，比如表单数据，接收的时候好像就不能利用{@link JacksonObjectMapper}来转换成功
  * @author DueGin
  */
 @Configuration

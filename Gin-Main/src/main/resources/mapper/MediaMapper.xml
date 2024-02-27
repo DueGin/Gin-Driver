@@ -48,7 +48,6 @@
         ${alias}`group_id`,
         ${alias}`status`,
         ${alias}self,
-        ${alias}`mime_type`,
         ${alias}create_time,
         ${alias}update_time
     </sql>
@@ -59,6 +58,7 @@
         ${alias}height,
         ${alias}longitude,
         ${alias}latitude,
+        ${alias}`mime_type`,
         ${alias}model
     </sql>
     <update id="updateMediaDeleted">

@@ -15,9 +15,11 @@ import com.ginDriver.main.domain.po.MediaExif;
 import com.ginDriver.main.domain.vo.FileVO;
 import com.ginDriver.main.domain.vo.MediaVO;
 import com.ginDriver.main.mapper.MediaMapper;
+import com.ginDriver.main.properties.FileProperties;
 import com.ginDriver.main.security.utils.SecurityUtils;
 import com.ginDriver.main.utils.GeoUtil;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +39,7 @@ import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import static com.ginDriver.main.service.FileService.FileType.media;
+
 
 /**
  * @author DueGin
@@ -55,7 +62,12 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
     @Resource
     private Executor serviceExecutor;
 
+    @Resource
+    private FileProperties fileProperties;
+
     private static final Integer EXPIRE = 24 * 60 * 60;
+
+    private static final Integer thumbnailSize = 1000000;
 
     /**
      * 存入minio，存入db
@@ -71,15 +83,45 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
         Long userId = SecurityUtils.getUserId();
 
 
-        // 存入minio
-        String objName = fileService.uploadWithType(media, file);
-        // 获取url
-        String objUrl = fileService.getObjUrl(media, objName);
+        String objUrl, objName = null, filePathName = null;
+        // 缩略图
+        try {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            Thumbnails.of(file.getInputStream())
+                    .scale(1) // 缩放比例
+                    .outputQuality(0.5) // 质量
+                    .toOutputStream(os);
+
+            byte[] bytes = os.toByteArray();
+
+            ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+
+            // 将缩略图存入minio
+            objName = fileService.uploadWithType(media, file.getOriginalFilename(), file.getContentType(), is);
+            // 获取url
+            objUrl = fileService.getObjUrl(media, objName);
+
+            // 存储文件
+            filePathName = fileProperties.getFilePrefixPath() + objName;
+            file.transferTo(new File(filePathName));
+
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            // 删除minio
+            fileService.deleteFile(media, objName);
+            // 删除本地文件
+            if (filePathName != null) {
+                new File(filePathName).delete();
+            }
+            throw new ApiException(e.getMessage());
+        }
 
         Media m = new Media();
         m.setUserId(userId);
         m.setFileName(objName);
-        m.setMimeType(file.getContentType());
+        m.setContentType(file.getContentType());
+        m.setSrc(filePathName);
 
         MediaExif exif = new MediaExif();
         try {
@@ -94,11 +136,15 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
         } catch (Exception e) {
             log.error(e.getMessage());
             // 删除minio
-            fileService.deleteFile(FileService.FileType.media, m.getFileName());
+            fileService.deleteFile(media, objName);
+            // 删除本地文件
+            new File(filePathName).delete();
             throw new ApiException(e.getMessage());
         }
+
         String longitude = exifInfoDTO.getLongitude();
         String latitude = exifInfoDTO.getLatitude();
+        // 获取高德地图行政区编码
         if (StringUtils.isNotBlank(longitude) && StringUtils.isNotBlank(latitude)) {
             serviceExecutor.execute(() -> {
                 log.info("executor handle ==> longitude: {}, latitude: {}", longitude, latitude);

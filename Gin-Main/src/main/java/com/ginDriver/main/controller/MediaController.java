@@ -10,6 +10,7 @@ import com.ginDriver.main.domain.dto.media.MediaPageDTO;
 import com.ginDriver.main.domain.po.Media;
 import com.ginDriver.main.domain.vo.FileVO;
 import com.ginDriver.main.domain.vo.MediaVO;
+import com.ginDriver.main.properties.FileProperties;
 import com.ginDriver.main.service.MediaService;
 import com.ginDriver.main.service.manager.MediaManager;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,9 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -49,6 +49,10 @@ public class MediaController {
     @Value("${test.upload_zip_path:/Users/duegin/Desktop/hh/p1.zip}")
     private String uploadZipPath;
 
+
+    @Resource
+    private FileProperties fileProperties;
+
     @GinLog(isTiming = true)
     @PostMapping("upload")
     public ResultVO<FileVO> upload(ExifInfoDTO exifInfoDTO) {
@@ -66,6 +70,38 @@ public class MediaController {
         MultipartFile file = exifInfoDTO.getFile();
         file.transferTo(new File(uploadZipPath));
         return ResultVO.ok();
+    }
+
+    @GinLog
+    @GetMapping("download/{fileName}")
+    public void getFile(@PathVariable String fileName, HttpServletResponse resp) {
+
+        Media media = mediaService.lambdaQuery().eq(Media::getFileName, fileName).one();
+
+        try {
+
+            FileInputStream inputStream = new FileInputStream(fileProperties.getFilePrefixPath() + fileName);
+            byte[] data = new byte[inputStream.available()];
+            inputStream.read(data);
+
+            resp.setContentType(media.getContentType());
+            resp.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+            System.out.println("data.length " + data.length);
+            resp.setContentLength(data.length);
+            resp.setHeader("Content-Range", String.valueOf(data.length - 1));
+            resp.setHeader("Accept-Ranges", "bytes");
+            OutputStream os = resp.getOutputStream();
+
+            os.write(data);
+
+            os.flush();
+            os.close();
+            inputStream.close();
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+        }
+
     }
 
     /**

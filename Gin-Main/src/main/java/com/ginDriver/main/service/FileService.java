@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.UUID;
 
 /**
@@ -102,6 +103,33 @@ public class FileService {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+
+        return objName;
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param fileType    文件类型(桶名称)
+     * @param fileName    文件名
+     * @param contentType 文件类型
+     * @param is          文件输入流
+     * @return 对象名字
+     */
+    public String uploadWithType(FileType fileType, String fileName, String contentType, InputStream is) {
+        String name = fileType.name;
+        String objName;
+        if (StringUtils.isNotBlank(fileName)) {
+            String[] fileNameSplit = fileName.split("\\.");
+            String prefixFilename = fileNameSplit[0];
+            for (int i = 1; i < fileNameSplit.length - 1; i++) {
+                prefixFilename += fileNameSplit[i];
+            }
+            objName = prefixFilename + "_" + UUID.randomUUID().toString().replaceAll("-", "") + "." + fileNameSplit[fileNameSplit.length - 1];
+        } else {
+            objName = UUID.randomUUID().toString().replaceAll("-", "");
+        }
+        minioComponent.putObject(name, objName, is, contentType);
 
         return objName;
     }
