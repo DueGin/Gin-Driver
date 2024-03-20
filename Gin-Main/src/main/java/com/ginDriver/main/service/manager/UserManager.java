@@ -77,7 +77,6 @@ public class UserManager {
      * @param user 登录表单
      * @return token
      */
-
     public String login(User user) {
         Authentication authenticate;
         try {

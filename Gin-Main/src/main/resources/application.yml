@@ -1,6 +1,7 @@
 spring:
   profiles:
     active: dev
+    include: log4j2
   servlet:
     multipart:
       max-file-size: 50MB
@@ -15,6 +16,7 @@ spring:
 logging:
   level:
     duegin.ginDriver: debug
+#  config: classpath:log4j2/log4j2-dev.xml
 
 
 mybatis-plus:

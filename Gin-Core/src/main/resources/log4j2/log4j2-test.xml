@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+
+    <Properties>
+        <!-- 日志输出级别 -->
+        <Property name="LOG_INFO_LEVEL" value="info"/>
+        <!-- error级别日志 -->
+        <Property name="LOG_ERROR_LEVEL" value="error"/>
+        <!-- 在当前目录下创建名为log目录做日志存放的目录 -->
+        <Property name="LOG_HOME" value="~/logs"/>
+        <!-- 档案日志存放目录 -->
+        <Property name="LOG_ARCHIVE" value="~/logs/archive"/>
+        <!-- 模块名称， 影响日志配置名，日志文件名，根据自己项目进行配置 -->
+        <Property name="LOG_MODULE_NAME" value="spring-boot"/>
+        <!-- 日志文件大小，超过这个大小将被压缩 -->
+        <Property name="LOG_MAX_SIZE" value="20 MB"/>
+        <!-- 保留多少天以内的日志 -->
+        <Property name="LOG_DAYS" value="15"/>
+        <!--输出日志的格式：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度， %msg：日志消息，%n是换行符 -->
+        <Property name="LOG_PATTERN" value="%d [%t] %-5level %logger{0} - %msg%n"/>
+        <!--interval属性用来指定多久滚动一次-->
+        <Property name="TIME_BASED_INTERVAL" value="1"/>
+    </Properties>
+
+    <Appenders>
+        <!-- 控制台输出 -->
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <!--输出日志的格式-->
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <!--控制台只输出level及其以上级别的信息（onMatch），其他的直接拒绝（onMismatch）ACCEPT(接受)，DENY(拒绝)，NEUTRAL(中立) -->
+            <ThresholdFilter level="${LOG_INFO_LEVEL}" onMatch="ACCEPT" onMismatch="DENY"/>
+        </Console>
+
+        <!-- 这个会打印出所有的info级别以上，error级别一下的日志，每次大小超过size或者满足TimeBasedTriggeringPolicy，则日志会自动存入按年月日建立的文件夹下面并进行压缩，作为存档-->
+        <!--异步日志会自动批量刷新，所以将immediateFlush属性设置为false-->
+        <RollingRandomAccessFile
+                name="RollingRandomAccessFileInfo"
+                fileName="${LOG_HOME}/${LOG_MODULE_NAME}-infoLog.log"
+                filePattern="${LOG_ARCHIVE}/${LOG_MODULE_NAME}-infoLog-%d{yyyy-MM-dd}-%i.log.gz"
+                immediateFlush="false"
+        >
+            <Filters>
+                <!--如果是error级别拒绝，设置 onMismatch="NEUTRAL" 可以让日志经过后续的过滤器-->
+                <ThresholdFilter level="${LOG_ERROR_LEVEL}" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <!--如果是info\warn输出-->
+                <ThresholdFilter level="${LOG_INFO_LEVEL}" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <!--interval属性用来指定多久滚动一次，根据当前filePattern设置是1天滚动一次-->
+                <TimeBasedTriggeringPolicy interval="${TIME_BASED_INTERVAL}"/>
+                <SizeBasedTriggeringPolicy size="${LOG_MAX_SIZE}"/>
+            </Policies>
+            <!-- DefaultRolloverStrategy属性如不设置，则默认同一文件夹下最多保存7个文件-->
+            <DefaultRolloverStrategy max="${LOG_DAYS}"/>
+        </RollingRandomAccessFile>
+
+        <!--只记录error级别以上的日志，与info级别的日志分不同的文件保存-->
+        <RollingRandomAccessFile
+                name="RollingRandomAccessFileError"
+                fileName="${LOG_HOME}/${LOG_MODULE_NAME}-errorLog.log"
+                filePattern="${LOG_ARCHIVE}/${LOG_MODULE_NAME}-errorLog-%d{yyyy-MM-dd}-%i.log.gz"
+                immediateFlush="false"
+        >
+            <Filters>
+                <ThresholdFilter level="${LOG_ERROR_LEVEL}" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="${TIME_BASED_INTERVAL}"/>
+                <SizeBasedTriggeringPolicy size="${LOG_MAX_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${LOG_DAYS}"/>
+        </RollingRandomAccessFile>
+
+    </Appenders>
+
+    <Loggers>
+        <!-- 开发环境使用 -->
+        <!--        <Root level="${LOG_INFO_LEVEL}">-->
+        <!--            <AppenderRef ref="STDOUT"/>-->
+        <!--        </Root>-->
+
+        <!-- 测试，生产环境使用 -->
+        <!-- 当使用<asyncLogger> or <asyncRoot>时，无需设置系统属性"Log4jContextSelector" -->
+        <!--        <AsyncLogger name="com.ginDriver" level="${LOG_INFO_LEVEL}" additivity="false">-->
+        <!--            <AppenderRef ref="RollingRandomAccessFileInfo"/>-->
+        <!--            <AppenderRef ref="RollingRandomAccessFileError"/>-->
+        <!--        </AsyncLogger>-->
+
+        <Root level="${LOG_INFO_LEVEL}">
+            <AppenderRef ref="RollingRandomAccessFileInfo"/>
+            <AppenderRef ref="RollingRandomAccessFileError"/>
+        </Root>
+    </Loggers>
+
+</Configuration>

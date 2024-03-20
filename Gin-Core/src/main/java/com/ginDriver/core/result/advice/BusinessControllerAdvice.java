@@ -3,7 +3,6 @@ package com.ginDriver.core.result.advice;
 import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.core.result.BusinessController;
 import com.ginDriver.core.result.BusinessIgnore;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -12,6 +11,8 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * 处理业务controller的返回类

@@ -20,9 +20,30 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.duegin</groupId>
+            <artifactId>Gin-Core</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.13</version>
+        </dependency>
+
+        <!--获取相机exif信息-->
+        <dependency>
+            <groupId>com.drewnoakes</groupId>
+            <artifactId>metadata-extractor</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+        </dependency>
+
+        <!-- minio -->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
         </dependency>
     </dependencies>
 </project>
