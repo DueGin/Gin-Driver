@@ -2,16 +2,22 @@ package com.ginDriver.main.service;
 
 import com.ginDriver.common.minio.service.MinioComponent;
 import com.ginDriver.core.domain.vo.ResultVO;
+import com.ginDriver.core.service.impl.MyServiceImpl;
+import com.ginDriver.main.domain.po.File;
+import com.ginDriver.main.domain.po.Md5File;
 import com.ginDriver.main.domain.vo.FileVO;
+import com.ginDriver.main.mapper.FileMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -19,10 +25,23 @@ import java.util.UUID;
  */
 @Slf4j
 @Service
-public class FileService {
+public class FileService extends MyServiceImpl<FileMapper, File> {
 
     @Resource
     private MinioComponent minioComponent;
+
+    @Resource
+    private Md5FileService md5FileService;
+
+    @Transactional
+    public void saveFileAndAddMd5Ref(Long userId, String md5, String fileName){
+        md5FileService.lambdaUpdate().setSql("ref = ref + 1").eq(Md5File::getMd5, md5).update();
+        File file = new File();
+        file.setMd5(md5);
+        file.setName(fileName);
+        file.setUserId(userId);
+        super.save(file);
+    }
 
     /**
      * 上传文件

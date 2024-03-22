@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ginDriver.main.mapper.Md5FileMapper">
+
+    <resultMap id="BaseResultMap" type="com.ginDriver.main.domain.po.Md5File">
+            <id property="md5" column="md5" jdbcType="VARCHAR"/>
+            <result property="src" column="src" jdbcType="VARCHAR"/>
+            <result property="ref" column="ref" jdbcType="INTEGER"/>
+            <result property="deleted" column="deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        md5,src,ref,
+        deleted
+    </sql>
+</mapper>
