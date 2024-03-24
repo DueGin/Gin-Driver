@@ -39,9 +39,9 @@ public class SysDictType {
     private String name;
 
     /**
-     * 状态（0正常 1停用）
+     * 状态（1正常 0停用）
      */
-    @ApiModelProperty(value = "状态（0正常 1停用）")
+    @ApiModelProperty(value = "状态（1正常 0停用）")
     private Integer status;
 
     /**

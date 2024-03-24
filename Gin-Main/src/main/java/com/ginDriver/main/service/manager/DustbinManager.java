@@ -1,16 +1,16 @@
 package com.ginDriver.main.service.manager;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.ginDriver.main.cache.local.SysEnumCache;
+import com.ginDriver.main.domain.dto.dustbin.DustbinPageDTO;
 import com.ginDriver.main.domain.po.Dustbin;
-import com.ginDriver.main.domain.po.MediaExif;
+import com.ginDriver.main.domain.po.SysEnum;
 import com.ginDriver.main.domain.vo.DustbinVO;
+import com.ginDriver.main.file.FileManager;
 import com.ginDriver.main.mapper.DustbinMapper;
 import com.ginDriver.main.security.utils.SecurityUtils;
 import com.ginDriver.main.service.DustbinService;
 import com.ginDriver.main.service.FileService;
-import com.ginDriver.main.service.MediaExifService;
 import com.ginDriver.main.service.MediaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,13 +34,13 @@ public class DustbinManager {
     private MediaService mediaService;
 
     @Resource
-    private MediaExifService mediaExifService;
-
-    @Resource
     private DustbinService dustbinService;
 
     @Resource
     private FileService fileService;
+
+    @Resource
+    private FileManager fileManager;
 
     private static final Integer DUSTBIN_EXPIRE = 24 * 60 * 60;
 
@@ -56,25 +56,22 @@ public class DustbinManager {
 
 
         // 删除媒体表
-        List<Long> mediaIds = dustbinList.stream().map(Dustbin::getMediaId).collect(Collectors.toList());
-        mediaService.removeByIds(mediaIds);
-
-
-        // 删除媒体信息表
-        LambdaQueryWrapper<MediaExif> qw = new QueryWrapper<MediaExif>().lambda().in(MediaExif::getMediaId, mediaIds);
-        mediaExifService.remove(qw);
+        List<Long> fileIds = dustbinList.stream().map(Dustbin::getFileId).collect(Collectors.toList());
+        mediaService.removeByIds(fileIds);
 
         // 删除垃圾箱
         dustbinService.removeByIds(ids);
     }
 
-    public Page<DustbinVO> getDustbinPage(Page<DustbinVO> page) {
+    public Page<DustbinVO> getDustbinPage(DustbinPageDTO page) {
         DustbinMapper dustbinMapper = dustbinService.getBaseMapper();
         dustbinMapper.getDustbinPage(page, SecurityUtils.getUserId());
 
+        SysEnum sysEnum = SysEnumCache.getEnumById(page.getFileTypeId());
+
         // 设置minio url
         page.getRecords().forEach(d -> {
-            String objUrl = fileService.getObjUrl(FileService.FileType.media, d.getFileName(), DUSTBIN_EXPIRE);
+            String objUrl = fileService.getObjUrl(sysEnum.getName(), d.getFileName(), DUSTBIN_EXPIRE);
             d.setUrl(objUrl);
         });
 
@@ -86,18 +83,7 @@ public class DustbinManager {
      *
      * @param ids 垃圾箱主键集合
      */
-    @Transactional
     public void reborn(Collection<Long> ids) {
-        List<Long> mediaIds = dustbinService.lambdaQuery()
-                .in(Dustbin::getId, ids)
-                .list()
-                .stream()
-                .map(Dustbin::getMediaId)
-                .collect(Collectors.toList());
-
-        if (!CollectionUtils.isEmpty(mediaIds)) {
-            mediaService.getBaseMapper().updateMediaDeleted(mediaIds);
-            dustbinService.removeByIds(ids);
-        }
+        fileManager.rebornFileBatch(ids);
     }
 }

@@ -13,13 +13,13 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
- * 媒体资源垃圾箱 实体类。
+ * 文件垃圾箱 实体类。
  *
  * @author DueGin
  * @since 1.0
  */
 @Data
-@ApiModel(value = "媒体资源垃圾箱", description = "媒体资源垃圾箱")
+@ApiModel(value = "文件垃圾箱", description = "文件垃圾箱")
 @TableName(value = "dustbin")
 public class Dustbin {
 
@@ -28,10 +28,10 @@ public class Dustbin {
     private Long id;
 
     /**
-     * 媒体ID
+     * 文件ID
      */
-    @ApiModelProperty(value = "媒体ID")
-    private Long mediaId;
+    @ApiModelProperty(value = "文件ID")
+    private Long fileId;
 
     /**
      * 删除者ID

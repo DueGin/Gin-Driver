@@ -1,5 +1,6 @@
-package com.ginDriver.main.domain.dto.exif;
+package com.ginDriver.main.domain.dto.media;
 
+import com.ginDriver.main.file.domain.dto.ChunkDTO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
  * @author DueGin
  */
 @Data
-public class ExifInfoDTO {
+public class MediaFileUploadDTO extends ChunkDTO {
 
     /**
      * 媒体拍摄时间

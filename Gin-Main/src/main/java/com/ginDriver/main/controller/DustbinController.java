@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.core.exception.ApiException;
 import com.ginDriver.core.result.BusinessController;
+import com.ginDriver.main.domain.dto.dustbin.DustbinPageDTO;
 import com.ginDriver.main.domain.po.Dustbin;
 import com.ginDriver.main.domain.vo.DustbinVO;
 import com.ginDriver.main.service.DustbinService;
@@ -107,8 +108,8 @@ public class DustbinController {
      */
     @GetMapping("/page")
     @ApiOperation(value = "分页查询媒体资源垃圾箱", notes = "分页查询媒体资源垃圾箱")
-    public ResultVO<Page<DustbinVO>> page(Page<DustbinVO> page) {
-        return ResultVO.ok(dustbinManager.getDustbinPage(page));
+    public Page<DustbinVO> page(DustbinPageDTO page) {
+        return dustbinManager.getDustbinPage(page);
     }
 
     @PostMapping("/reborn")

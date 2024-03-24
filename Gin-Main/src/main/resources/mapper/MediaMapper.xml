@@ -6,21 +6,21 @@
 
     <resultMap id="BaseResultMap" type="com.ginDriver.main.domain.po.Media">
         <id property="id" column="id" jdbcType="BIGINT"/>
-        <id property="userId" column="user_id" jdbcType="BIGINT"/>
-        <result property="fileName" column="file_name" jdbcType="VARCHAR"/>
-        <result property="src" column="src" jdbcType="VARCHAR"/>
-        <result property="status" column="status" jdbcType="TINYINT"/>
-        <result property="self" column="self" jdbcType="TINYINT"/>
-        <result property="groupId" column="group_id" jdbcType="BIGINT"/>
-        <result property="mimeType" column="mime_type" jdbcType="VARCHAR"/>
-        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
-        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result column="file_id" jdbcType="BIGINT" property="fileId"/>
+        <result column="width" jdbcType="INTEGER" property="width"/>
+        <result column="height" jdbcType="INTEGER" property="height"/>
+        <result column="mime_type" jdbcType="VARCHAR" property="mimeType"/>
+        <result column="original_date_time" jdbcType="TIMESTAMP" property="originalDateTime"/>
+        <result column="model" jdbcType="VARCHAR" property="model"/>
+        <result column="adcode" jdbcType="VARCHAR" property="adcode"/>
+        <result column="latitude" jdbcType="VARCHAR" property="latitude"/>
+        <result column="longitude" jdbcType="VARCHAR" property="longitude"/>
     </resultMap>
 
     <resultMap id="MediaVOResultMap" type="com.ginDriver.main.domain.vo.MediaVO">
         <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="userId" column="user_id" jdbcType="BIGINT"/>
-        <result property="groupId" column="group_id" jdbcType="BIGINT"/>
+        <result property="fileId" column="file_id" jdbcType="BIGINT"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="fileName" column="file_name" jdbcType="VARCHAR"/>
         <result property="type" column="type" jdbcType="INTEGER"/>
@@ -38,20 +38,22 @@
 
 
     <sql id="Base_Column_List">
-        id,user_id,file_name,src,`group_id`,`status`,self,`mime_type`,create_time,update_time
+        id, `file_id`,`width`, `height`, `mime_type`, `original_date_time`, `place`, `model`, `longitude`, `latitude`, `model`
     </sql>
+<!--    <sql id="Media_Base_Column_List">-->
+<!--        ${alias}id,-->
+<!--        ${alias}user_id,-->
+<!--        ${alias}file_name,-->
+<!--        ${alias}src,-->
+<!--        ${alias}`group_id`,-->
+<!--        ${alias}`status`,-->
+<!--        ${alias}self,-->
+<!--        ${alias}create_time,-->
+<!--        ${alias}update_time-->
+<!--    </sql>-->
     <sql id="Media_Base_Column_List">
         ${alias}id,
-        ${alias}user_id,
-        ${alias}file_name,
-        ${alias}src,
-        ${alias}`group_id`,
-        ${alias}`status`,
-        ${alias}self,
-        ${alias}create_time,
-        ${alias}update_time
-    </sql>
-    <sql id="Media_Exif_Base_Column_List">
+        ${alias}file_id,
         ${alias}original_date_time,
         ${alias}adcode,
         ${alias}width,
@@ -59,10 +61,11 @@
         ${alias}longitude,
         ${alias}latitude,
         ${alias}`mime_type`,
-        ${alias}model
+        ${alias}model,
+        ${alias}
     </sql>
     <update id="updateMediaDeleted">
-        update media
+        update `file`
         set deleted = 0
         where id in
         <foreach collection="ids" open="(" close=")" separator="," item="item">
@@ -74,19 +77,20 @@
         <include refid="Media_Base_Column_List">
             <property name="alias" value="m."/>
         </include>
-        ,
-        <include refid="Media_Exif_Base_Column_List">
-            <property name="alias" value="me."/>
+       ,
+        <include refid="com.ginDriver.main.mapper.FileMapper.File_Column_List">
+            <property name="als" value="f."/>
         </include>
         ,
+        f.name fileName,
         u.username
         from media m
-        left join media_exif me on m.id = me.media_id
-        left join user u on m.user_id = u.id
-        where m.user_id = #{userId}
-            and m.deleted = 0
-            and me.original_date_time between #{startDate} and #{endDate}
-        order by me.original_date_time desc
+        left join `file` f on m.file_id = f.id
+        left join user u on f.user_id = u.id
+        where f.user_id = #{userId}
+            and f.deleted = 0
+            and m.original_date_time between #{startDate} and #{endDate}
+        order by m.original_date_time desc
     </select>
     <select id="selectByCityAdCode" resultType="com.ginDriver.main.domain.vo.MediaVO">
         select
@@ -94,19 +98,20 @@
             <property name="alias" value="m."/>
         </include>
         ,
-        <include refid="Media_Exif_Base_Column_List">
-            <property name="alias" value="me."/>
+        <include refid="com.ginDriver.main.mapper.FileMapper.File_Column_List">
+            <property name="als" value="f."/>
         </include>
         ,
+        f.name fileName,
         u.username
         from media m
-        left join media_exif me on m.id = me.media_id
-        right join place p on me.adcode = p.adcode
+        left join `file` f on m.file_id = f.id
+        right join place p on m.adcode = p.adcode
         right join user u on m.user_id = u.id
-        where m.user_id = #{userId}
-        and m.deleted = 0
+        where f.user_id = #{userId}
+        and f.deleted = 0
         and p.city_adcode = #{adcode}
-        order by me.original_date_time desc
+        order by m.original_date_time desc
     </select>
     <select id="selectThatYearTodayByUserId" resultType="com.ginDriver.main.domain.vo.MediaVO">
         select
@@ -114,19 +119,20 @@
             <property name="alias" value="m."/>
         </include>
         ,
-        <include refid="Media_Exif_Base_Column_List">
-            <property name="alias" value="me."/>
+        <include refid="com.ginDriver.main.mapper.FileMapper.File_Column_List">
+            <property name="als" value="f."/>
         </include>
         ,
+        f.name fileName,
         u.username
-        from media_exif me
-        left join media m on m.id = me.media_id
-        inner join user u on m.user_id = u.id
-        where m.user_id = #{userId}
-        and m.deleted = 0
-        and MONTH(me.original_date_time) = #{month}
-        and DAY(me.original_date_time) = #{day}
-        order by me.original_date_time desc
+        from media m
+        left join file f on m.file_id = f.id
+        right join user u on f.user_id = u.id
+        where f.user_id = #{userId}
+        and f.deleted = 0
+        and MONTH(m.original_date_time) = #{month}
+        and DAY(m.original_date_time) = #{day}
+        order by m.original_date_time desc
         <if test="limit > 0">
             limit #{limit}
         </if>
@@ -137,17 +143,51 @@
             <property name="alias" value="m."/>
         </include>
         ,
-        <include refid="Media_Exif_Base_Column_List">
-            <property name="alias" value="me."/>
+        <include refid="com.ginDriver.main.mapper.FileMapper.File_Column_List">
+            <property name="als" value="f."/>
         </include>
         ,
+        f.name fileName,
         u.username
-        from media m left join media_exif me on m.id = me.media_id
-        right join place p on me.adcode = p.adcode
-        right join user u on m.user_id = u.id
-        where m.user_id = #{userId}
-        and m.deleted = 0
+        from media m left join `file` f on m.file_id = f.id
+        right join place p on m.adcode = p.adcode
+        right join user u on f.user_id = u.id
+        where f.user_id = #{userId}
+        and f.deleted = 0
         and p.province_adcode = #{adcode}
-        order by me.original_date_time desc
+        order by m.original_date_time desc
+    </select>
+    <select id="selectPageWithFile" resultType="com.ginDriver.main.domain.vo.MediaVO">
+        select m.id,
+        m.file_id,
+        m.width,
+        m.height,
+        m.mime_type,
+        m.original_date_time,
+        m.adcode,
+        m.longitude,
+        m.latitude,
+        m.model,
+        f.user_id,
+        f.create_time,
+        f.update_time,
+        f.type,
+        f.status,
+        f.self,
+        f.name fileName,
+        f.create_time,
+        f.update_time,
+        u.username,
+        from media m
+        right join file f on m.file_id = f.id
+        left join user u on f.user_id = u.id
+        <where>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="isSelf != null">
+                and f.self = #{isSelf}
+            </if>
+        </where>
     </select>
 </mapper>

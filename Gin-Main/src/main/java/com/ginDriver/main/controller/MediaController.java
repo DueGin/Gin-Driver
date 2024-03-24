@@ -5,7 +5,7 @@ import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.core.exception.ApiException;
 import com.ginDriver.core.log.GinLog;
 import com.ginDriver.core.result.BusinessController;
-import com.ginDriver.main.domain.dto.exif.ExifInfoDTO;
+import com.ginDriver.main.domain.dto.media.MediaFileUploadDTO;
 import com.ginDriver.main.domain.dto.media.MediaPageDTO;
 import com.ginDriver.main.domain.po.Media;
 import com.ginDriver.main.domain.vo.FileVO;
@@ -25,7 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -49,15 +51,14 @@ public class MediaController {
     @Value("${test.upload_zip_path:/Users/duegin/Desktop/hh/p1.zip}")
     private String uploadZipPath;
 
-
     @Resource
     private FileProperties fileProperties;
 
     @GinLog(isTiming = true)
     @PostMapping("upload")
-    public ResultVO<FileVO> upload(ExifInfoDTO exifInfoDTO) {
+    public ResultVO<FileVO> upload(MediaFileUploadDTO mediaFileUploadDTO) {
         try {
-            return ResultVO.ok(mediaService.save(exifInfoDTO.getFile(), exifInfoDTO));
+            return ResultVO.ok(mediaService.save(mediaFileUploadDTO));
         } catch (ApiException e) {
             return ResultVO.fail(e.getMessage());
         }
@@ -65,42 +66,43 @@ public class MediaController {
 
     @GinLog
     @PostMapping("upload_zip")
-    public ResultVO<Void> uploadZip(ExifInfoDTO exifInfoDTO) throws IOException {
+    public ResultVO<Void> uploadZip(MediaFileUploadDTO mediaFileUploadDTO) throws IOException {
         // todo upload zip
-        MultipartFile file = exifInfoDTO.getFile();
+        MultipartFile file = mediaFileUploadDTO.getFile();
         file.transferTo(new File(uploadZipPath));
         return ResultVO.ok();
     }
 
     @GinLog
-    @GetMapping("download/{fileName}")
-    public void getFile(@PathVariable String fileName, HttpServletResponse resp) {
-
-        Media media = mediaService.lambdaQuery().eq(Media::getFileName, fileName).one();
-
-        try {
-
-            FileInputStream inputStream = new FileInputStream(fileProperties.getFilePrefixPath() + fileName);
-            byte[] data = new byte[inputStream.available()];
-            inputStream.read(data);
-
-            resp.setContentType(media.getContentType());
-            resp.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-            System.out.println("data.length " + data.length);
-            resp.setContentLength(data.length);
-            resp.setHeader("Content-Range", String.valueOf(data.length - 1));
-            resp.setHeader("Accept-Ranges", "bytes");
-            OutputStream os = resp.getOutputStream();
-
-            os.write(data);
-
-            os.flush();
-            os.close();
-            inputStream.close();
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-        }
+    @Deprecated
+    @GetMapping("download/{fileId}")
+    public void getFile(@PathVariable String fileId, HttpServletResponse resp) {
+        throw new ApiException("弃用");
+//        Media media = mediaService.lambdaQuery().eq(Media::getFileName, fileName).one();
+//
+//        try {
+//
+//            FileInputStream inputStream = new FileInputStream(fileProperties.getFilePrefixPath() + fileName);
+//            byte[] data = new byte[inputStream.available()];
+//            inputStream.read(data);
+//
+//            resp.setContentType(media.getContentType());
+//            resp.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+//            System.out.println("data.length " + data.length);
+//            resp.setContentLength(data.length);
+//            resp.setHeader("Content-Range", String.valueOf(data.length - 1));
+//            resp.setHeader("Accept-Ranges", "bytes");
+//            OutputStream os = resp.getOutputStream();
+//
+//            os.write(data);
+//
+//            os.flush();
+//            os.close();
+//            inputStream.close();
+//        } catch (IOException e) {
+//            log.error(e.getMessage());
+//            e.printStackTrace();
+//        }
 
     }
 
@@ -170,7 +172,7 @@ public class MediaController {
     @GetMapping("thatYearToday/{limit}")
     @Operation(summary = "那年今天")
     public List<MediaVO> thatYearToday(@PathVariable Integer limit) {
-        return mediaManager.getThatYearTodayList(limit);
+        return mediaService.getThatYearTodayList(limit);
     }
 
 }

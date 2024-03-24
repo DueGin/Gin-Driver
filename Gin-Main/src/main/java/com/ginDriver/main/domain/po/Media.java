@@ -1,89 +1,82 @@
 package com.ginDriver.main.domain.po;
 
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Update;
 
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 媒体资源
+ * 媒体资源信息 实体类。
+ *
  * @author DueGin
- * @TableNameName media
+ * @TableName media
+ * @since 1.0
  */
 @Data
-@TableName("media")
-public class Media implements Serializable {
-    /**
-     * 媒体ID
-     */
+@ApiModel(value = "媒体资源信息", description = "媒体资源信息")
+@TableName(value = "media")
+public class Media {
+
     @TableId(type = IdType.AUTO)
-    @NotNull(groups = Update.class)
     private Long id;
 
     /**
-     * 上传用户
+     * 文件ID
      */
-    @NotNull(groups = Insert.class)
-    private Long userId;
+    @ApiModelProperty("文件ID")
+    private Long fileId;
 
     /**
-     * 文件名
+     * 媒体拍摄时间
      */
-    @NotNull(groups = Insert.class)
-    private String fileName;
+    @ApiModelProperty("媒体拍摄时间")
+    private LocalDateTime originalDateTime;
 
     /**
-     * 文件存储路径
+     * 媒体宽度
      */
-    @NotNull(groups = Insert.class)
-    private String src;
+    @ApiModelProperty("媒体宽度")
+    private Integer width;
 
     /**
-     * 组ID
+     * 媒体高度
      */
-    private Long groupId;
-
+    @ApiModelProperty("媒体高度")
+    private Integer height;
 
     /**
-     * 文件状态
+     * 媒体类型
      */
-    @NotNull(groups = Insert.class)
-    private Integer status;
+    @ApiModelProperty("媒体类型")
+    private String mimeType;
 
     /**
-     * 是否为私有媒体
+     * 拍摄设备
      */
-    @NotNull(groups = Insert.class)
-    private Integer self;
+    @ApiModelProperty("拍摄设备")
+    private String model;
 
     /**
-     * 文件类型
+     * 行政区域编码
      */
-    private String contentType;
+    @ApiModelProperty("行政区域编码")
+    private Integer adcode;
 
     /**
-     * 创建时间
+     * 经度
      */
-    private LocalDateTime createTime;
+    @ApiModelProperty("经度")
+    private String longitude;
 
     /**
-     * 更新时间
+     * 纬度
      */
-    private LocalDateTime updateTime;
+    @ApiModelProperty("纬度")
+    private String latitude;
 
-    /**
-     * 软删除
-     */
-    @TableLogic
-    private Integer deleted;
 
-    private static final long serialVersionUID = 1L;
 }

@@ -15,7 +15,7 @@
 
     <resultMap id="DustbinVOResultMap" type="com.ginDriver.main.domain.vo.DustbinVO">
         <id column="id" jdbcType="BIGINT" property="id"/>
-        <result column="media_id" jdbcType="BIGINT" property="mediaId"/>
+        <result column="file_id" jdbcType="BIGINT" property="fileId"/>
         <result column="user_id" jdbcType="BIGINT" property="userId"/>
         <result column="file_name" jdbcType="VARCHAR" property="fileName"/>
         <result column="type" jdbcType="INTEGER" property="type"/>
@@ -27,7 +27,7 @@
 
     <sql id="Base_Column_List">
         ${als}`id`,
-        ${als}`media_id`,
+        ${als}`file_id`,
         ${als}`user_id`,
         ${als}`file_name`,
         ${als}`type`,
@@ -40,8 +40,9 @@
         <include refid="Base_Column_List">
             <property name="als" value="d."/>
         </include>
-        , me.mime_type
-        from dustbin d left join media_exif me on d.media_id = me.media_id
+        ,
+        m.mime_type
+        from dustbin d left join media m on d.file_id = m.id
         where d.user_id = #{userId}
     </select>
     <select id="selectAllByDate" resultType="com.ginDriver.main.domain.po.Dustbin">

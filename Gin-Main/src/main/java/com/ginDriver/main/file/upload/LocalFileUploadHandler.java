@@ -2,11 +2,12 @@ package com.ginDriver.main.file.upload;
 
 
 import com.ginDriver.main.file.FileManager;
-import com.ginDriver.main.security.utils.SecurityUtils;
 import com.ginDriver.main.file.constants.UploadStatus;
 import com.ginDriver.main.file.domain.dto.ChunkDTO;
+import com.ginDriver.main.file.domain.dto.UploadStatusDTO;
 import com.ginDriver.main.file.generator.LocalFilePathGenerator;
 import com.ginDriver.main.file.utils.EncoderUtil;
+import com.ginDriver.main.security.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,15 +17,20 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author DueGin
+ */
 @Slf4j
 public class LocalFileUploadHandler extends FileUploadHandler {
 
 
     LocalFileUploadHandler() {
-        filePathGenerator = new LocalFilePathGenerator();
+        super(new LocalFilePathGenerator());
     }
 
     /**
@@ -32,7 +38,20 @@ public class LocalFileUploadHandler extends FileUploadHandler {
      * @return 状态码
      */
     @Override
-    public UploadStatus upload(ChunkDTO chunkDto) {
+    public UploadStatusDTO upload(ChunkDTO chunkDto) {
+        // 获取分片信息
+        MultipartFile file = chunkDto.getUpload();
+        Integer chunks = chunkDto.getChunks();
+        Integer chunk = chunkDto.getChunk();
+        String name = chunkDto.getName();
+        String uploadId = chunkDto.getUploadId();
+        UploadStatus res = UploadStatus.ERROR_UNKNOWN;
+
+        if (file == null || name == null) {
+            // 传过来没有文件
+            return new UploadStatusDTO(res);
+        }
+
         String path;
         // 如果存储路径没有在配置文件配置，则用路径生成器生成
         if (FileManager.storagePath != null) {
@@ -49,97 +68,89 @@ public class LocalFileUploadHandler extends FileUploadHandler {
         // 完整文件存储路径
         String filePath = path + userId + "/";
 
-        // 获取分片信息
-        MultipartFile file = chunkDto.getUpload();
-        Integer chunks = chunkDto.getChunks();
-        Integer chunk = chunkDto.getChunk();
-        String name = chunkDto.getName();
 
         BufferedOutputStream os = null;
-        UploadStatus res = UploadStatus.ERROR_UNKNOWN;
-
 
         try {
-            // 对分片进行存储
-            if (file != null && name != null) {
-                if (chunks != null && chunk != null) {
-                    // 分片存储
-                    String tmpFileName = name + "_" + chunk;
+            // 分片文件
+            if (chunks != null && chunk != null && chunks != 0) {
+                String tmpFileName = name + "_" + chunk;
 //                    String tmpFileName = chunkDto.getMd5();
-                    File tmpFile = new File(chunkPath, tmpFileName);
+                File tmpFile = new File(chunkPath, tmpFileName);
 
-                    if (!tmpFile.exists()) {
-                        // 没有文件夹则创建
-                        if (!tmpFile.getParentFile().exists()) {
-                            tmpFile.getParentFile().mkdirs();
-                        }
-                        file.transferTo(tmpFile); // 保存分片
-                        log.info(name + "分片" + chunkDto.getChunk() + "上传成功！");
-                    }
-
-                    chunkDto.setMd5(EncoderUtil.fileToMd5(tmpFile));
-                    chunkDto.setRealPath(chunkPath + tmpFileName);
-
-                    // 存入集合列表中
-                    FileManager.uploaded
-                            .computeIfAbsent(userId, k -> new ConcurrentHashMap<>())
-                            .computeIfAbsent(name, k -> new ArrayList<>())
-                            .add(chunkDto);
-
-                    res = UploadStatus.CHUNK_SUCCESS;
-
-                } else {
-                    // 非分片文件
-                    File wholeFile = new File(filePath, name); // 通过md5命名文件
+                if (!tmpFile.exists()) {
                     // 没有文件夹则创建
-                    if (!wholeFile.getParentFile().exists()) {
-                        wholeFile.getParentFile().mkdirs();
+                    if (!tmpFile.getParentFile().exists()) {
+                        tmpFile.getParentFile().mkdirs();
                     }
-
-                    // 保存文件
-                    file.transferTo(wholeFile);
-
-                    String md5 = EncoderUtil.fileToMd5(wholeFile);
-
-                    // 存入集合
-                    FileManager.wholeFiles
-                            .computeIfAbsent(userId, k -> new ConcurrentHashMap<>())
-                            .put(name, new com.ginDriver.main.file.domain.po.File(name, md5, userId));
-
-                    res = UploadStatus.SUCCESS_WHOLE;
+                    file.transferTo(tmpFile); // 保存分片
+                    log.info(name + "分片" + chunkDto.getChunk() + "上传成功！");
                 }
 
-                // 文件合并
-                // 在最后一个分片等待所有分片完成上传
-                if (chunk != null && chunks != null && chunk == chunks - 1) {
-                    File wholeFile = new File(filePath, name);
-                    os = new BufferedOutputStream(new FileOutputStream(wholeFile));
+                chunkDto.setMd5(EncoderUtil.fileToMd5(tmpFile));
+                chunkDto.setRealPath(chunkPath + tmpFileName);
 
-                    // 读取存储的分片
-                    for (int i = 0; i < chunks; i++) {
-                        File tmpFile = new File(chunkPath, name + "_" + i);
-                        while (!tmpFile.exists()) {
-                            TimeUnit.MILLISECONDS.sleep(500);
-                        }
-                        byte[] bytes = FileUtils.readFileToByteArray(tmpFile);
-                        os.write(bytes);
-                        os.flush();
-//                        tmpFile.delete();
-                    }
-                    res = UploadStatus.SUCCESS_END;
-                    os.flush();
+                // 存入集合列表中
+                FileManager.uploaded
+                        .computeIfAbsent(userId, k -> new ConcurrentHashMap<>())
+                        .computeIfAbsent(name, k -> new ArrayList<>())
+                        .add(chunkDto);
 
-                    String md5 = EncoderUtil.fileToMd5(wholeFile);
+                res = UploadStatus.SUCCESS_CHUNK;
 
-                    // 将完整的文件也存入集合列表
-                    FileManager.wholeFiles
-                            .computeIfAbsent(userId, k -> new ConcurrentHashMap<>())
-                            .put(name, new com.ginDriver.main.file.domain.po.File(name, md5, userId));
+            } else {
+                // 非分片文件
+                File wholeFile = new File(filePath, name); // 通过md5命名文件
+                // 没有文件夹则创建
+                if (!wholeFile.getParentFile().exists()) {
+                    wholeFile.getParentFile().mkdirs();
+                }
 
+                // 保存文件
+                file.transferTo(wholeFile);
+
+                return new UploadStatusDTO(UploadStatus.SUCCESS_END, filePath + name, chunkDto.getMd5());
+            }
+
+            // 获取已上传的分片数量
+            Map<String, List<ChunkDTO>> userUploadMap = FileManager.uploaded.get(userId);
+            int size = 0;
+            if (userUploadMap != null) {
+                List<ChunkDTO> chunkDTOS = userUploadMap.get(uploadId);
+                if (chunkDTOS != null) {
+                    size = chunkDTOS.size();
                 }
             }
+
+            // 分片收集完成后，才开始合并
+            if (chunks == size) {
+                File wholeFile = new File(filePath, name);
+                FileOutputStream fileOutputStream = new FileOutputStream(wholeFile);
+                os = new BufferedOutputStream(fileOutputStream);
+
+                // 读取存储的分片
+                for (int i = 0; i < chunks; i++) {
+                    File tmpFile = new File(chunkPath, name + "_" + i);
+                    while (!tmpFile.exists()) {
+                        log.error("分片文件不存在 ==> 文件路径: {}", chunkPath + name + "_" + i);
+                        TimeUnit.MILLISECONDS.sleep(500);
+                    }
+                    byte[] bytes = FileUtils.readFileToByteArray(tmpFile);
+                    os.write(bytes);
+                    os.flush();
+                    // 删除分片， todo 后台异步删除
+                    tmpFile.delete();
+                }
+
+                res = UploadStatus.SUCCESS_END;
+                os.flush();
+                // todo 暂时全部分片都用整个文件的md5，后面改为在某个时间段内记录上传的分片序号，用于做断点续传，只传没传的
+                return new UploadStatusDTO(res, filePath + name, chunkDto.getMd5());
+            }
         } catch (IOException | InterruptedException e) {
+            log.error(e.getMessage());
             e.printStackTrace();
+            res = UploadStatus.ERROR_UNKNOWN;
         } finally {
             try {
                 if (os != null) {
@@ -150,7 +161,7 @@ public class LocalFileUploadHandler extends FileUploadHandler {
             }
         }
 
-        return res;
+        return new UploadStatusDTO(res);
     }
 
 }

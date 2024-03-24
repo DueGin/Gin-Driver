@@ -107,7 +107,7 @@ public class MediaClassifyService {
 
         // 设置minio url
         if (!page.getRecords().isEmpty()) {
-            mediaService.setMinioUrl(page.getRecords());
+            mediaService.setObjectDbUrl(page.getRecords());
         }
 
         return page;

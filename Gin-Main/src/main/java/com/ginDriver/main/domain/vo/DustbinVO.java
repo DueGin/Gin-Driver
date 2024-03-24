@@ -27,10 +27,10 @@ public class DustbinVO {
     private Long id;
 
     /**
-     * 媒体ID
+     * 文件ID
      */
-    @ApiModelProperty(value = "媒体ID")
-    private Long mediaId;
+    @ApiModelProperty(value = "文件ID")
+    private Long fileId;
 
     /**
      * 删除者ID
@@ -45,9 +45,9 @@ public class DustbinVO {
     private String fileName;
 
     /**
-     * 文件类型(1：图片，2：视频，3：电影，4：其他)
+     * 文件类型(枚举ID)
      */
-    @ApiModelProperty(value = "文件类型(1：图片，2：视频，3：电影，4：其他)")
+    @ApiModelProperty(value = "文件类型(枚举ID)")
     private Integer type;
 
     /**

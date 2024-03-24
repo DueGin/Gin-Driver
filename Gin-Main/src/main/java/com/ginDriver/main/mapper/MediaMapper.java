@@ -25,6 +25,9 @@ public interface MediaMapper extends BaseMapper<Media> {
     List<MediaVO> selectThatYearTodayByUserId(@Param("userId") Long userId, @Param("month") Integer month, @Param("day") Integer day, @Param("limit") Integer limit);
 
     void updateMediaDeleted(@Param("ids") Collection<Long> ids);
+
+
+    Page<MediaVO> selectPageWithFile(Page<MediaVO> page, @Param("userId") Long userId, @Param("isSelf") Boolean isSelf);
 }
 
 

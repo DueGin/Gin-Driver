@@ -3,19 +3,20 @@ package com.ginDriver.main.domain.po;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * md5文件表
+ *
+ * @author DueGin
  * @TableName md5_file
  */
-@TableName(value ="md5_file")
+@TableName(value = "md5_file")
 @Data
 public class Md5File implements Serializable {
-    /**
-     * 
-     */
+
     @TableId
     private String md5;
 
@@ -23,6 +24,11 @@ public class Md5File implements Serializable {
      * 存放路径
      */
     private String src;
+
+    /**
+     * 对象存储名称
+     */
+    private String objectName;
 
     /**
      * 引用次数
@@ -50,9 +56,9 @@ public class Md5File implements Serializable {
         }
         Md5File other = (Md5File) that;
         return (this.getMd5() == null ? other.getMd5() == null : this.getMd5().equals(other.getMd5()))
-            && (this.getSrc() == null ? other.getSrc() == null : this.getSrc().equals(other.getSrc()))
-            && (this.getRef() == null ? other.getRef() == null : this.getRef().equals(other.getRef()))
-            && (this.getDeleted() == null ? other.getDeleted() == null : this.getDeleted().equals(other.getDeleted()));
+                && (this.getSrc() == null ? other.getSrc() == null : this.getSrc().equals(other.getSrc()))
+                && (this.getRef() == null ? other.getRef() == null : this.getRef().equals(other.getRef()))
+                && (this.getDeleted() == null ? other.getDeleted() == null : this.getDeleted().equals(other.getDeleted()));
     }
 
     @Override

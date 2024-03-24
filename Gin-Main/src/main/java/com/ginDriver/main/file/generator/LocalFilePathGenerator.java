@@ -2,6 +2,9 @@ package com.ginDriver.main.file.generator;
 
 import java.util.Locale;
 
+/**
+ * @author DueGin
+ */
 public class LocalFilePathGenerator implements IFilePathGenerator{
     @Override
     public String generate() {

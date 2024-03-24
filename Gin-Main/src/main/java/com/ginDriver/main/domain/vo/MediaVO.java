@@ -21,16 +21,16 @@ public class MediaVO {
     private Long id;
 
     /**
+     * 文件ID
+     */
+    @ApiModelProperty("文件ID")
+    private Long fileId;
+
+    /**
      * 上传用户
      */
     @ApiModelProperty("上传用户")
     private Long userId;
-
-    /**
-     * 组ID
-     */
-    @ApiModelProperty("组ID")
-    private Long groupId;
 
     /**
      * 用户名
@@ -45,7 +45,7 @@ public class MediaVO {
     private String fileName;
 
     /**
-     * 文件类型1：图片，2：视频，3：电影，4：其他
+     * 文件类型(枚举字典ID，0：其他)
      */
     @ApiModelProperty("文件类型")
     private Integer type;
