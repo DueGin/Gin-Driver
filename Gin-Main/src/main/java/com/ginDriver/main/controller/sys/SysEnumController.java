@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("sys/enum")
 public class SysEnumController {
     @GetMapping("list")
-    public List<SysEnum> list(){
-
+    public List<SysEnum> list() {
+        return null;
     }
 }

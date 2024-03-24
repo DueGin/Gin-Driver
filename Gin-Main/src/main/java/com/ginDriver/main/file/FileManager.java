@@ -59,9 +59,6 @@ public class FileManager {
     private FileService fileService;
 
     @Resource
-    private FileManager fileManager;
-
-    @Resource
     private DustbinService dustbinService;
 
     /**
@@ -212,8 +209,8 @@ public class FileManager {
             String md5 = (String) paramMap.get("md5");
 
             try {
-                // 文件入库,并增加md5文件引用
-                fileId = fileManager.saveFile(userId, md5, chunkDto.getName());
+                // 文件入库,并增加md5文件引用 todo exp
+                fileId = this.saveFile(userId, md5, chunkDto.getName());
             } catch (Exception e) {
                 log.error("已存在文件入库失败 ==> userId: {}, uploadId: {}, md5: {}", userId, uploadId, md5);
                 e.printStackTrace();
@@ -234,8 +231,8 @@ public class FileManager {
         UploadStatusDTO uploadDTO = this.fileUploadHandler.upload(chunkDto);
         if (uploadDTO.getUploadStatus() == UploadStatus.SUCCESS_END) {
 
-            // 入库
-            fileId = fileManager.saveFile(userId, uploadDTO.getMd5(), chunkDto.getName());
+            // 入库 todo exp
+            fileId = this.saveFile(userId, uploadDTO.getMd5(), chunkDto.getName());
             uploadDTO.setFileId(fileId);
 
             // 存入minio

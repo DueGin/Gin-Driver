@@ -5,7 +5,6 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
-import com.ginDriver.main.domain.po.MediaExif;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +14,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,27 +94,27 @@ public class GpsExifInfoUtil {
         return map;
     }
 
-    public static MediaExif convertToExifInfoDTO(Map<String, String> map) {
-        MediaExif exif = new MediaExif();
-        exif.setWidth(Integer.valueOf(map.get("Image Width").split(" ")[0]));
-        exif.setHeight(Integer.valueOf(map.get("Image Height").split(" ")[0]));
-        exif.setMimeType(map.get("Detected MIME Type"));
-
-        // 系统读取文件创建时间
-        String fileCreateTime = map.get("fileCreateTime");
-        // exif文件创建时间
-        String fileDateTime = map.get("Date/Time");
-        LocalDateTime createTime = null;
-        if (fileDateTime != null) {
-            createTime = LocalDateTime.parse(fileDateTime, DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss"));
-        } else if (fileCreateTime != null) {
-            createTime = LocalDateTime.parse(fileCreateTime);
-        }
-        exif.setOriginalDateTime(createTime);
-
-        exif.setModel(map.get("Model"));
-        return exif;
-    }
+//    public static MediaExif convertToExifInfoDTO(Map<String, String> map) {
+//        MediaExif exif = new MediaExif();
+//        exif.setWidth(Integer.valueOf(map.get("Image Width").split(" ")[0]));
+//        exif.setHeight(Integer.valueOf(map.get("Image Height").split(" ")[0]));
+//        exif.setMimeType(map.get("Detected MIME Type"));
+//
+//        // 系统读取文件创建时间
+//        String fileCreateTime = map.get("fileCreateTime");
+//        // exif文件创建时间
+//        String fileDateTime = map.get("Date/Time");
+//        LocalDateTime createTime = null;
+//        if (fileDateTime != null) {
+//            createTime = LocalDateTime.parse(fileDateTime, DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss"));
+//        } else if (fileCreateTime != null) {
+//            createTime = LocalDateTime.parse(fileCreateTime);
+//        }
+//        exif.setOriginalDateTime(createTime);
+//
+//        exif.setModel(map.get("Model"));
+//        return exif;
+//    }
 
     /**
      * 打印照片Exif信息

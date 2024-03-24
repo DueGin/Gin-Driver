@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.main.constant.ClassifyConstant;
 import com.ginDriver.main.domain.vo.ClassifyVO;
 import com.ginDriver.main.domain.vo.MediaVO;
-import com.ginDriver.main.mapper.MediaExifMapper;
 import com.ginDriver.main.mapper.MediaMapper;
 import com.ginDriver.main.security.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -25,17 +24,14 @@ public class MediaClassifyService {
     @Resource
     private MediaService mediaService;
 
-    @Resource
-    private MediaExifService mediaExifService;
-
     public List<ClassifyVO> getClassifyFolderList(String type) {
         List<ClassifyVO> res = new ArrayList<>();
         Long userId = SecurityUtils.getUserId();
-        MediaExifMapper mediaExifMapper = mediaExifService.getBaseMapper();
+        MediaMapper mediaMapper = mediaService.getBaseMapper();
 
         switch (type) {
             case ClassifyConstant.MONTH:
-                List<Map<String, Integer>> maps = mediaExifMapper.selectGroupByMonth(userId);
+                List<Map<String, Integer>> maps = mediaMapper.selectGroupByMonth(userId);
                 for (Map<String, Integer> map : maps) {
                     String month = String.valueOf(map.get("month"));
                     String year = String.valueOf(map.get("year"));
@@ -46,12 +42,12 @@ public class MediaClassifyService {
                 }
                 break;
             case ClassifyConstant.YEAR:
-                List<String> years = mediaExifMapper.selectGroupByYear(userId);
+                List<String> years = mediaMapper.selectGroupByYear(userId);
                 years.forEach(y -> res.add(new ClassifyVO(y, y + "年")));
                 break;
             case ClassifyConstant.PROVINCE:
                 log.info("省份分类");
-                List<Map<String, Object>> provinceAdCodeMap = mediaExifMapper.selectGroupByProvinceAdCode(userId);
+                List<Map<String, Object>> provinceAdCodeMap = mediaMapper.selectGroupByProvinceAdCode(userId);
                 for (Map<String, Object> map : provinceAdCodeMap) {
                     String provinceName = (String) map.get("provinceName");
                     String adcode = String.valueOf(map.get("provinceAdcode"));
@@ -60,7 +56,7 @@ public class MediaClassifyService {
                 break;
             case ClassifyConstant.CITY:
                 log.info("城市分类");
-                List<Map<String, Object>> cityAdCodeMap = mediaExifMapper.selectGroupByCityAdCode(userId);
+                List<Map<String, Object>> cityAdCodeMap = mediaMapper.selectGroupByCityAdCode(userId);
                 for (Map<String, Object> map : cityAdCodeMap) {
                     String cityName = (String) map.get("cityName");
                     String adcode = String.valueOf(map.get("cityAdcode"));

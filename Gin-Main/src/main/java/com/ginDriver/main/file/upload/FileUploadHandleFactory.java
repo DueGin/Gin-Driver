@@ -1,8 +1,6 @@
 package com.ginDriver.main.file.upload;
 
 import com.ginDriver.main.file.constants.UploadHandlerType;
-import com.ginDriver.main.service.FileService;
-import com.ginDriver.main.utils.MyBeanFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +12,6 @@ public class FileUploadHandleFactory {
     private static final Map<UploadHandlerType, FileUploadHandler> map;
 
     static {
-        FileService fileService = MyBeanFactory.getBean(FileService.class);
         map = new HashMap<>();
 //        map.put("Location", MyBeanFactory.getBean(LocalFileUploadHandler.class));
         map.put(UploadHandlerType.LOCATION, new LocalFileUploadHandler());
