@@ -12,5 +12,5 @@ public class DustbinPageDTO extends Page<DustbinVO> {
     /**
      * 文件类型(枚举ID)
      */
-    private Integer fileTypeId;
+    private Integer fileType;
 }

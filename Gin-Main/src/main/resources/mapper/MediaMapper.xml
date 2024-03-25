@@ -61,6 +61,14 @@
             #{item}
         </foreach>
     </update>
+    <delete id="removeByFileIds">
+        delete
+        from media
+        where file_id in
+        <foreach collection="fileIds" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
     <select id="selectPageBetweenDate" resultType="com.ginDriver.main.domain.vo.MediaVO">
         select
         <include refid="Media_Base_Column_List">
@@ -166,7 +174,7 @@
         f.name fileName,
         f.create_time,
         f.update_time,
-        u.username,
+        u.username
         from media m
         right join file f on m.file_id = f.id
         left join user u on f.user_id = u.id

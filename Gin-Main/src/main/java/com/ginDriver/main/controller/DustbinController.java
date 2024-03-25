@@ -5,6 +5,7 @@ import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.core.exception.ApiException;
 import com.ginDriver.core.result.BusinessController;
 import com.ginDriver.main.domain.dto.dustbin.DustbinPageDTO;
+import com.ginDriver.main.domain.dto.dustbin.DustbinRemoveDTO;
 import com.ginDriver.main.domain.po.Dustbin;
 import com.ginDriver.main.domain.vo.DustbinVO;
 import com.ginDriver.main.service.DustbinService;
@@ -53,12 +54,12 @@ public class DustbinController {
     /**
      * 根据主键删除媒体资源垃圾箱
      *
-     * @param ids 主键集合
+     * @param dto {@link DustbinRemoveDTO}
      */
     @PostMapping("/remove")
     @ApiOperation(value = "根据主键删除媒体资源垃圾箱", notes = "根据主键删除媒体资源垃圾箱")
-    public void remove(@RequestBody Long[] ids) {
-        dustbinManager.remove(List.of(ids));
+    public void remove(@RequestBody DustbinRemoveDTO dto) {
+        dustbinManager.remove(dto);
     }
 
 
