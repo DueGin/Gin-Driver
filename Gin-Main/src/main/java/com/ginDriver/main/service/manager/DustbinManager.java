@@ -100,7 +100,7 @@ public class DustbinManager {
 
         // 设置minio url
         page.getRecords().forEach(d -> {
-            String objUrl = fileService.getObjUrl(fileType.name, d.getFileName(), DUSTBIN_EXPIRE);
+            String objUrl = fileService.getObjUrl(fileType.name(), d.getFileName(), DUSTBIN_EXPIRE);
             d.setUrl(objUrl);
         });
 

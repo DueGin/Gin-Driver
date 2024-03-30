@@ -1,15 +1,11 @@
 package com.ginDriver.main.constant;
 
 public enum FileType {
-    other("other"),
-    media("media"),
-    system("system"),
-    movie("movie");
-    public final String name;
+    other,
+    media,
+    system,
+    movie;
 
-    FileType(String name) {
-        this.name = name;
-    }
 
     public static FileType getFileTypeByIdx(Integer fileTypeIdx) {
         if (fileTypeIdx == null) {
