@@ -24,7 +24,6 @@ public class SysEnumCache {
 
     public static void init(SysEnumService enumService) {
         SysEnumCache.enumService = enumService;
-        loadData();
     }
 
     public static void loadData() {

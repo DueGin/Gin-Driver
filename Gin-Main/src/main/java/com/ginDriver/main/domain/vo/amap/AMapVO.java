@@ -26,6 +26,12 @@ public class AMapVO {
     private String fileName;
 
     /**
+     * 对象名称
+     */
+    @ApiModelProperty("对象名称")
+    private String objectName;
+
+    /**
      * 用户ID
      */
     @ApiModelProperty("用户ID")

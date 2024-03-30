@@ -1,7 +1,6 @@
 package com.ginDriver.main.domain.vo;
 
 
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -43,6 +42,12 @@ public class DustbinVO {
      */
     @ApiModelProperty(value = "文件名")
     private String fileName;
+
+    /**
+     * 对象名称
+     */
+    @ApiModelProperty("对象名称")
+    private String objectName;
 
     /**
      * 文件类型(枚举ID)

@@ -43,7 +43,7 @@ public class ChunkDTO {
     /**
      * 分片内容
      */
-    private MultipartFile upload;
+    private MultipartFile file;
 
     /**
      * 真实存储路径

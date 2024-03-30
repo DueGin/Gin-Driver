@@ -8,6 +8,7 @@ import com.ginDriver.core.domain.vo.UserVO;
 import com.ginDriver.core.log.GinLog;
 import com.ginDriver.core.result.BusinessController;
 import com.ginDriver.main.cache.redis.TokenRedis;
+import com.ginDriver.main.constant.FileType;
 import com.ginDriver.main.domain.dto.user.UpdateUserDTO;
 import com.ginDriver.main.domain.dto.user.UserParam;
 import com.ginDriver.main.domain.vo.FileVO;
@@ -83,7 +84,7 @@ public class UserController {
 
             // 设置头像
             if (StringUtils.isNotBlank(bo.getAvatar())) {
-                String avatarUrl = fileService.getObjUrl(FileService.FileType.system, bo.getAvatar());
+                String avatarUrl = fileService.getObjUrl(FileType.system, bo.getAvatar());
                 vo.setAvatarUrl(avatarUrl);
             }
 
@@ -122,7 +123,7 @@ public class UserController {
             BeanUtils.copyProperties(bo, vo);
             String avatar = bo.getAvatar();
             if (StringUtils.isNotBlank(avatar)) {
-                String avatarUrl = fileService.getObjUrl(FileService.FileType.system, avatar);
+                String avatarUrl = fileService.getObjUrl(FileType.system, avatar);
                 vo.setAvatarUrl(avatarUrl);
             }
             Map<String, String> roleMap = bo.getRoleMap();

@@ -1,21 +1,18 @@
 package com.ginDriver.main.service.manager;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.ginDriver.main.cache.local.SysEnumCache;
 import com.ginDriver.main.constant.FileType;
 import com.ginDriver.main.domain.dto.dustbin.DustbinPageDTO;
 import com.ginDriver.main.domain.dto.dustbin.DustbinRemoveDTO;
 import com.ginDriver.main.domain.po.Dustbin;
-import com.ginDriver.main.domain.po.Media;
-import com.ginDriver.main.domain.po.SysEnum;
+import com.ginDriver.main.domain.po.File;
 import com.ginDriver.main.domain.vo.DustbinVO;
 import com.ginDriver.main.file.FileManager;
 import com.ginDriver.main.mapper.DustbinMapper;
 import com.ginDriver.main.security.utils.SecurityUtils;
 import com.ginDriver.main.service.DustbinService;
 import com.ginDriver.main.service.FileService;
+import com.ginDriver.main.service.Md5FileService;
 import com.ginDriver.main.service.MediaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +21,9 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -48,6 +47,9 @@ public class DustbinManager {
     @Resource
     private FileManager fileManager;
 
+    @Resource
+    private Md5FileService md5FileService;
+
     private static final Integer DUSTBIN_EXPIRE = 24 * 60 * 60;
 
     public void remove(DustbinRemoveDTO dto) {
@@ -64,6 +66,7 @@ public class DustbinManager {
                 break;
         }
 
+        // todo exp
         remove(dto.getIds(), removeInDbFunction);
     }
 
@@ -77,9 +80,9 @@ public class DustbinManager {
                 .list();
 
 
+        List<Long> fileIds = dustbinList.stream().map(Dustbin::getFileId).collect(Collectors.toList());
         // 删除额外的
         if (removeInDbFunction != null) {
-            List<Long> fileIds = dustbinList.stream().map(Dustbin::getFileId).collect(Collectors.toList());
             if (!fileIds.isEmpty()) {
                 removeInDbFunction.apply(fileIds);
             }
@@ -87,6 +90,24 @@ public class DustbinManager {
 
         // 删除垃圾箱
         dustbinService.removeByIds(ids);
+
+        // 删除file表
+        List<File> list = fileService.getBaseMapper().selectAllByIds(fileIds);
+        fileService.getBaseMapper().removeByIds(fileIds);
+
+        // 统计每个md5减减次数
+        Map<String, Integer> md5Map = new HashMap<>();
+        list.forEach(l -> {
+            String md5 = l.getMd5();
+            if (md5Map.containsKey(md5)) {
+                md5Map.put(md5, md5Map.get(md5) + 1);
+            } else {
+                md5Map.put(md5, 1);
+            }
+        });
+
+        // 减减md5_file
+        md5Map.forEach((md5, num) -> md5FileService.subRef(md5, num));
     }
 
     public Page<DustbinVO> getDustbinPage(DustbinPageDTO page) {
@@ -100,8 +121,9 @@ public class DustbinManager {
 
         // 设置minio url
         page.getRecords().forEach(d -> {
-            String objUrl = fileService.getObjUrl(fileType.name(), d.getFileName(), DUSTBIN_EXPIRE);
+            String objUrl = fileService.getObjUrl(fileType.name(), d.getObjectName(), DUSTBIN_EXPIRE);
             d.setUrl(objUrl);
+            d.setObjectName(null);
         });
 
         return page;

@@ -50,8 +50,7 @@
         ${alias}longitude,
         ${alias}latitude,
         ${alias}`mime_type`,
-        ${alias}model,
-        ${alias}
+        ${alias}model
     </sql>
     <update id="updateMediaDeleted">
         update `file`
@@ -65,7 +64,7 @@
         delete
         from media
         where file_id in
-        <foreach collection="fileIds" open="(" close=")" separator=",">
+        <foreach collection="fileIds" open="(" close=")" item="item" separator=",">
             #{item}
         </foreach>
     </delete>
@@ -74,19 +73,21 @@
         <include refid="Media_Base_Column_List">
             <property name="alias" value="m."/>
         </include>
-       ,
+        ,
         <include refid="com.ginDriver.main.mapper.FileMapper.File_Column_List">
             <property name="als" value="f."/>
         </include>
         ,
         f.name fileName,
-        u.username
+        u.username,
+        m5f.object_name
         from media m
         left join `file` f on m.file_id = f.id
         left join user u on f.user_id = u.id
+        right join md5_file m5f on f.md5 = m5f.md5
         where f.user_id = #{userId}
-            and f.deleted = 0
-            and m.original_date_time between #{startDate} and #{endDate}
+        and f.deleted = 0
+        and m.original_date_time between #{startDate} and #{endDate}
         order by m.original_date_time desc
     </select>
     <select id="selectByCityAdCode" resultType="com.ginDriver.main.domain.vo.MediaVO">
@@ -100,11 +101,13 @@
         </include>
         ,
         f.name fileName,
-        u.username
+        u.username,
+        m5f.object_name
         from media m
         left join `file` f on m.file_id = f.id
         right join place p on m.adcode = p.adcode
-        right join user u on m.user_id = u.id
+        right join user u on f.user_id = u.id
+        right join md5_file m5f on f.md5 = m5f.md5
         where f.user_id = #{userId}
         and f.deleted = 0
         and p.city_adcode = #{adcode}
@@ -121,10 +124,12 @@
         </include>
         ,
         f.name fileName,
-        u.username
+        u.username,
+        m5f.object_name
         from media m
         left join file f on m.file_id = f.id
         right join user u on f.user_id = u.id
+        right join md5_file m5f on f.md5 = m5f.md5
         where f.user_id = #{userId}
         and f.deleted = 0
         and MONTH(m.original_date_time) = #{month}
@@ -145,10 +150,12 @@
         </include>
         ,
         f.name fileName,
-        u.username
+        u.username,
+        m5f.object_name
         from media m left join `file` f on m.file_id = f.id
         right join place p on m.adcode = p.adcode
         right join user u on f.user_id = u.id
+        right join md5_file m5f on f.md5 = m5f.md5
         where f.user_id = #{userId}
         and f.deleted = 0
         and p.province_adcode = #{adcode}
@@ -174,18 +181,19 @@
         f.name fileName,
         f.create_time,
         f.update_time,
-        u.username
+        u.username,
+        m5f.object_name
         from media m
         right join file f on m.file_id = f.id
         left join user u on f.user_id = u.id
-        <where>
-            <if test="userId != null">
-                and user_id = #{userId}
-            </if>
-            <if test="isSelf != null">
-                and f.self = #{isSelf}
-            </if>
-        </where>
+        right join md5_file m5f on f.md5 = m5f.md5
+        where f.deleted = 0
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+        <if test="isSelf != null">
+            and f.self = #{isSelf}
+        </if>
     </select>
     <select id="selectGroupByMonth" resultType="java.util.Map">
         select year(original_date_time) year, month(original_date_time) month

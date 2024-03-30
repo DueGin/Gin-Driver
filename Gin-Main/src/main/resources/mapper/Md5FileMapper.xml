@@ -12,7 +12,12 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        md5,src,ref,
-        deleted
+        md5,src,ref,deleted
     </sql>
+    <insert id="saveOrUpdate">
+        insert into md5_file (md5, src, object_name)
+        values (#{md5}, #{src}, #{objectName})
+        on duplicate key update
+        ref = ref + 1
+    </insert>
 </mapper>

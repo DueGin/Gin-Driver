@@ -1,5 +1,6 @@
 package com.ginDriver.main.service.amap;
 
+import com.ginDriver.main.constant.FileType;
 import com.ginDriver.main.constant.MinioConstant;
 import com.ginDriver.main.domain.vo.amap.AMapVO;
 import com.ginDriver.main.mapper.AMapMapper;
@@ -31,8 +32,9 @@ public class AMapService {
         List<AMapVO> voList = aMapMapper.selectAllByUserId(SecurityUtils.getUserId());
 
         voList.forEach(a -> {
-            String objUrl = fileService.getObjUrl(FileService.FileType.media, a.getFileName(), MinioConstant.EXPIRE);
+            String objUrl = fileService.getObjUrl(FileType.media, a.getObjectName(), MinioConstant.EXPIRE);
             a.setUrl(objUrl);
+            a.setObjectName(null);
         });
 
         return voList;

@@ -46,9 +46,9 @@ public class Dustbin {
     private String fileName;
 
     /**
-     * 文件类型(1：图片，2：视频，3：电影，4：其他)
+     * 文件类型(0：其他，1：系统，2：媒体)
      */
-    @ApiModelProperty(value = "文件类型(1：图片，2：视频，3：电影，4：其他)")
+    @ApiModelProperty(value = "文件类型(0：其他，1：系统，2：媒体)")
     private Integer type;
 
     /**

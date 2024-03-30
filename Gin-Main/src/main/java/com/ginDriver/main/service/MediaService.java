@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.exception.ApiException;
 import com.ginDriver.core.service.impl.MyServiceImpl;
+import com.ginDriver.main.constant.FileType;
 import com.ginDriver.main.domain.dto.media.MediaFileUploadDTO;
 import com.ginDriver.main.domain.dto.media.MediaPageDTO;
 import com.ginDriver.main.domain.po.Media;
@@ -13,7 +14,6 @@ import com.ginDriver.main.file.FileManager;
 import com.ginDriver.main.file.constants.UploadStatus;
 import com.ginDriver.main.file.domain.dto.UploadStatusDTO;
 import com.ginDriver.main.mapper.MediaMapper;
-import com.ginDriver.main.properties.FileProperties;
 import com.ginDriver.main.security.utils.SecurityUtils;
 import com.ginDriver.main.utils.GeoUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-
-import static com.ginDriver.main.service.FileService.FileType.media;
 
 
 /**
@@ -44,14 +44,13 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
     private Executor serviceExecutor;
 
     @Resource
-    private FileProperties fileProperties;
-
-    @Resource
     private FileManager fileManager;
 
     private static final Integer EXPIRE = 24 * 60 * 60;
 
-    private static final Integer thumbnailSize = 1000000;
+//    private static final Integer thumbnailSize = 1000000;
+
+    private static final Map<String, Media> UPLOAD_INFO_MAP = new ConcurrentHashMap<>();
 
     /**
      * 存入minio，存入db
@@ -65,20 +64,35 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
         // 将缩略图存入minio
         Long userId = SecurityUtils.getUserId();
 
-        UploadStatusDTO uploadStatusDTO = fileManager.uploadAndSaveInMinio(mediaFileUploadDTO, media);
+        UploadStatusDTO uploadStatusDTO = fileManager.uploadAndSaveInMinio(mediaFileUploadDTO, FileType.media);
+
+        if (uploadStatusDTO.getUploadStatus().equals(UploadStatus.NOT_FOUND_TOKEN)) {
+            throw new ApiException("请先申请uploadId");
+        }
+
+        String uploadId = mediaFileUploadDTO.getUploadId();
+        if (mediaFileUploadDTO.getHasInfo() != null && mediaFileUploadDTO.getHasInfo() == 1) {
+            // 保存exif
+            Media m = new Media();
+            BeanUtils.copyProperties(mediaFileUploadDTO, m);
+            UPLOAD_INFO_MAP.put(uploadId, m);
+        }
 
         // 没传完，只是上传完分片
         if (uploadStatusDTO.getUploadStatus() != UploadStatus.SUCCESS_END) {
-            return new FileVO();
+            return null;
         }
 
         // 传完了，且合并完了
 
-        Media m = new Media();
-        m.setFileId(uploadStatusDTO.getFileId());
+//        Media m = new Media();
+        Media m = UPLOAD_INFO_MAP.get(uploadId);
+        if (m == null) {
+            log.error("上传文件有误 ==> uploadId: {}, uploadStatusDTO: {}", uploadId, uploadStatusDTO);
+            throw new ApiException("上传文件有误");
+        }
 
-        // 保存exif
-        BeanUtils.copyProperties(mediaFileUploadDTO, m);
+        m.setFileId(uploadStatusDTO.getFileId());
 
         // 存入db
         super.save(m);
@@ -107,7 +121,7 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
             });
         }
 
-        String objUrl = fileService.getObjUrl(media, uploadStatusDTO.getObjectName());
+        String objUrl = fileService.getObjUrl(FileType.media, uploadStatusDTO.getObjectName());
 
         return new FileVO()
                 .setFileName(uploadStatusDTO.getObjectName())
@@ -115,7 +129,7 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
     }
 
     /**
-     * 获取媒体VO分页
+     * 获取媒体VO分页 todo 获取minio缩略图
      *
      * @param mediaPageDTO 分页查询对象
      * @return 带url的媒体VO分页
@@ -148,8 +162,10 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
     public void setObjectDbUrl(List<MediaVO> list) {
         list.forEach(vo -> {
             // 设置minio url
-            String objUrl = fileService.getObjUrl(media, vo.getFileName(), EXPIRE);
+//            String objUrl = fileService.getObjUrl(FileType.media, vo.getObjectName(), EXPIRE);
+            String objUrl = fileService.getFileBase64(FileType.media.name(), vo.getObjectName(), 0.7, 0.7, null, null);
             vo.setUrl(objUrl);
+            vo.setObjectName(null);
         });
     }
 

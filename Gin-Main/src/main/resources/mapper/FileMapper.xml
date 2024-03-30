@@ -47,10 +47,26 @@
         from file
         where id = #{id}
     </delete>
+    <delete id="removeByIds">
+        delete
+        from file
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
     <select id="getById" resultType="com.ginDriver.main.domain.po.File">
         select <include refid="Base_Column_List"/>
         from file
         where id = #{id}
+    </select>
+    <select id="selectAllByIds" resultType="com.ginDriver.main.domain.po.File">
+        select <include refid="Base_Column_List"/>
+        from file
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
     </select>
 
 </mapper>

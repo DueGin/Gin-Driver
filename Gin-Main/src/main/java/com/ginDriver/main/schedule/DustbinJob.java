@@ -1,6 +1,6 @@
 package com.ginDriver.main.schedule;
 
-import com.ginDriver.main.domain.dto.dustbin.DustbinRemoveDTO;
+import com.ginDriver.main.constant.FileType;
 import com.ginDriver.main.domain.dto.dustbin.DustbinRemoveJobDTO;
 import com.ginDriver.main.domain.po.Dustbin;
 import com.ginDriver.main.service.DustbinService;
@@ -33,7 +33,7 @@ public class DustbinJob {
 
     private static final BlockingQueue<DustbinRemoveJobDTO> DELETE_QUEUE = new LinkedBlockingQueue<>();
 
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 0 1 * * ?")
     public void checkAndDeleteExpire() {
         LocalDateTime thirtyDayBefore = LocalDateTime.now().minusDays(30);
         List<Dustbin> list = dustbinService.getBaseMapper()
@@ -51,10 +51,16 @@ public class DustbinJob {
                 return d1.getCreateTime().isBefore(d2.getCreateTime()) ? -1 : 1;
             });
 
-            List<DustbinRemoveJobDTO> jobDTOList = list.stream().map(d->{
+            List<DustbinRemoveJobDTO> jobDTOList = list.stream().map(d -> {
                 DustbinRemoveJobDTO dto = new DustbinRemoveJobDTO();
                 dto.setIds(Collections.singletonList(d.getId()));
-                dto.setFileType(d.getType());
+                FileType fileType = FileType.getFileTypeByIdx(d.getType());
+                // 文件类型无法确定的，不做处理
+                if (fileType == null) {
+                    log.error("清理垃圾箱时文件类型有误 ==> {}", d);
+                    return null;
+                }
+                dto.setFileType(fileType.ordinal());
                 dto.setRemoveTime(d.getCreateTime().plusDays(30));
                 return dto;
             }).collect(Collectors.toList());
@@ -71,9 +77,12 @@ public class DustbinJob {
                 while (true) {
                     // 当队列中有元素时才消费
                     DustbinRemoveJobDTO dustbin = DELETE_QUEUE.take();
+                    if (dustbin == null) {
+                        continue;
+                    }
                     LocalDateTime delTime = dustbin.getRemoveTime();
                     LocalDateTime now = LocalDateTime.now();
-                    if(now.isBefore(delTime)) {
+                    if (now.isBefore(delTime)) {
                         long seconds = Duration.between(now, delTime).toSeconds();
                         TimeUnit.SECONDS.sleep(seconds);
                     }

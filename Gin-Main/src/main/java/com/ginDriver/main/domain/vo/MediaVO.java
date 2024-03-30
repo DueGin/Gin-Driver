@@ -45,6 +45,12 @@ public class MediaVO {
     private String fileName;
 
     /**
+     * 对象名称
+     */
+    @ApiModelProperty("对象名称")
+    private String objectName;
+
+    /**
      * 文件类型(枚举字典ID，0：其他)
      */
     @ApiModelProperty("文件类型")

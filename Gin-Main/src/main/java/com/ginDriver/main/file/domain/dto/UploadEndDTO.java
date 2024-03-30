@@ -3,12 +3,14 @@ package com.ginDriver.main.file.domain.dto;
 import com.ginDriver.main.file.constants.UploadStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * @author DueGin
  */
 @Data
 @NoArgsConstructor
+@ToString(callSuper = true)
 public class UploadEndDTO extends UploadOutDTO{
 
     private String filePath;

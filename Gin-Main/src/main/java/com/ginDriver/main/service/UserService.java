@@ -7,6 +7,7 @@ import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.core.exception.ApiException;
 import com.ginDriver.core.service.impl.MyServiceImpl;
 import com.ginDriver.main.cache.redis.UserRedis;
+import com.ginDriver.main.constant.FileType;
 import com.ginDriver.main.domain.dto.user.SysUserPageDTO;
 import com.ginDriver.main.domain.dto.user.UpdateUserDTO;
 import com.ginDriver.main.domain.vo.FileVO;
@@ -123,9 +124,9 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
             throw new ApiException("登录用户异常");
         }
 
-        ResultVO<FileVO> vo = fileService.upload(FileService.FileType.system, file);
+        ResultVO<FileVO> vo = fileService.upload(FileType.system, file);
         if (StringUtils.isNotBlank(bo.getAvatar())) {
-            Boolean deleted = fileService.deleteFile(FileService.FileType.system, bo.getAvatar());
+            Boolean deleted = fileService.deleteFile(FileType.system, bo.getAvatar());
             if (!deleted) {
                 log.error("userId: {}, avatar: {} ==> 文件删除失败！", bo.getId(), bo.getAvatar());
             }

@@ -3,18 +3,22 @@ package com.ginDriver.main.service;
 import com.ginDriver.common.minio.service.MinioComponent;
 import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.core.service.impl.MyServiceImpl;
+import com.ginDriver.main.constant.FileType;
 import com.ginDriver.main.domain.po.File;
 import com.ginDriver.main.domain.vo.FileVO;
 import com.ginDriver.main.mapper.FileMapper;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Base64;
 import java.util.UUID;
 
 /**
@@ -35,7 +39,7 @@ public class FileService extends MyServiceImpl<FileMapper, File> {
      * @return 对象名字
      */
     public ResultVO<FileVO> upload(FileType fileType, MultipartFile file) {
-        String bucketName = fileType.name;
+        String bucketName = fileType.name();
         String objName = uploadWithType(fileType, file);
         String objectUrl = minioComponent.getObjectUrl(bucketName, objName);
 
@@ -43,6 +47,38 @@ public class FileService extends MyServiceImpl<FileMapper, File> {
                 .setUrl(objectUrl)
                 .setFileName(objName)
         );
+    }
+
+
+    public void getObjectFile(String bucketName, String objectName, OutputStream os, Double quality, Double scale, Integer height, Integer weight) {
+        try (InputStream is = minioComponent.getObject(bucketName, objectName)) {
+            Thumbnails.Builder<? extends InputStream> builder = Thumbnails.of(is);
+
+            if (quality != null) {
+                builder.outputQuality(quality);
+            }
+
+            if (scale != null) {
+                builder.scale(scale);
+            }
+            if (weight != null && height != null) {
+                builder.size(weight, height);
+            }
+
+            builder.toOutputStream(os);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getFileBase64(String bucketName, String objectName, Double quality, Double scale, Integer height, Integer weight) {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        getObjectFile(bucketName, objectName, os, quality, scale, height, weight);
+
+        // 生成base64
+        byte[] thumbnailBytes = os.toByteArray();
+        return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(thumbnailBytes);
     }
 
     /**
@@ -64,7 +100,7 @@ public class FileService extends MyServiceImpl<FileMapper, File> {
      * @return Minio URL
      */
     public String getObjUrl(FileType fileType, String objectName) {
-        return minioComponent.getObjectUrl(fileType.name, objectName);
+        return minioComponent.getObjectUrl(fileType.name(), objectName);
     }
 
     /**
@@ -76,7 +112,7 @@ public class FileService extends MyServiceImpl<FileMapper, File> {
      * @return Minio URL
      */
     public String getObjUrl(FileType fileType, String objectName, Integer expire) {
-        return minioComponent.getObjectUrl(fileType.name, objectName, expire);
+        return minioComponent.getObjectUrl(fileType.name(), objectName, expire);
     }
 
     /**
@@ -100,7 +136,7 @@ public class FileService extends MyServiceImpl<FileMapper, File> {
      * @return 对象名字
      */
     public String uploadWithType(FileType fileType, MultipartFile file) {
-        String name = fileType.name;
+        String name = fileType.name();
         String filename = file.getResource().getFilename();
         String objName;
         if (StringUtils.isNotBlank(filename)) {
@@ -132,7 +168,7 @@ public class FileService extends MyServiceImpl<FileMapper, File> {
      * @return 对象名字
      */
     public String uploadWithType(FileType fileType, String fileName, String contentType, InputStream is) {
-        String name = fileType.name;
+        String name = fileType.name();
         String objName;
         if (StringUtils.isNotBlank(fileName)) {
             String[] fileNameSplit = fileName.split("\\.");
@@ -157,7 +193,7 @@ public class FileService extends MyServiceImpl<FileMapper, File> {
      * @return {@code true}-执行成功，{@code false}-执行失败
      */
     public Boolean deleteFile(FileType fileType, String objectName) {
-        return minioComponent.remove(fileType.name, objectName);
+        return minioComponent.remove(fileType.name(), objectName);
     }
 
     /**
@@ -171,13 +207,4 @@ public class FileService extends MyServiceImpl<FileMapper, File> {
         return minioComponent.remove(bucketName, objectName);
     }
 
-    @AllArgsConstructor
-    public enum FileType {
-        system("system", 1),
-        movie("movie", 2),
-        media("media", 3),
-        other("other", 4);
-        public final String name;
-        public final Integer value;
-    }
 }

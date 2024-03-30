@@ -3,7 +3,6 @@ package com.ginDriver.main.domain.dto.media;
 import com.ginDriver.main.file.domain.dto.ChunkDTO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -55,5 +54,8 @@ public class MediaFileUploadDTO extends ChunkDTO {
     @ApiModelProperty("纬度")
     private String latitude;
 
-    private MultipartFile file;
+    @ApiModelProperty("是否存在信息")
+    private Integer hasInfo;
+
+//    private MultipartFile file;
 }

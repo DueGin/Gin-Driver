@@ -40,7 +40,7 @@ public class LocalFileUploadHandler extends FileUploadHandler {
     @Override
     public UploadStatusDTO upload(ChunkDTO chunkDto) {
         // 获取分片信息
-        MultipartFile file = chunkDto.getUpload();
+        MultipartFile file = chunkDto.getFile();
         Integer chunks = chunkDto.getChunks();
         Integer chunk = chunkDto.getChunk();
         String name = chunkDto.getName();
@@ -49,7 +49,7 @@ public class LocalFileUploadHandler extends FileUploadHandler {
 
         if (file == null || name == null) {
             // 传过来没有文件
-            return new UploadStatusDTO(res);
+            return new UploadStatusDTO(UploadStatus.FAIL_NOT_FOUND_BODY);
         }
 
         String path;

@@ -1,9 +1,14 @@
 package com.ginDriver.main.constant;
 
+/**
+ * 文件类型
+ *
+ * @author DueGin
+ */
 public enum FileType {
     other,
-    media,
     system,
+    media,
     movie;
 
 

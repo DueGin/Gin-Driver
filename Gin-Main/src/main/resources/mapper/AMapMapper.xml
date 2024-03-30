@@ -6,6 +6,7 @@
     <resultMap id="AMapVOResultMap" type="com.ginDriver.main.domain.vo.amap.AMapVO">
         <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="file_name" jdbcType="VARCHAR" property="fileName"/>
+        <result column="object_name" jdbcType="VARCHAR" property="objectName"/>
         <result column="user_id" jdbcType="BIGINT" property="userId"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="longitude" jdbcType="VARCHAR" property="longitude"/>
@@ -18,7 +19,7 @@
 
 
     <select id="selectAllByUserId" resultType="com.ginDriver.main.domain.vo.amap.AMapVO" resultMap="AMapVOResultMap">
-        select f.name fileName,
+        select f.name file_name,
                f.user_id,
                u.username,
                m.latitude,
@@ -26,10 +27,12 @@
                m.mime_type,
                m.original_date_time,
                f.create_time,
-               f.update_time
+               f.update_time,
+               m5f.object_name
         from media m
                  left join file f on f.id = m.file_id
                  left join user u on f.user_id = u.id
+                 right join md5_file m5f on f.md5 = m5f.md5
         where f.user_id = #{userId}
           and m.latitude is not null
           and m.longitude is not null

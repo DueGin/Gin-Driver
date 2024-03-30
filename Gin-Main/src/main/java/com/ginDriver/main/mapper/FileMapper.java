@@ -5,6 +5,7 @@ import com.ginDriver.main.domain.po.File;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -12,11 +13,15 @@ import java.util.Collection;
  */
 public interface FileMapper extends BaseMapper<File> {
 
-    boolean updateDeletedByIds(@Param("id") Collection<Long> ids, @Param("deleted") int deleted);
+    boolean updateDeletedByIds(@Param("ids") Collection<Long> ids, @Param("deleted") int deleted);
 
     void removeById(@Param("id") long id);
 
+    boolean removeByIds(@Param("ids") Collection<Long> ids);
+
     File getById(@Param("id") long id);
+
+    List<File> selectAllByIds(@Param("ids") Collection<Long> ids);
 }
 
 
