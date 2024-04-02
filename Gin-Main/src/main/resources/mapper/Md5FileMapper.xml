@@ -5,19 +5,19 @@
 <mapper namespace="com.ginDriver.main.mapper.Md5FileMapper">
 
     <resultMap id="BaseResultMap" type="com.ginDriver.main.domain.po.Md5File">
-            <id property="md5" column="md5" jdbcType="VARCHAR"/>
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="md5" column="md5" jdbcType="VARCHAR"/>
+            <result property="contentType" column="content_type" jdbcType="VARCHAR"/>
             <result property="src" column="src" jdbcType="VARCHAR"/>
             <result property="ref" column="ref" jdbcType="INTEGER"/>
-            <result property="deleted" column="deleted" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        md5,src,ref,deleted
+        id,md5,src,ref,content_type
     </sql>
     <insert id="saveOrUpdate">
-        insert into md5_file (md5, src, object_name)
-        values (#{md5}, #{src}, #{objectName})
-        on duplicate key update
-        ref = ref + 1
+        insert into md5_file (id, md5, src, object_name, content_type)
+        values (#{id}, #{md5}, #{src}, #{objectName}, #{contentType})
+        on duplicate key update ref = ref + 1
     </insert>
 </mapper>

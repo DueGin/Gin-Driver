@@ -1,5 +1,6 @@
 package com.ginDriver.main.file.domain.dto;
 
+import com.ginDriver.main.domain.po.File;
 import com.ginDriver.main.file.constants.UploadStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +17,7 @@ public class UploadStatusDTO {
 
     private String objectName;
 
-    private Long fileId;
+    private File file;
 
     private String filePath;
 
@@ -26,10 +27,10 @@ public class UploadStatusDTO {
         this.uploadStatus = uploadStatus;
     }
 
-    public UploadStatusDTO(UploadStatus uploadStatus, String objectName, Long fileId) {
+    public UploadStatusDTO(UploadStatus uploadStatus, String objectName, File file) {
         this.uploadStatus = uploadStatus;
         this.objectName = objectName;
-        this.fileId = fileId;
+        this.file = file;
     }
 
     public UploadStatusDTO(UploadStatus uploadStatus, String filePath, String md5) {

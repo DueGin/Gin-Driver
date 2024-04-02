@@ -6,7 +6,7 @@
 
     <resultMap id="BaseResultMap" type="com.ginDriver.main.domain.po.File">
         <id property="id" column="id" jdbcType="BIGINT"/>
-        <result property="md5" column="md5" jdbcType="VARCHAR"/>
+        <result property="md5FileId" column="md5_file_id" jdbcType="BIGINT"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
         <result property="userId" column="user_id" jdbcType="BIGINT"/>
         <result property="status" column="status" jdbcType="TINYINT"/>
@@ -18,13 +18,13 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,md5,`name`,
+        id,md5_file_id,`name`,
         user_id,`status`,self,type,
         create_time,update_time,deleted
     </sql>
 
-    <sql id="File_Column_List">
-        ${als}md5,
+    <sql id="File_Without_Id_Column_List">
+        ${als}md5_file_id,
         ${als}`name`,
         ${als}user_id,
         ${als}`status`,

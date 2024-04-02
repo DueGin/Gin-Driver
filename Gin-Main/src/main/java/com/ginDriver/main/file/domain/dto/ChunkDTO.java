@@ -11,7 +11,7 @@ public class ChunkDTO {
 
     private String name;
 
-    private String type;
+    private String contentType;
 
     private String lastModifiedDate;
 

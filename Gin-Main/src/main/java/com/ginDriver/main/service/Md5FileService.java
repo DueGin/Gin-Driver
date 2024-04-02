@@ -1,6 +1,7 @@
 package com.ginDriver.main.service;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ginDriver.core.service.impl.MyServiceImpl;
 import com.ginDriver.main.domain.po.Md5File;
 import com.ginDriver.main.mapper.Md5FileMapper;
@@ -14,8 +15,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class Md5FileService extends MyServiceImpl<Md5FileMapper, Md5File> {
 
     @Transactional
-    public boolean subRef(String md5, Integer subCount){
-        return super.lambdaUpdate().setSql("ref = ref - " + subCount).eq(Md5File::getMd5, md5).update();
+    public boolean subRef(Long md5FileId, Integer subCount) {
+        if (md5FileId == null || subCount == null) {
+            return false;
+        }
+        return super.lambdaUpdate().setSql("ref = ref - " + subCount).eq(Md5File::getId, md5FileId).update();
+    }
+
+    public boolean removeByMd5AndContentType(String md5, String contentType){
+        QueryWrapper<Md5File> qw = new QueryWrapper<>();
+        qw.lambda().eq(Md5File::getMd5, md5).eq(Md5File::getContentType, contentType);
+        return super.remove(qw);
     }
 }
 

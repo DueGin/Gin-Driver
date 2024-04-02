@@ -46,7 +46,7 @@ public interface MediaMapper extends BaseMapper<Media> {
 
     Page<MediaVO> selectPageWithFile(Page<MediaVO> page, @Param("userId") Long userId, @Param("isSelf") Boolean isSelf);
 
-    boolean removeByFileIds(@Param("fileIds") Collection<Long> fileIds);
+    boolean removeByFileIds(@Param("fileIds") Collection<Long> md5FileIds);
 }
 
 

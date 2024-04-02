@@ -96,18 +96,18 @@ public class DustbinManager {
         fileService.getBaseMapper().removeByIds(fileIds);
 
         // 统计每个md5减减次数
-        Map<String, Integer> md5Map = new HashMap<>();
+        Map<Long, Integer> md5Map = new HashMap<>();
         list.forEach(l -> {
-            String md5 = l.getMd5();
-            if (md5Map.containsKey(md5)) {
-                md5Map.put(md5, md5Map.get(md5) + 1);
+            Long md5FileId = l.getMd5FileId();
+            if (md5Map.containsKey(md5FileId)) {
+                md5Map.put(md5FileId, md5Map.get(md5FileId) + 1);
             } else {
-                md5Map.put(md5, 1);
+                md5Map.put(md5FileId, 1);
             }
         });
 
         // 减减md5_file
-        md5Map.forEach((md5, num) -> md5FileService.subRef(md5, num));
+        md5Map.forEach((md5FileId, num) -> md5FileService.subRef(md5FileId, num));
     }
 
     public Page<DustbinVO> getDustbinPage(DustbinPageDTO page) {

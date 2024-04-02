@@ -7,6 +7,7 @@ import com.ginDriver.core.service.impl.MyServiceImpl;
 import com.ginDriver.main.constant.FileType;
 import com.ginDriver.main.domain.dto.media.MediaFileUploadDTO;
 import com.ginDriver.main.domain.dto.media.MediaPageDTO;
+import com.ginDriver.main.domain.po.File;
 import com.ginDriver.main.domain.po.Media;
 import com.ginDriver.main.domain.vo.FileVO;
 import com.ginDriver.main.domain.vo.MediaVO;
@@ -66,10 +67,6 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
 
         UploadStatusDTO uploadStatusDTO = fileManager.uploadAndSaveInMinio(mediaFileUploadDTO, FileType.media);
 
-        if (uploadStatusDTO.getUploadStatus().equals(UploadStatus.NOT_FOUND_TOKEN)) {
-            throw new ApiException("请先申请uploadId");
-        }
-
         String uploadId = mediaFileUploadDTO.getUploadId();
         if (mediaFileUploadDTO.getHasInfo() != null && mediaFileUploadDTO.getHasInfo() == 1) {
             // 保存exif
@@ -85,17 +82,23 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
 
         // 传完了，且合并完了
 
-//        Media m = new Media();
         Media m = UPLOAD_INFO_MAP.get(uploadId);
         if (m == null) {
             log.error("上传文件有误 ==> uploadId: {}, uploadStatusDTO: {}", uploadId, uploadStatusDTO);
             throw new ApiException("上传文件有误");
         }
 
-        m.setFileId(uploadStatusDTO.getFileId());
-
         // 存入db
+        m.setFileId(uploadStatusDTO.getFile().getId());
+        m.setMd5FileId(uploadStatusDTO.getFile().getMd5FileId());
         super.save(m);
+
+        // 更新file表的type
+        if (m.getFileId() == null) {
+            log.error("上传文件后返回文件ID为null ==> uploadId: {}, uploadStatusDTO: {}", uploadId, uploadStatusDTO);
+        } else {
+            fileService.lambdaUpdate().set(File::getType, FileType.media.ordinal()).eq(File::getId, m.getFileId()).update();
+        }
 
         String longitude = mediaFileUploadDTO.getLongitude();
         String latitude = mediaFileUploadDTO.getLatitude();

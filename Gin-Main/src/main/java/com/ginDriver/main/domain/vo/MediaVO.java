@@ -27,6 +27,12 @@ public class MediaVO {
     private Long fileId;
 
     /**
+     * md5文件ID
+     */
+    @ApiModelProperty("md5文件ID")
+    private Long md5FileId;
+
+    /**
      * 上传用户
      */
     @ApiModelProperty("上传用户")

@@ -46,7 +46,7 @@
         m5f.object_name
         from dustbin d left join file f on d.file_id = f.id
         left join media m on m.file_id = f.id
-        right join md5_file m5f on f.md5 = m5f.md5
+        right join md5_file m5f on m.md5_file_id = m5f.id
         where d.user_id = #{userId}
     </select>
     <select id="selectAllByDate" resultType="com.ginDriver.main.domain.po.Dustbin">

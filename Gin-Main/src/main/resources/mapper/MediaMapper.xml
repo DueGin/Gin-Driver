@@ -7,6 +7,7 @@
     <resultMap id="BaseResultMap" type="com.ginDriver.main.domain.po.Media">
         <id property="id" column="id" jdbcType="BIGINT"/>
         <result column="file_id" jdbcType="BIGINT" property="fileId"/>
+        <result column="md5_file_id" jdbcType="BIGINT" property="md5FileId"/>
         <result column="width" jdbcType="INTEGER" property="width"/>
         <result column="height" jdbcType="INTEGER" property="height"/>
         <result column="mime_type" jdbcType="VARCHAR" property="mimeType"/>
@@ -21,6 +22,7 @@
         <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="userId" column="user_id" jdbcType="BIGINT"/>
         <result property="fileId" column="file_id" jdbcType="BIGINT"/>
+        <result property="md5FileId" column="md5_file_id" jdbcType="BIGINT"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="fileName" column="file_name" jdbcType="VARCHAR"/>
         <result property="type" column="type" jdbcType="INTEGER"/>
@@ -38,18 +40,18 @@
 
 
     <sql id="Base_Column_List">
-        id, `file_id`,`width`, `height`, `mime_type`, `original_date_time`, `place`, `model`, `longitude`, `latitude`, `model`
+        id, `file_id`,`md5_file_id`,`width`, `height`, `original_date_time`, `place`, `model`, `longitude`, `latitude`, `model`
     </sql>
     <sql id="Media_Base_Column_List">
         ${alias}id,
         ${alias}file_id,
+        ${alias}md5_file_id,
         ${alias}original_date_time,
         ${alias}adcode,
         ${alias}width,
         ${alias}height,
         ${alias}longitude,
         ${alias}latitude,
-        ${alias}`mime_type`,
         ${alias}model
     </sql>
     <update id="updateMediaDeleted">
@@ -74,17 +76,18 @@
             <property name="alias" value="m."/>
         </include>
         ,
-        <include refid="com.ginDriver.main.mapper.FileMapper.File_Column_List">
+        <include refid="com.ginDriver.main.mapper.FileMapper.File_Without_Id_Column_List">
             <property name="als" value="f."/>
         </include>
         ,
         f.name fileName,
         u.username,
+        m5f.id md5_file_id,
         m5f.object_name
         from media m
         left join `file` f on m.file_id = f.id
         left join user u on f.user_id = u.id
-        right join md5_file m5f on f.md5 = m5f.md5
+        right join md5_file m5f on m.md5_file_id = m5f.id
         where f.user_id = #{userId}
         and f.deleted = 0
         and m.original_date_time between #{startDate} and #{endDate}
@@ -96,18 +99,19 @@
             <property name="alias" value="m."/>
         </include>
         ,
-        <include refid="com.ginDriver.main.mapper.FileMapper.File_Column_List">
+        <include refid="com.ginDriver.main.mapper.FileMapper.File_Without_Id_Column_List">
             <property name="als" value="f."/>
         </include>
         ,
         f.name fileName,
         u.username,
+        m5f.id md5_file_id,
         m5f.object_name
         from media m
         left join `file` f on m.file_id = f.id
         right join place p on m.adcode = p.adcode
         right join user u on f.user_id = u.id
-        right join md5_file m5f on f.md5 = m5f.md5
+        right join md5_file m5f on m.md5_file_id = m5f.id
         where f.user_id = #{userId}
         and f.deleted = 0
         and p.city_adcode = #{adcode}
@@ -119,17 +123,18 @@
             <property name="alias" value="m."/>
         </include>
         ,
-        <include refid="com.ginDriver.main.mapper.FileMapper.File_Column_List">
+        <include refid="com.ginDriver.main.mapper.FileMapper.File_Without_Id_Column_List">
             <property name="als" value="f."/>
         </include>
         ,
         f.name fileName,
         u.username,
+        m5f.id md5_file_id,
         m5f.object_name
         from media m
         left join file f on m.file_id = f.id
         right join user u on f.user_id = u.id
-        right join md5_file m5f on f.md5 = m5f.md5
+        right join md5_file m5f on m.md5_file_id = m5f.id
         where f.user_id = #{userId}
         and f.deleted = 0
         and MONTH(m.original_date_time) = #{month}
@@ -145,17 +150,19 @@
             <property name="alias" value="m."/>
         </include>
         ,
-        <include refid="com.ginDriver.main.mapper.FileMapper.File_Column_List">
+        <include refid="com.ginDriver.main.mapper.FileMapper.File_Without_Id_Column_List">
             <property name="als" value="f."/>
         </include>
         ,
         f.name fileName,
         u.username,
+        m5f.id md5_file_id,
         m5f.object_name
-        from media m left join `file` f on m.file_id = f.id
+        from media m
+        left join `file` f on m.file_id = f.id
         right join place p on m.adcode = p.adcode
         right join user u on f.user_id = u.id
-        right join md5_file m5f on f.md5 = m5f.md5
+        right join md5_file m5f on m.md5_file_id = m5f.id
         where f.user_id = #{userId}
         and f.deleted = 0
         and p.province_adcode = #{adcode}
@@ -182,11 +189,12 @@
         f.create_time,
         f.update_time,
         u.username,
+        m5f.id md5_file_id,
         m5f.object_name
         from media m
         right join file f on m.file_id = f.id
         left join user u on f.user_id = u.id
-        right join md5_file m5f on f.md5 = m5f.md5
+        right join md5_file m5f on m.md5_file_id = m5f.id
         where f.deleted = 0
         <if test="userId != null">
             and user_id = #{userId}

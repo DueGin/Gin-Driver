@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 public class PreUploadRespDTO {
     private String md5;
 
+    private String contentType;
+
     private String uploadId;
 
     private Integer exist;
@@ -21,5 +23,5 @@ public class PreUploadRespDTO {
 
     private String src;
 
-    private Integer type;
+    private Integer fileType;
 }

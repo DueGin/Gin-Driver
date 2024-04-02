@@ -1,6 +1,7 @@
 package com.ginDriver.main.file;
 
 
+import com.ginDriver.core.exception.ApiException;
 import com.ginDriver.main.constant.FileType;
 import com.ginDriver.main.domain.po.Dustbin;
 import com.ginDriver.main.domain.po.File;
@@ -32,9 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +80,8 @@ public class FileManager {
      */
     public final static Map<String, PreUploadRespDTO> PRE_CHECK_MAP = new ConcurrentHashMap<>();
 
+    private final static String src = "";
+
     @PostConstruct
     public void init() {
         storagePath = environment.getProperty("file.upload.location.storagePath");
@@ -93,19 +93,24 @@ public class FileManager {
     }
 
     @Transactional
-    public Long saveFile(Long userId, String md5, String fileName, String objectName) {
+    public File saveFile(Long userId, String md5, String src, String contentType, String fileName, String objectName) {
         Md5File md5File = new Md5File();
         md5File.setMd5(md5);
         md5File.setObjectName(objectName);
-        md5File.setSrc("");
+        md5File.setSrc(src);
+        md5File.setContentType(contentType);
         md5FileService.getBaseMapper().saveOrUpdate(md5File);
+        Md5File md5File1 = md5FileService.lambdaQuery()
+                .eq(Md5File::getMd5, md5)
+                .eq(Md5File::getContentType, contentType)
+                .one();
 
         File file = new File();
-        file.setMd5(md5);
+        file.setMd5FileId(md5File1.getId());
         file.setName(fileName);
         file.setUserId(userId);
         fileService.save(file);
-        return file.getId();
+        return file;
     }
 
     @Transactional
@@ -137,26 +142,26 @@ public class FileManager {
         dustbin.setFileId(fileId);
         dustbinService.save(dustbin);
 
-        log.info("文件软删除成功 ==> fileId: {}, fileName: {}, md5: {}, userId: {}", fileId, file.getName(), file.getMd5(), userId);
+        log.info("文件软删除成功 ==> fileId: {}, fileName: {}, md5FileId: {}, userId: {}", fileId, file.getName(), file.getMd5FileId(), userId);
     }
 
-    @Transactional
-    public boolean removeFile(Long fileId) {
-        // 判断是否已经软删除了
-        File file = fileService.getBaseMapper().getById(fileId);
-        if (file.getDeleted() != 1) {
-            return false;
-        }
-
-        // 删除垃圾桶
-        dustbinService.removeById(fileId);
-
-        // 删除文件
-        fileService.getBaseMapper().removeById(fileId);
-
-        // 更新md5文件引用次数
-        return md5FileService.lambdaUpdate().setSql("ref = ref - 1").eq(Md5File::getMd5, file.getMd5()).update();
-    }
+//    @Transactional
+//    public boolean removeFile(Long fileId) {
+//        // 判断是否已经软删除了
+//        File file = fileService.getBaseMapper().getById(fileId);
+//        if (file.getDeleted() != 1) {
+//            return false;
+//        }
+//
+//        // 删除垃圾桶
+//        dustbinService.removeById(fileId);
+//
+//        // 删除文件
+//        fileService.getBaseMapper().removeById(fileId);
+//
+//        // 更新md5文件引用次数
+//        return md5FileService.lambdaUpdate().setSql("ref = ref - 1").eq(Md5File::getMd5, file.getMd5()).update();
+//    }
 
     @Transactional
     public void rebornFileBatch(Collection<Long> dustbinIds) {
@@ -179,25 +184,30 @@ public class FileManager {
     }
 
 
-    public PreUploadRespDTO preFileCheck(String md5) {
-        Md5File md5File = md5FileService.lambdaQuery().eq(Md5File::getMd5, md5).one();
+    public PreUploadRespDTO preFileCheck(String md5, String contentType) {
+        Md5File md5File = md5FileService.lambdaQuery()
+                .eq(Md5File::getMd5, md5)
+                .eq(Md5File::getContentType, contentType)
+                .one();
         PreUploadRespDTO dto = new PreUploadRespDTO();
         dto.setMd5(md5);
+        dto.setContentType(contentType);
         String uploadId = UUID.randomUUID().toString();
         dto.setUploadId(uploadId);
         dto.setExist(md5File != null ? 1 : 0);
+
         if (md5File != null && md5File.getRef() > 0) {
-            File file = fileService.lambdaQuery().eq(File::getMd5, md5).last("limit 1").one();
+            File file = fileService.lambdaQuery().eq(File::getMd5FileId, md5File.getId()).last("limit 1").one();
             if (file != null) {
                 dto.setObjectName(md5File.getObjectName());
                 dto.setSrc(md5File.getSrc());
-                dto.setType(file.getType());
+                dto.setFileType(file.getType());
             } else {
-                md5FileService.removeById(md5);
+                md5FileService.removeByMd5AndContentType(md5, contentType);
                 dto.setExist(0);
             }
         } else {
-            md5FileService.removeById(md5);
+            md5FileService.removeByMd5AndContentType(md5, contentType);
             dto.setExist(0);
         }
         PRE_CHECK_MAP.put(uploadId, dto);
@@ -213,13 +223,17 @@ public class FileManager {
     }
 
     private UploadStatusDTO upload(ChunkDTO chunkDto, boolean isSaveInObjectDB, FileType fileType) {
+        if (chunkDto.getUploadId() == null) {
+            throw new ApiException("请先申请uploadId");
+        }
+
         String uploadId = chunkDto.getUploadId();
         if (StringUtils.isBlank(uploadId) || !PRE_CHECK_MAP.containsKey(uploadId)) {
             return new UploadStatusDTO(UploadStatus.NOT_FOUND_TOKEN);
         }
 
         Long userId = SecurityUtils.getUserId();
-        Long fileId;
+        File savedfile;
 
         // 已存在
         if (chunkDto.getExist() == 1) {
@@ -234,7 +248,7 @@ public class FileManager {
 
             try {
                 // 文件入库,并增加md5文件引用 todo exp
-                fileId = this.saveFile(userId, md5, chunkDto.getName(), "");
+                savedfile = this.saveFile(userId, md5,src, chunkDto.getContentType(), chunkDto.getName(), null);
             } catch (Exception e) {
                 log.error("已存在文件入库失败 ==> userId: {}, uploadId: {}, md5: {}", userId, uploadId, md5);
                 e.printStackTrace();
@@ -248,25 +262,26 @@ public class FileManager {
                 src = dto.getSrc();
             }
 
-            return new UploadStatusDTO(UploadStatus.SUCCESS_END, objectName, fileId, src, md5);
+            return new UploadStatusDTO(UploadStatus.SUCCESS_END, objectName, savedfile, src, md5);
         }
 
         // 上传文件
         UploadStatusDTO uploadDTO = this.fileUploadHandler.upload(chunkDto);
-        if (uploadDTO.getUploadStatus() == UploadStatus.SUCCESS_END) {
 
+        // 传完了，合并完了
+        if (uploadDTO.getUploadStatus() == UploadStatus.SUCCESS_END) {
 
             // 存入minio
             String objectName = "";
             if (isSaveInObjectDB) {
                 String filePath = uploadDTO.getFilePath();
-                objectName = saveInMinio(filePath, fileType);
+                objectName = saveInMinio(filePath, fileType, chunkDto.getContentType());
                 uploadDTO.setObjectName(objectName);
             }
 
             // 入库 todo exp
-            fileId = this.saveFile(userId, uploadDTO.getMd5(), chunkDto.getName(), objectName);
-            uploadDTO.setFileId(fileId);
+            savedfile = this.saveFile(userId, uploadDTO.getMd5(), src, chunkDto.getContentType(), chunkDto.getName(), objectName);
+            uploadDTO.setFile(savedfile);
 
             return uploadDTO;
         } else {
@@ -277,31 +292,20 @@ public class FileManager {
     }
 
     /**
-     * 保存至minio
+     * 保存至minio todo 在上传时作压缩图片
      *
      * @param filePath 文件路径
      * @param fileType {@link FileType} 文件类型(minio桶名称)
      * @return minio对象名称
      */
-    private String saveInMinio(String filePath, FileType fileType) {
+    private String saveInMinio(String filePath, FileType fileType, String contentType) {
         java.io.File file = new java.io.File(filePath);
-        // 转换为 Path 对象
-        Path path = Paths.get(file.toURI());
-        String contentType = "";
-
-        try {
-            // 使用 Files.probeContentType 方法获取文件的内容类型
-            contentType = Files.probeContentType(path);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-        }
 
         // 存入minio
         try (FileInputStream fis = new FileInputStream(file)) {
             return fileService.uploadWithType(fileType, file.getName(), contentType, fis);
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error("保存至minio失败 ==> " + e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -315,14 +319,16 @@ public class FileManager {
         String path = storagePath + SecurityUtils.getUserId() + "/";
 
         File f = fileService.getById(fileId);
-
         if (f == null) {
             return DownloadStatus.FILE_NOT_FOUND;
         }
+        Md5File md5File = md5FileService.getById(f.getMd5FileId());
+
 
         // 找出物理文件
         String[] split = f.getName().split("\\.");
-        String s = path + f.getMd5() + "." + split[split.length - 1];
+        // todo 有问题这名字
+        String s = path + f.getName() + "_" + md5File.getMd5() + "." + split[split.length - 1];
         java.io.File file = new java.io.File(s);
         fileDownloadHandle.download(file, f.getName(), request, response);
         log.info(f.getName() + "下载完成！");

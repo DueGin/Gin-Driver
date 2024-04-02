@@ -4,6 +4,7 @@ import com.ginDriver.core.domain.vo.ResultVO;
 import com.ginDriver.core.result.BusinessController;
 import com.ginDriver.main.constant.FileType;
 import com.ginDriver.main.domain.dto.file.FileDTO;
+import com.ginDriver.main.domain.dto.file.PreUploadDTO;
 import com.ginDriver.main.domain.vo.FileVO;
 import com.ginDriver.main.file.FileManager;
 import com.ginDriver.main.file.domain.dto.PreUploadRespDTO;
@@ -32,8 +33,8 @@ public class FileController {
     private FileManager fileManager;
 
     @PostMapping("preUpload")
-    public PreUploadRespDTO preUpload(@RequestBody String md5) {
-        return fileManager.preFileCheck(md5);
+    public PreUploadRespDTO preUpload(@RequestBody PreUploadDTO dto) {
+        return fileManager.preFileCheck(dto.getMd5(), dto.getContentType());
     }
 
     @PostMapping("upload/system")

@@ -45,7 +45,7 @@ public class LocalFileUploadHandler extends FileUploadHandler {
         Integer chunk = chunkDto.getChunk();
         String name = chunkDto.getName();
         String uploadId = chunkDto.getUploadId();
-        UploadStatus res = UploadStatus.ERROR_UNKNOWN;
+        UploadStatus res;
 
         if (file == null || name == null) {
             // 传过来没有文件
@@ -100,7 +100,8 @@ public class LocalFileUploadHandler extends FileUploadHandler {
 
             } else {
                 // 非分片文件
-                File wholeFile = new File(filePath, name); // 通过md5命名文件
+                String filePathName = filePath + name;
+                File wholeFile = new File(filePathName); // 通过md5命名文件
                 // 没有文件夹则创建
                 if (!wholeFile.getParentFile().exists()) {
                     wholeFile.getParentFile().mkdirs();
@@ -109,7 +110,7 @@ public class LocalFileUploadHandler extends FileUploadHandler {
                 // 保存文件
                 file.transferTo(wholeFile);
 
-                return new UploadStatusDTO(UploadStatus.SUCCESS_END, filePath + name, chunkDto.getMd5());
+                return new UploadStatusDTO(UploadStatus.SUCCESS_END, filePathName, chunkDto.getMd5());
             }
 
             // 获取已上传的分片数量
@@ -124,7 +125,9 @@ public class LocalFileUploadHandler extends FileUploadHandler {
 
             // 分片收集完成后，才开始合并
             if (chunks == size) {
-                File wholeFile = new File(filePath, name);
+                // 合并后文件名，原文件名_md5值
+                String filePathName = filePath + name;
+                File wholeFile = new File(filePathName);
                 FileOutputStream fileOutputStream = new FileOutputStream(wholeFile);
                 os = new BufferedOutputStream(fileOutputStream);
 
@@ -145,7 +148,7 @@ public class LocalFileUploadHandler extends FileUploadHandler {
                 res = UploadStatus.SUCCESS_END;
                 os.flush();
                 // todo 暂时全部分片都用整个文件的md5，后面改为在某个时间段内记录上传的分片序号，用于做断点续传，只传没传的
-                return new UploadStatusDTO(res, filePath + name, chunkDto.getMd5());
+                return new UploadStatusDTO(res, filePathName, chunkDto.getMd5());
             }
         } catch (IOException | InterruptedException e) {
             log.error(e.getMessage());

@@ -32,7 +32,7 @@
         from media m
                  left join file f on f.id = m.file_id
                  left join user u on f.user_id = u.id
-                 right join md5_file m5f on f.md5 = m5f.md5
+                 right join md5_file m5f on m.md5_file_id = m5f.id
         where f.user_id = #{userId}
           and m.latitude is not null
           and m.longitude is not null

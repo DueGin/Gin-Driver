@@ -31,6 +31,12 @@ public class Media {
     private Long fileId;
 
     /**
+     * md5文件ID
+     */
+    @ApiModelProperty("md5文件ID")
+    private Long md5FileId;
+
+    /**
      * 媒体拍摄时间
      */
     @ApiModelProperty("媒体拍摄时间")
