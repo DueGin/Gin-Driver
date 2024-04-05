@@ -21,7 +21,9 @@ import com.ginDriver.main.service.DustbinService;
 import com.ginDriver.main.service.FileService;
 import com.ginDriver.main.service.Md5FileService;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collection;
@@ -66,7 +70,7 @@ public class FileManager {
     private DustbinService dustbinService;
 
     /**
-     * 已上传的分片文件集合(userId, (fileName, [..分片DTO]))
+     * 已上传的分片文件集合(userId, (uploadId, [..分片DTO]))
      */
     public final static Map<Long, Map<String, List<ChunkDTO>>> uploaded = new ConcurrentHashMap<>();
 
@@ -85,6 +89,7 @@ public class FileManager {
     @PostConstruct
     public void init() {
         storagePath = environment.getProperty("file.upload.location.storagePath");
+
     }
 
     public FileManager() {
@@ -235,6 +240,8 @@ public class FileManager {
         Long userId = SecurityUtils.getUserId();
         File savedfile;
 
+        FileManager self = (FileManager) AopContext.currentProxy();
+
         // 已存在
         if (chunkDto.getExist() == 1) {
             PreUploadRespDTO dto = PRE_CHECK_MAP.get(uploadId);
@@ -247,8 +254,8 @@ public class FileManager {
             String md5 = dto.getMd5();
 
             try {
-                // 文件入库,并增加md5文件引用 todo exp
-                savedfile = this.saveFile(userId, md5,src, chunkDto.getContentType(), chunkDto.getName(), null);
+                // 文件入库,并增加md5文件引用
+                savedfile = self.saveFile(userId, md5, src, chunkDto.getContentType(), chunkDto.getName(), null);
             } catch (Exception e) {
                 log.error("已存在文件入库失败 ==> userId: {}, uploadId: {}, md5: {}", userId, uploadId, md5);
                 e.printStackTrace();
@@ -279,8 +286,8 @@ public class FileManager {
                 uploadDTO.setObjectName(objectName);
             }
 
-            // 入库 todo exp
-            savedfile = this.saveFile(userId, uploadDTO.getMd5(), src, chunkDto.getContentType(), chunkDto.getName(), objectName);
+            // 入库
+            savedfile = self.saveFile(userId, uploadDTO.getMd5(), src, chunkDto.getContentType(), chunkDto.getName(), objectName);
             uploadDTO.setFile(savedfile);
 
             return uploadDTO;
@@ -303,7 +310,18 @@ public class FileManager {
 
         // 存入minio
         try (FileInputStream fis = new FileInputStream(file)) {
-            return fileService.uploadWithType(fileType, file.getName(), contentType, fis);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            // 压缩图片 todo 后面抽离出来，做成oss策略
+            Thumbnails.of(fis)
+                    .scale(1) // 缩放比例
+                    .outputQuality(0.5) // 质量
+                    .toOutputStream(bos);
+
+            byte[] bytes = bos.toByteArray();
+
+            ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+
+            return fileService.uploadWithType(fileType, file.getName(), contentType, is);
         } catch (IOException e) {
             log.error("保存至minio失败 ==> " + e.getMessage());
             e.printStackTrace();
@@ -314,7 +332,7 @@ public class FileManager {
     /**
      * 下载文件
      */
-    public DownloadStatus download(String fileId, HttpServletRequest request, HttpServletResponse response) {
+    public DownloadStatus download(Long fileId, HttpServletRequest request, HttpServletResponse response) {
         // 用户存储的目录
         String path = storagePath + SecurityUtils.getUserId() + "/";
 
@@ -326,9 +344,8 @@ public class FileManager {
 
 
         // 找出物理文件
-        String[] split = f.getName().split("\\.");
-        // todo 有问题这名字
-        String s = path + f.getName() + "_" + md5File.getMd5() + "." + split[split.length - 1];
+        int lastedIndexOf = f.getName().lastIndexOf('.');
+        String s = path + md5File.getMd5() + f.getName().substring(lastedIndexOf);
         java.io.File file = new java.io.File(s);
         fileDownloadHandle.download(file, f.getName(), request, response);
         log.info(f.getName() + "下载完成！");

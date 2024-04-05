@@ -8,15 +8,16 @@ import com.ginDriver.main.domain.dto.file.PreUploadDTO;
 import com.ginDriver.main.domain.vo.FileVO;
 import com.ginDriver.main.file.FileManager;
 import com.ginDriver.main.file.domain.dto.PreUploadRespDTO;
+import com.ginDriver.main.file.download.MediaDownloadHandler;
 import com.ginDriver.main.service.FileService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author DueGin
@@ -32,6 +33,12 @@ public class FileController {
     @Resource
     private FileManager fileManager;
 
+    @Resource
+    private MediaDownloadHandler mediaDownloadHandler;
+
+    @Value("${gin-driver.file.prefixPath}")
+    private String prefixPath;
+
     @PostMapping("preUpload")
     public PreUploadRespDTO preUpload(@RequestBody PreUploadDTO dto) {
         return fileManager.preFileCheck(dto.getMd5(), dto.getContentType());
@@ -42,10 +49,10 @@ public class FileController {
         return fileService.upload(FileType.system, file);
     }
 
-    @PostMapping("upload/media")
-    public ResultVO<FileVO> uploadMedia(MultipartFile file) {
-        return fileService.upload(FileType.media, file);
-    }
+//    @PostMapping("upload/media")
+//    public ResultVO<FileVO> uploadMedia(MultipartFile file) {
+//        return fileService.upload(FileType.media, file);
+//    }
 
     @PostMapping("upload/movie")
     public ResultVO<FileVO> uploadMovie(MultipartFile file) {
@@ -65,5 +72,19 @@ public class FileController {
     public ResultVO<Void> delete(@RequestBody FileDTO dto) {
         Boolean deleted = fileService.deleteFile(dto.getBucketName(), dto.getFileName());
         return deleted ? ResultVO.ok("删除成功！") : ResultVO.fail("删除失败");
+    }
+
+    @GetMapping("download")
+    public void download(@RequestParam("fileId") Long fileId,
+                         HttpServletRequest request,
+                         HttpServletResponse response) {
+        fileManager.download(fileId, request, response);
+    }
+
+    @GetMapping("download/media")
+    public void downloadMedia(@RequestParam("fileId") Long fileId,
+                              HttpServletRequest request,
+                              HttpServletResponse response) {
+        mediaDownloadHandler.download(prefixPath + "/", fileId, request, response);
     }
 }

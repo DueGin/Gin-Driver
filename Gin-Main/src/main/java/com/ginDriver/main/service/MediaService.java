@@ -127,12 +127,13 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
         String objUrl = fileService.getObjUrl(FileType.media, uploadStatusDTO.getObjectName());
 
         return new FileVO()
-                .setFileName(uploadStatusDTO.getObjectName())
+                .setFileId(uploadStatusDTO.getFile().getId())
+                .setFileName(mediaFileUploadDTO.getName())
                 .setUrl(objUrl);
     }
 
     /**
-     * 获取媒体VO分页 todo 获取minio缩略图
+     * 获取媒体VO分页
      *
      * @param mediaPageDTO 分页查询对象
      * @return 带url的媒体VO分页
@@ -165,8 +166,8 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
     public void setObjectDbUrl(List<MediaVO> list) {
         list.forEach(vo -> {
             // 设置minio url
-//            String objUrl = fileService.getObjUrl(FileType.media, vo.getObjectName(), EXPIRE);
-            String objUrl = fileService.getFileBase64(FileType.media.name(), vo.getObjectName(), 0.7, 0.7, null, null);
+            String objUrl = fileService.getObjUrl(FileType.media, vo.getObjectName(), EXPIRE);
+//            String objUrl = fileService.getFileBase64(FileType.media.name(), vo.getObjectName(), 0.7, 0.7, null, null);
             vo.setUrl(objUrl);
             vo.setObjectName(null);
         });

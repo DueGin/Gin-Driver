@@ -13,4 +13,6 @@ public class FileVO {
     private String fileName;
 
     private String url;
+
+    private Long fileId;
 }

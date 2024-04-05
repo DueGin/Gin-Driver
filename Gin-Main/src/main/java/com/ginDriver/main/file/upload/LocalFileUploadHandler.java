@@ -6,7 +6,6 @@ import com.ginDriver.main.file.constants.UploadStatus;
 import com.ginDriver.main.file.domain.dto.ChunkDTO;
 import com.ginDriver.main.file.domain.dto.UploadStatusDTO;
 import com.ginDriver.main.file.generator.LocalFilePathGenerator;
-import com.ginDriver.main.file.utils.EncoderUtil;
 import com.ginDriver.main.security.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -66,7 +65,7 @@ public class LocalFileUploadHandler extends FileUploadHandler {
         // 分片存储路径
         String chunkPath = path + "chunks/";
         // 完整文件存储路径
-        String filePath = path + userId + "/";
+        String filePath = path + "/";
 
 
         BufferedOutputStream os = null;
@@ -74,38 +73,40 @@ public class LocalFileUploadHandler extends FileUploadHandler {
         try {
             // 分片文件
             if (chunks != null && chunk != null && chunks != 0) {
-                String tmpFileName = name + "_" + chunk;
-//                    String tmpFileName = chunkDto.getMd5();
+                String tmpFileName = getChunkName(chunk, name);
                 File tmpFile = new File(chunkPath, tmpFileName);
 
                 if (!tmpFile.exists()) {
                     // 没有文件夹则创建
-                    if (!tmpFile.getParentFile().exists()) {
-                        tmpFile.getParentFile().mkdirs();
-                    }
+                    mkdir(tmpFile);
                     file.transferTo(tmpFile); // 保存分片
                     log.info(name + "分片" + chunkDto.getChunk() + "上传成功！");
                 }
 
-                chunkDto.setMd5(EncoderUtil.fileToMd5(tmpFile));
                 chunkDto.setRealPath(chunkPath + tmpFileName);
 
                 // 存入集合列表中
                 FileManager.uploaded
                         .computeIfAbsent(userId, k -> new ConcurrentHashMap<>())
-                        .computeIfAbsent(name, k -> new ArrayList<>())
+                        .computeIfAbsent(chunkDto.getUploadId(), k -> new ArrayList<>())
                         .add(chunkDto);
 
                 res = UploadStatus.SUCCESS_CHUNK;
 
             } else {
                 // 非分片文件
-                String filePathName = filePath + name;
-                File wholeFile = new File(filePathName); // 通过md5命名文件
-                // 没有文件夹则创建
-                if (!wholeFile.getParentFile().exists()) {
-                    wholeFile.getParentFile().mkdirs();
+                int lastIndex = name.lastIndexOf('.');
+                String filePathName;
+                if (lastIndex != 0) {
+                    String ext = name.substring(lastIndex);
+                    // 合并后文件名，原文件名_md5值
+                    filePathName = filePath + chunkDto.getMd5() + ext;
+                } else {
+                    // 合并后文件名，原文件名_md5值
+                    filePathName = filePath + chunkDto.getMd5();
                 }
+                File wholeFile = new File(filePathName); // 通过md5命名文件
+                mkdir(wholeFile);
 
                 // 保存文件
                 file.transferTo(wholeFile);
@@ -125,23 +126,34 @@ public class LocalFileUploadHandler extends FileUploadHandler {
 
             // 分片收集完成后，才开始合并
             if (chunks == size) {
-                // 合并后文件名，原文件名_md5值
-                String filePathName = filePath + name;
+                int lastIndex = name.lastIndexOf('.');
+                String filePathName;
+                if (lastIndex != 0) {
+                    String ext = name.substring(lastIndex);
+                    // 合并后文件名，原文件名_md5值
+                    filePathName = filePath + chunkDto.getMd5() + ext;
+                } else {
+                    // 合并后文件名，原文件名_md5值
+                    filePathName = filePath + chunkDto.getMd5();
+                }
+
                 File wholeFile = new File(filePathName);
+                // 创建文件夹
+                mkdir(wholeFile);
                 FileOutputStream fileOutputStream = new FileOutputStream(wholeFile);
                 os = new BufferedOutputStream(fileOutputStream);
 
                 // 读取存储的分片
                 for (int i = 0; i < chunks; i++) {
-                    File tmpFile = new File(chunkPath, name + "_" + i);
+                    File tmpFile = new File(chunkPath, getChunkName(i + 1, name));
                     while (!tmpFile.exists()) {
-                        log.error("分片文件不存在 ==> 文件路径: {}", chunkPath + name + "_" + i);
+                        log.error("分片文件不存在 ==> 文件路径: {}", chunkPath + getChunkName(i + 1, name));
                         TimeUnit.MILLISECONDS.sleep(500);
                     }
                     byte[] bytes = FileUtils.readFileToByteArray(tmpFile);
                     os.write(bytes);
                     os.flush();
-                    // 删除分片， todo 后台异步删除
+                    // 删除分片
                     tmpFile.delete();
                 }
 
@@ -167,4 +179,14 @@ public class LocalFileUploadHandler extends FileUploadHandler {
         return new UploadStatusDTO(res);
     }
 
+    private static void mkdir(File wholeFile) {
+        // 没有文件夹则创建
+        if (!wholeFile.getParentFile().exists()) {
+            wholeFile.getParentFile().mkdirs();
+        }
+    }
+
+    private String getChunkName(Integer index, String name) {
+        return name + "_" + index;
+    }
 }
