@@ -8,6 +8,8 @@ import com.ginDriver.main.mapper.Md5FileMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * @author DueGin
  */
@@ -26,6 +28,10 @@ public class Md5FileService extends MyServiceImpl<Md5FileMapper, Md5File> {
         QueryWrapper<Md5File> qw = new QueryWrapper<>();
         qw.lambda().eq(Md5File::getMd5, md5).eq(Md5File::getContentType, contentType);
         return super.remove(qw);
+    }
+
+    public List<Md5File> getMd5FileRef0List(){
+        return super.lambdaQuery().eq(Md5File::getRef, 0).list();
     }
 }
 

@@ -15,6 +15,7 @@ import com.ginDriver.main.service.FileService;
 import com.ginDriver.main.service.Md5FileService;
 import com.ginDriver.main.service.MediaService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -66,8 +67,8 @@ public class DustbinManager {
                 break;
         }
 
-        // todo exp
-        remove(dto.getIds(), removeInDbFunction);
+        DustbinManager self = (DustbinManager) AopContext.currentProxy();
+        self.remove(dto.getIds(), removeInDbFunction);
     }
 
     @Transactional

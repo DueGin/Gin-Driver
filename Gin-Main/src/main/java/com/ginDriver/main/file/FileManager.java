@@ -255,7 +255,7 @@ public class FileManager {
 
             try {
                 // 文件入库,并增加md5文件引用
-                savedfile = self.saveFile(userId, md5, src, chunkDto.getContentType(), chunkDto.getName(), null);
+                savedfile = self.saveFile(userId, md5, dto.getSrc(), chunkDto.getContentType(), chunkDto.getName(), null);
             } catch (Exception e) {
                 log.error("已存在文件入库失败 ==> userId: {}, uploadId: {}, md5: {}", userId, uploadId, md5);
                 e.printStackTrace();
@@ -287,7 +287,7 @@ public class FileManager {
             }
 
             // 入库
-            savedfile = self.saveFile(userId, uploadDTO.getMd5(), src, chunkDto.getContentType(), chunkDto.getName(), objectName);
+            savedfile = self.saveFile(userId, uploadDTO.getMd5(), uploadDTO.getFilePath(), chunkDto.getContentType(), chunkDto.getName(), objectName);
             uploadDTO.setFile(savedfile);
 
             return uploadDTO;
