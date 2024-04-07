@@ -1,8 +1,8 @@
 package com.ginDriver.main.schedule;
 
 import com.ginDriver.main.domain.po.Md5File;
-import com.ginDriver.main.service.FileService;
 import com.ginDriver.main.service.Md5FileService;
+import com.ginDriver.main.service.MinioService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,7 +23,7 @@ public class FileJob {
     private Md5FileService md5FileService;
 
     @Resource
-    private FileService fileService;
+    private MinioService minioService;
 
     @Scheduled(cron = "0 0 2 * * ?")
     public void deleteFileRef0() {
@@ -35,7 +35,7 @@ public class FileJob {
                 file.delete();
             }
             if(StringUtils.isNotBlank(md5File.getObjectName())){
-                fileService.deleteFile("media", md5File.getObjectName());
+                minioService.deleteFile("media", md5File.getObjectName());
             }
             md5FileService.lambdaUpdate().eq(Md5File::getId, md5File.getId()).remove();
         });

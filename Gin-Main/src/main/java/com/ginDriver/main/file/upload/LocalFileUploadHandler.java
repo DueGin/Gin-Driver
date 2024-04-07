@@ -17,8 +17,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -87,9 +85,9 @@ public class LocalFileUploadHandler extends FileUploadHandler {
 
                 // 存入集合列表中
                 FileManager.uploaded
-                        .computeIfAbsent(userId, k -> new ConcurrentHashMap<>())
-                        .computeIfAbsent(chunkDto.getUploadId(), k -> new ArrayList<>())
-                        .add(chunkDto);
+//                        .computeIfAbsent(userId, k -> new ConcurrentHashMap<>())
+                        .computeIfAbsent(chunkDto.getMd5(), k -> new ArrayList<>())
+                        .add(chunkDto.getChunk());
 
                 res = UploadStatus.SUCCESS_CHUNK;
 
@@ -115,13 +113,10 @@ public class LocalFileUploadHandler extends FileUploadHandler {
             }
 
             // 获取已上传的分片数量
-            Map<String, List<ChunkDTO>> userUploadMap = FileManager.uploaded.get(userId);
+            List<Integer> chunkNumberList = FileManager.uploaded.get(chunkDto.getMd5());
             int size = 0;
-            if (userUploadMap != null) {
-                List<ChunkDTO> chunkDTOS = userUploadMap.get(uploadId);
-                if (chunkDTOS != null) {
-                    size = chunkDTOS.size();
-                }
+            if (chunkNumberList != null) {
+                size = chunkNumberList.size();
             }
 
             // 分片收集完成后，才开始合并

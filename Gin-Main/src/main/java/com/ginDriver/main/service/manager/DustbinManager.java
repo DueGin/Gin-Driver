@@ -10,10 +10,7 @@ import com.ginDriver.main.domain.vo.DustbinVO;
 import com.ginDriver.main.file.FileManager;
 import com.ginDriver.main.mapper.DustbinMapper;
 import com.ginDriver.main.security.utils.SecurityUtils;
-import com.ginDriver.main.service.DustbinService;
-import com.ginDriver.main.service.FileService;
-import com.ginDriver.main.service.Md5FileService;
-import com.ginDriver.main.service.MediaService;
+import com.ginDriver.main.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
@@ -50,6 +47,9 @@ public class DustbinManager {
 
     @Resource
     private Md5FileService md5FileService;
+
+    @Resource
+    private MinioService minioService;
 
     private static final Integer DUSTBIN_EXPIRE = 24 * 60 * 60;
 
@@ -122,7 +122,7 @@ public class DustbinManager {
 
         // 设置minio url
         page.getRecords().forEach(d -> {
-            String objUrl = fileService.getObjUrl(fileType.name(), d.getObjectName(), DUSTBIN_EXPIRE);
+            String objUrl = minioService.getObjUrl(fileType.name(), d.getObjectName(), DUSTBIN_EXPIRE);
             d.setUrl(objUrl);
             d.setObjectName(null);
         });

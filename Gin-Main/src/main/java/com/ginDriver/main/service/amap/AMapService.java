@@ -5,7 +5,7 @@ import com.ginDriver.main.constant.MinioConstant;
 import com.ginDriver.main.domain.vo.amap.AMapVO;
 import com.ginDriver.main.mapper.AMapMapper;
 import com.ginDriver.main.security.utils.SecurityUtils;
-import com.ginDriver.main.service.FileService;
+import com.ginDriver.main.service.MinioService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -25,14 +25,14 @@ public class AMapService {
     private AMapMapper aMapMapper;
 
     @Resource
-    private FileService fileService;
+    private MinioService minioService;
 
 
     public List<AMapVO> list() {
         List<AMapVO> voList = aMapMapper.selectAllByUserId(SecurityUtils.getUserId());
 
         voList.forEach(a -> {
-            String objUrl = fileService.getObjUrl(FileType.media, a.getObjectName(), MinioConstant.EXPIRE);
+            String objUrl = minioService.getObjUrl(FileType.media, a.getObjectName(), MinioConstant.EXPIRE);
             a.setUrl(objUrl);
             a.setObjectName(null);
         });

@@ -34,7 +34,7 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
     private UserMapper userMapper;
 
     @Resource
-    private FileService fileService;
+    private MinioService minioService;
 
     @Resource
     private UserRedis userRedis;
@@ -124,9 +124,9 @@ public class UserService extends MyServiceImpl<UserMapper, User> {
             throw new ApiException("登录用户异常");
         }
 
-        ResultVO<FileVO> vo = fileService.upload(FileType.system, file);
+        ResultVO<FileVO> vo = minioService.upload(FileType.system, file);
         if (StringUtils.isNotBlank(bo.getAvatar())) {
-            Boolean deleted = fileService.deleteFile(FileType.system, bo.getAvatar());
+            Boolean deleted = minioService.deleteFile(FileType.system, bo.getAvatar());
             if (!deleted) {
                 log.error("userId: {}, avatar: {} ==> 文件删除失败！", bo.getId(), bo.getAvatar());
             }

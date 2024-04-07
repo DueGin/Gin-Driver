@@ -20,6 +20,7 @@ import com.ginDriver.main.security.utils.SecurityUtils;
 import com.ginDriver.main.service.DustbinService;
 import com.ginDriver.main.service.FileService;
 import com.ginDriver.main.service.Md5FileService;
+import com.ginDriver.main.service.MinioService;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.lang3.StringUtils;
@@ -69,10 +70,13 @@ public class FileManager {
     @Resource
     private DustbinService dustbinService;
 
+    @Resource
+    private MinioService minioService;
     /**
      * 已上传的分片文件集合(userId, (uploadId, [..分片DTO]))
      */
-    public final static Map<Long, Map<String, List<ChunkDTO>>> uploaded = new ConcurrentHashMap<>();
+//    public final static Map<Long, Map<String, List<ChunkDTO>>> uploaded = new ConcurrentHashMap<>();
+    public final static Map<String, List<Integer>> uploaded = new ConcurrentHashMap<>();
 
     /**
      * 已合并的文件集合(uploadId, {filePath, md5})
@@ -321,7 +325,7 @@ public class FileManager {
 
             ByteArrayInputStream is = new ByteArrayInputStream(bytes);
 
-            return fileService.uploadWithType(fileType, file.getName(), contentType, is);
+            return minioService.uploadWithType(fileType, file.getName(), contentType, is);
         } catch (IOException e) {
             log.error("保存至minio失败 ==> " + e.getMessage());
             e.printStackTrace();

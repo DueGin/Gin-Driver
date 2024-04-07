@@ -47,6 +47,9 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
     @Resource
     private FileManager fileManager;
 
+    @Resource
+    private MinioService minioService;
+
     private static final Integer EXPIRE = 24 * 60 * 60;
 
 //    private static final Integer thumbnailSize = 1000000;
@@ -124,7 +127,7 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
             });
         }
 
-        String objUrl = fileService.getObjUrl(FileType.media, uploadStatusDTO.getObjectName());
+        String objUrl = minioService.getObjUrl(FileType.media, uploadStatusDTO.getObjectName());
 
         return new FileVO()
                 .setFileId(uploadStatusDTO.getFile().getId())
@@ -166,7 +169,7 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
     public void setObjectDbUrl(List<MediaVO> list) {
         list.forEach(vo -> {
             // 设置minio url
-            String objUrl = fileService.getObjUrl(FileType.media, vo.getObjectName(), EXPIRE);
+            String objUrl = minioService.getObjUrl(FileType.media, vo.getObjectName(), EXPIRE);
 //            String objUrl = fileService.getFileBase64(FileType.media.name(), vo.getObjectName(), 0.7, 0.7, null, null);
             vo.setUrl(objUrl);
             vo.setObjectName(null);

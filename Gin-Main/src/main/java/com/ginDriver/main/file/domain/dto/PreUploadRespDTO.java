@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * @author DueGin
  */
@@ -24,4 +26,9 @@ public class PreUploadRespDTO {
     private String src;
 
     private Integer fileType;
+
+    /**
+     * 未上传的分片（第几片）
+     */
+    private List<Integer> chunkList;
 }

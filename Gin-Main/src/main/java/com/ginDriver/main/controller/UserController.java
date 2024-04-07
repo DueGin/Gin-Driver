@@ -13,7 +13,7 @@ import com.ginDriver.main.domain.dto.user.UpdateUserDTO;
 import com.ginDriver.main.domain.dto.user.UserParam;
 import com.ginDriver.main.domain.vo.FileVO;
 import com.ginDriver.main.security.utils.SecurityUtils;
-import com.ginDriver.main.service.FileService;
+import com.ginDriver.main.service.MinioService;
 import com.ginDriver.main.service.UserService;
 import com.ginDriver.main.service.manager.UserManager;
 import io.swagger.annotations.Api;
@@ -50,7 +50,7 @@ public class UserController {
     private UserManager userManager;
 
     @Resource
-    private FileService fileService;
+    private MinioService minioService;
 
     @Resource
     private TokenRedis tokenRedis;
@@ -84,7 +84,7 @@ public class UserController {
 
             // 设置头像
             if (StringUtils.isNotBlank(bo.getAvatar())) {
-                String avatarUrl = fileService.getObjUrl(FileType.system, bo.getAvatar());
+                String avatarUrl = minioService.getObjUrl(FileType.system, bo.getAvatar());
                 vo.setAvatarUrl(avatarUrl);
             }
 
@@ -123,7 +123,7 @@ public class UserController {
             BeanUtils.copyProperties(bo, vo);
             String avatar = bo.getAvatar();
             if (StringUtils.isNotBlank(avatar)) {
-                String avatarUrl = fileService.getObjUrl(FileType.system, avatar);
+                String avatarUrl = minioService.getObjUrl(FileType.system, avatar);
                 vo.setAvatarUrl(avatarUrl);
             }
             Map<String, String> roleMap = bo.getRoleMap();
