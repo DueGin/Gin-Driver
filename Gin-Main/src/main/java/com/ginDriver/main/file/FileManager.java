@@ -294,6 +294,9 @@ public class FileManager {
             savedfile = self.saveFile(userId, uploadDTO.getMd5(), uploadDTO.getFilePath(), chunkDto.getContentType(), chunkDto.getName(), objectName);
             uploadDTO.setFile(savedfile);
 
+            // 删除uploaded
+            uploaded.remove(chunkDto.getMd5());
+
             return uploadDTO;
         } else {
             // todo 判断分片上传状态，再做其他操作，例如，记录已上传分片序号

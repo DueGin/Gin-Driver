@@ -63,8 +63,7 @@ public class LocalFileUploadHandler extends FileUploadHandler {
         // 分片存储路径
         String chunkPath = path + "chunks/";
         // 完整文件存储路径
-        String filePath = path + "/";
-
+        String filePath = path;
 
         BufferedOutputStream os = null;
 

@@ -85,7 +85,9 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
 
         // 传完了，且合并完了
 
+        // 拿出临时保存的exif信息
         Media m = UPLOAD_INFO_MAP.get(uploadId);
+        UPLOAD_INFO_MAP.remove(uploadId);
         if (m == null) {
             log.error("上传文件有误 ==> uploadId: {}, uploadStatusDTO: {}", uploadId, uploadStatusDTO);
             throw new ApiException("上传文件有误");
