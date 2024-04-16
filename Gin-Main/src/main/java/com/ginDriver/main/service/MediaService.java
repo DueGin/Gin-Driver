@@ -1,5 +1,6 @@
 package com.ginDriver.main.service;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ginDriver.core.exception.ApiException;
@@ -126,8 +127,8 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
                     log.warn("无法获取行政区编码 ==> lat: {}, lng: {}, userId: {}, mediaId: {}, exifId: {}", latitude, longitude, userId, m.getId(), m.getId());
                 }
             });
-        }else{
-            log.error("有误 ==> 获取adcode: {}, {}", longitude, latitude);
+        } else {
+            log.error("媒体数据不存在地理位置信息 ==> {}", JSON.toJSONString(m));
         }
 
         String objUrl = minioService.getObjUrl(FileType.media, uploadStatusDTO.getObjectName());
