@@ -86,8 +86,7 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
         // 传完了，且合并完了
 
         // 拿出临时保存的exif信息
-        Media m = UPLOAD_INFO_MAP.get(uploadId);
-        UPLOAD_INFO_MAP.remove(uploadId);
+        Media m = UPLOAD_INFO_MAP.remove(uploadId);
         if (m == null) {
             log.error("上传文件有误 ==> uploadId: {}, uploadStatusDTO: {}", uploadId, uploadStatusDTO);
             throw new ApiException("上传文件有误");
@@ -105,8 +104,8 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
             fileService.lambdaUpdate().set(File::getType, FileType.media.ordinal()).eq(File::getId, m.getFileId()).update();
         }
 
-        String longitude = mediaFileUploadDTO.getLongitude();
-        String latitude = mediaFileUploadDTO.getLatitude();
+        String longitude = m.getLongitude();
+        String latitude = m.getLatitude();
         // 获取高德地图行政区编码
         if (StringUtils.isNotBlank(longitude) && StringUtils.isNotBlank(latitude)) {
             serviceExecutor.execute(() -> {
@@ -127,6 +126,8 @@ public class MediaService extends MyServiceImpl<MediaMapper, Media> {
                     log.warn("无法获取行政区编码 ==> lat: {}, lng: {}, userId: {}, mediaId: {}, exifId: {}", latitude, longitude, userId, m.getId(), m.getId());
                 }
             });
+        }else{
+            log.error("有误 ==> 获取adcode: {}, {}", longitude, latitude);
         }
 
         String objUrl = minioService.getObjUrl(FileType.media, uploadStatusDTO.getObjectName());
