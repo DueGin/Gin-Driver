@@ -318,13 +318,18 @@ public class FileManager {
         // 存入minio
         try (FileInputStream fis = new FileInputStream(file)) {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            // 压缩图片 todo 后面抽离出来，做成oss策略
-            Thumbnails.of(fis)
-                    .scale(1) // 缩放比例
-                    .outputQuality(0.5) // 质量
-                    .toOutputStream(bos);
 
-            byte[] bytes = bos.toByteArray();
+            byte[] bytes;
+            // 压缩图片 todo 后面抽离出来，做成oss策略
+            if (!filePath.endsWith(".mp4") && !filePath.endsWith(".mov")) {
+                Thumbnails.of(fis)
+                        .scale(1) // 缩放比例
+                        .outputQuality(0.5) // 质量
+                        .toOutputStream(bos);
+                bytes = bos.toByteArray();
+            } else {
+                bytes = fis.readAllBytes();
+            }
 
             ByteArrayInputStream is = new ByteArrayInputStream(bytes);
 
